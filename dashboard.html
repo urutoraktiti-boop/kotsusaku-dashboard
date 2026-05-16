@@ -448,12 +448,28 @@ body::before {
     <div class="section">
       <div class="section-label">🌱 冒険の仲間たち</div>
 
+      <!-- 冒険をはじめた仲間（users） -->
       <div class="nakama-card">
-        <div class="nakama-title">仲間の数</div>
+        <div class="nakama-title">🌱 冒険をはじめた仲間</div>
         <div class="nakama-num" id="kpi-total">-</div>
-        <div class="nakama-copy">コツサクで冒険を始めた仲間たち。みんな今日も1マスを刻んでいます。</div>
+        <div class="nakama-copy">コツサクで冒険をはじめた仲間の総数です。</div>
         <div class="icon-crowd" id="gorilla-crowd"></div>
         <div class="crowd-overflow" id="gorilla-overflow"></div>
+      </div>
+
+      <!-- 今も冒険中の仲間（analytics） -->
+      <div class="nakama-card" style="border-color:var(--sakura-light);margin-top:12px;">
+        <div class="nakama-title">🥦 今も冒険中の仲間</div>
+        <div class="nakama-num" id="kpi-active-now" style="color:var(--sakura-dark);">-</div>
+        <div class="nakama-copy">最近アプリを開いてくれた仲間たち。今日も1マスを刻んでいます。</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-top:10px;flex-wrap:wrap;">
+          <div style="font-size:.65rem;color:var(--muted);">
+            😴 久しぶりの仲間：<strong id="kpi-sleeping" style="color:var(--text);">-</strong>
+          </div>
+          <div style="font-size:.65rem;color:var(--muted);">
+            🤝 再会率：<strong id="kpi-reunion" style="color:var(--green-dark);">-</strong>
+          </div>
+        </div>
       </div>
 
       <div class="kpi-grid">
@@ -730,11 +746,17 @@ async function loadData(){
   document.getElementById('error-area').innerHTML='';
 
   try {
-    const snap=await db.collection('analytics').get();
-    const docs=snap.docs.map(d=>d.data());
+    const [analyticsSnap, usersSnap] = await Promise.all([
+      db.collection('analytics').get(),
+      db.collection('users').get()
+    ]);
+    const docs=analyticsSnap.docs.map(d=>d.data());
     const total=docs.length;
+    const totalRegistered=usersSnap.size;
+    const sleeping=Math.max(totalRegistered-total,0);
+    const reunionRate=totalRegistered>0?Math.round(total/totalRegistered*100):0;
 
-    if(!total){
+    if(!total && !totalRegistered){
       document.getElementById('error-area').innerHTML='<div class="error-msg">🥦 まだ軌跡がありません。アプリを開いてから再度確認してください。</div>';
       document.getElementById('loading').style.display='none';
       document.getElementById('dashboard').style.display='block';
@@ -746,10 +768,13 @@ async function loadData(){
     const pwaUsers=docs.filter(d=>d.isPWA).length;
     const totalMins=docs.reduce((s,d)=>s+(d.totalStudyMin||0),0);
     const avgDailyMins=avg(docs.map(d=>d.avgDailyMinutes||0));
-    const avgTotalMins=Math.round(totalMins/total);
+    const avgTotalMins=total>0?Math.round(totalMins/total):0;
     const avgStreak=avg(docs.map(d=>d.streakDays||0));
 
-    document.getElementById('kpi-total').textContent=total+'人';
+    document.getElementById('kpi-total').textContent=totalRegistered+'人';
+    document.getElementById('kpi-active-now').textContent=total+'人';
+    document.getElementById('kpi-sleeping').textContent=sleeping+'人';
+    document.getElementById('kpi-reunion').textContent=reunionRate+'%';
     document.getElementById('kpi-active').textContent=activeUsers+'人';
     document.getElementById('kpi-retention').textContent=pct(retained,total);
     document.getElementById('kpi-pwa').textContent=pct(pwaUsers,total);
@@ -759,7 +784,7 @@ async function loadData(){
     document.getElementById('kpi-avg-streak').textContent=avgStreak+'日';
 
     // ゴリラ群衆（最大100個表示）
-    renderCrowd('gorilla-crowd','gorilla-overflow','🦍',total,100);
+    renderCrowd('gorilla-crowd','gorilla-overflow','🦍',totalRegistered,100);
     // 桜アイコン（最大200個表示）
     renderSakura('sakura-crowd','sakura-overflow',totalMins,200);
 
