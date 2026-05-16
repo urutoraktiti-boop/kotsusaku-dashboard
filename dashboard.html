@@ -324,7 +324,7 @@ body::before {
 @media(max-width:580px){.two-col{grid-template-columns:1fr;}}
 
 .bar-chart{display:flex;flex-direction:column;gap:10px;}
-.bar-row{display:grid;grid-template-columns:88px 1fr 38px;align-items:center;gap:8px;}
+.bar-row{display:grid;grid-template-columns:88px 1fr 72px;align-items:center;gap:8px;}
 .bar-label{font-size:.6rem;color:var(--text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bar-track{background:var(--bg);border-radius:99px;height:10px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:99px;transition:width .7s cubic-bezier(.4,0,.2,1);}
@@ -682,15 +682,19 @@ function drawDonut(svgId, segments) {
   });
 }
 
-function drawBars(id,items,colorClass){
+function drawBars(id,items,colorClass,total){
   const el=document.getElementById(id); if(!el) return;
   const max=Math.max(...items.map(i=>i.value),1);
-  el.innerHTML=items.map(item=>`
+  el.innerHTML=items.map(item=>{
+    const p=total?Math.round(item.value/total*100):Math.round(item.value/max*100);
+    const countStr=total?`${p}%<span style="color:var(--muted);font-size:.52rem;font-weight:400;">（${item.value}人）</span>`:`${item.value}`;
+    return `
     <div class="bar-row">
       <div class="bar-label">${item.label}</div>
       <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${Math.round(item.value/max*100)}%"></div></div>
-      <div class="bar-count">${item.value}</div>
-    </div>`).join('');
+      <div class="bar-count">${countStr}</div>
+    </div>`;
+  }).join('');
 }
 
 function drawHourChart(data){
@@ -770,7 +774,7 @@ async function loadData(){
 
     const storyCount={};
     docs.forEach(d=>{const s=d.storyMode||'samurai';storyCount[s]=(storyCount[s]||0)+1;});
-    drawBars('bar-story',Object.entries(storyCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:STORY_NAMES[k]||k,value:v})),'sakura');
+    drawBars('bar-story',Object.entries(storyCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:STORY_NAMES[k]||k,value:v})),'sakura',total);
 
     const deviceCount={mobile:0,pc:0};
     docs.forEach(d=>{if(d.deviceType==='mobile')deviceCount.mobile++;else deviceCount.pc++;});
@@ -781,12 +785,12 @@ async function loadData(){
     ].map(item=>`<div class="donut-item">
       <div class="donut-dot" style="background:${item.color}"></div>
       <div class="donut-item-label">${item.label}</div>
-      <div class="donut-item-val">${item.value}人（${pct(item.value,total)}）</div>
+      <div class="donut-item-val">${pct(item.value,total)}<span style="color:var(--muted);font-size:.52rem;font-weight:400;">（${item.value}人）</span></div>
     </div>`).join('');
 
     const osCount={};
     docs.forEach(d=>{const o=d.os||'other';osCount[o]=(osCount[o]||0)+1;});
-    drawBars('bar-os',Object.entries(osCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:OS_NAMES[k]||k,value:v})),'green');
+    drawBars('bar-os',Object.entries(osCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:OS_NAMES[k]||k,value:v})),'green',total);
 
     const hourData=new Array(24).fill(0);
     docs.forEach(d=>{if(typeof d.accessHour==='number')hourData[d.accessHour]++;});
