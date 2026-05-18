@@ -632,19 +632,38 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
+// フィクション系ストーリーラベル（アプリ表示名と統一）
 const STORY_NAMES = {
-  gorilla:'🦍 ゴリラ成長記', samurai:'⚔️ 受験剣士の道',
-  space:'🚀 宇宙探検家の旅', itachacha:'🥦 正体不明育成記', spartan:'🐉 鬼教官の特訓'
+  gorilla:   '🦍 ゴリラ成長記',
+  samurai:   '⚔️ 受験剣士の道',
+  space:     '🚀 宇宙探検家の旅',
+  itachacha: '🥦 正体不明育成記',
+  spartan:   '🐉 鬼教官の特訓',
 };
-const LICENSE_NAMES = {
-  tax_accountant:'税理士・簿記1級',
-  real_estate:'宅建',
-  fp:'FP',
-  civil_servant:'公務員',
-  language:'語学',
-  cpa:'公認会計士',
-  undecided:'未定',
-  unanswered:'未回答',
+
+// 資格系ラベル：storyId → 表示名（アプリ設定画面と1対1で対応）
+const LICENSE_STORY_NAMES = {
+  boki3:      '📗 簿記3級',
+  boki2:      '📒 簿記2級',
+  zeirishi:   '🧮 税理士試験',
+  sharoshi:   '⚖️ 社労士',
+  takken:     '🏠 宅建',
+  fp2:        '💰 FP2級',
+  koumuin:    '🏛️ 公務員試験',
+  shindanshi: '💼 中小企業診断士',
+  kaikeishi:  '🔍 公認会計士',
+};
+
+// 旧バージョンのgrouped licenseCategory フォールバック用
+const LICENSE_CATEGORY_NAMES = {
+  tax_accountant: '🧮 税理士・簿記系',
+  real_estate:    '🏠 宅建',
+  fp:             '💰 FP',
+  civil_servant:  '🏛️ 公務員',
+  language:       '🌐 語学',
+  cpa:            '🔍 公認会計士',
+  undecided:      '❓ 未定',
+  unanswered:     '－ 未回答',
 };
 const OS_NAMES = {ios:'iOS',android:'Android',windows:'Windows',mac:'Mac',other:'その他'};
 const BADGE_NAMES = {
@@ -818,40 +837,48 @@ async function loadData(){
     document.getElementById('feat-crazy10').textContent=pct(crazy10Users,total);
     document.getElementById('feat-level').textContent='Lv.'+avgLevel;
 
-    // 物語の道（フィクション系のみ）・資格の道（資格系のみ）
-    const FICTION_IDS=['gorilla','samurai','space','itachacha','spartan'];
-    const LICENSE_IDS=['boki3','boki2','takken','sharoshi','zeirishi','fp2','koumuin','shindanshi','kaikeishi'];
-    const LICENSE_ID_MAP={
-      boki3:'tax_accountant', boki2:'tax_accountant', zeirishi:'tax_accountant',
-      sharoshi:'tax_accountant', takken:'real_estate', fp2:'fp',
-      koumuin:'civil_servant', shindanshi:'civil_servant', kaikeishi:'cpa',
-    };
-    const storyCount={};
-    const licenseCount={};
-    docs.forEach(d=>{
-      const s=d.storyMode||'samurai';
-      // licenseCategory が存在する場合はそちらを優先
-      const lc=d.licenseCategory;
-      if(lc){
-        const label=LICENSE_NAMES[lc]||lc;
-        licenseCount[label]=(licenseCount[label]||0)+1;
+    // 📖 物語の道 / 🎓 資格の道
+    // ─ 判定ルール ─────────────────────────────────────────────
+    // ① storyMode がフィクション系ID → 物語の道
+    // ② storyMode が資格系storyId  → 資格の道（storyIdラベル＝アプリ表示名）
+    // ③ ①②いずれでもなく licenseCategory あり → 資格の道（旧グループ値フォールバック）
+    // ④ 上記いずれにも該当しない → 除外
+    // ──────────────────────────────────────────────────────────
+    const FICTION_IDS  = ['gorilla','samurai','space','itachacha','spartan'];
+    const LICENSE_IDS  = ['boki3','boki2','takken','sharoshi','zeirishi','fp2','koumuin','shindanshi','kaikeishi'];
+    const storyCount   = {};
+    const licenseCount = {};
+
+    docs.forEach(d => {
+      const s  = d.storyMode || '';
+      const lc = d.licenseCategory || '';
+
+      if(FICTION_IDS.includes(s)){
+        // ① フィクション系
+        const label = STORY_NAMES[s] || s;
+        storyCount[label] = (storyCount[label] || 0) + 1;
+
       } else if(LICENSE_IDS.includes(s)){
-        // licenseCategory未送信・storyModeが資格系→資格の道へ
-        const lk=LICENSE_ID_MAP[s]||s;
-        const label=LICENSE_NAMES[lk]||lk;
-        licenseCount[label]=(licenseCount[label]||0)+1;
-      } else if(FICTION_IDS.includes(s)){
-        // フィクション系のみ物語の道へ
-        storyCount[s]=(storyCount[s]||0)+1;
+        // ② 資格系storyId → アプリ表示名と1対1
+        const label = LICENSE_STORY_NAMES[s] || s;
+        licenseCount[label] = (licenseCount[label] || 0) + 1;
+
+      } else if(lc && LICENSE_CATEGORY_NAMES[lc]){
+        // ③ 旧バージョンのグループ値フォールバック
+        const label = LICENSE_CATEGORY_NAMES[lc];
+        licenseCount[label] = (licenseCount[label] || 0) + 1;
       }
-      // 上記いずれにも該当しないIDは除外
+      // ④ 該当なし → 除外
     });
-    drawBars('bar-story',Object.entries(storyCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:STORY_NAMES[k]||k,value:v})),'sakura',total);
+
+    drawBars('bar-story',
+      Object.entries(storyCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v})),
+      'sakura', total);
 
     // 資格の道
-    const licenseEntries=Object.entries(licenseCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}));
-    if(licenseEntries.length>0){
-      drawBars('bar-license',licenseEntries,'green',total);
+    const licenseEntries = Object.entries(licenseCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}));
+    if(licenseEntries.length > 0){
+      drawBars('bar-license', licenseEntries, 'green', total);
     } else {
       document.getElementById('bar-license').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です（アプリ更新後に表示されます）</div>';
     }
