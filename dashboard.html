@@ -697,13 +697,23 @@ body::before {
   </div>
 
   <!-- ローディング -->
-  <div id="loading" class="loading-state">
+  <div id="loading" class="loading-state" style="display:none;">
     <div class="loading-chars">🥦</div>
     <div class="spinner"></div>
     <div class="loading-text">仲間たちの軌跡を集めています…</div>
   </div>
 
   <!-- ダッシュボード -->
+  <!-- 初期案内（ボタンを押す前） -->
+  <div id="initial-guide" style="text-align:center;padding:48px 20px;">
+    <div style="font-size:48px;margin-bottom:16px;">🥦</div>
+    <div style="font-size:15px;font-weight:900;color:var(--text);margin-bottom:8px;">データがまだ読み込まれていません</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+      上の「🔄 記録を更新する」ボタンを押して<br>仲間たちの軌跡を読み込んでください。<br>
+      <span style="font-size:10.5px;">（1日1回を推奨しています）</span>
+    </div>
+  </div>
+
   <div id="dashboard" style="display:none;">
 
     <!-- 学習時間 -->
@@ -2023,9 +2033,25 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
 
+// summaryから総学習時間をリアルタイムで取得してDBに表示
+async function loadTotalHoursFromSummary() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('analytics_summary').doc('summary').get();
+    if (snap.exists) {
+      const d = snap.data();
+      const el = document.getElementById('kpi-total-hours');
+      if (el && d.totalStudyMin) {
+        el.textContent = Math.round(d.totalStudyMin / 60).toLocaleString() + '時間';
+      }
+    }
+  } catch(e) { console.warn('summary load error:', e); }
+}
+
 async function loadData(){
   const btn=document.getElementById('refresh-btn');
   btn.classList.add('loading'); btn.textContent='軌跡を集めています…';
+  document.getElementById('initial-guide').style.display='none';
   document.getElementById('loading').style.display='flex';
   document.getElementById('dashboard').style.display='none';
   document.getElementById('error-area').innerHTML='';
@@ -2213,6 +2239,8 @@ async function loadData(){
 
 // 自動読み込みを廃止：ボタン押下時のみ読み込む
 updateBtnStatus();
+// summaryから総学習時間だけ読み込む（1件のみ・コスト最小）
+loadTotalHoursFromSummary();
 </script>
 </body>
 </html>
