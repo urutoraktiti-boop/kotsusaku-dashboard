@@ -2033,6 +2033,56 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
 
+// ══════════════════════════════════════
+// ダッシュボードキャッシュ機能
+// 前回読み込んだ表示数字をlocalStorageに保存・復元
+// ══════════════════════════════════════
+const DASHBOARD_CACHE_KEY = 'kotsusaku-dashboard-cache';
+
+// 表示中の数字をキャッシュに保存
+function saveDashboardCache(cacheData) {
+  try {
+    localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify({
+      savedAt: new Date().toISOString(),
+      data: cacheData,
+    }));
+  } catch(e) { console.warn('cache save error:', e); }
+}
+
+// キャッシュから数字を復元して表示
+function loadDashboardCache() {
+  try {
+    const raw = localStorage.getItem(DASHBOARD_CACHE_KEY);
+    if (!raw) return false;
+    const { savedAt, data } = JSON.parse(raw);
+    if (!data) return false;
+
+    // 各要素にキャッシュ値を反映
+    Object.entries(data).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    });
+
+    // キャッシュ日時をlast-updatedに表示
+    const lu = document.getElementById('last-updated');
+    if (lu) {
+      const d = new Date(savedAt);
+      lu.textContent = '前回更新: ' + d.toLocaleString('ja-JP') + '（キャッシュ）';
+    }
+
+    // 初期案内を非表示・ダッシュボードを表示
+    const guide = document.getElementById('initial-guide');
+    const dashboard = document.getElementById('dashboard');
+    if (guide) guide.style.display = 'none';
+    if (dashboard) dashboard.style.display = 'block';
+
+    return true;
+  } catch(e) {
+    console.warn('cache load error:', e);
+    return false;
+  }
+}
+
 // summaryから総学習時間をリアルタイムで取得してDBに表示
 async function loadTotalHoursFromSummary() {
   if (!db) return;
@@ -2225,6 +2275,20 @@ async function loadData(){
     loadDailyData();
 
     document.getElementById('last-updated').textContent='最終更新: '+new Date().toLocaleString('ja-JP');
+
+    // 表示数字をキャッシュに保存
+    const cacheIds = [
+      'kpi-total','kpi-active-now','kpi-sleeping','kpi-reunion',
+      'kpi-total-hours','kpi-avg-total','kpi-avg-streak',
+      'kpi-active','kpi-retention','kpi-pwa',
+      'last-updated'
+    ];
+    const cacheData = {};
+    cacheIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) cacheData[id] = el.textContent;
+    });
+    saveDashboardCache(cacheData);
     document.getElementById('loading').style.display='none';
     document.getElementById('dashboard').style.display='block';
 
@@ -2239,6 +2303,8 @@ async function loadData(){
 
 // 自動読み込みを廃止：ボタン押下時のみ読み込む
 updateBtnStatus();
+// キャッシュから前回のデータを復元
+loadDashboardCache();
 // summaryから総学習時間だけ読み込む（1件のみ・コスト最小）
 loadTotalHoursFromSummary();
 </script>
