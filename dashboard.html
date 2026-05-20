@@ -675,7 +675,7 @@ const BADGE_NAMES = {
   early:'🌅 早起き学習', night:'🌙 夜型学習',
 };
 
-function fmt(min){return min>=60?Math.round(min/60)+'h':min+'m';}
+function fmt(min){return Math.round(min/60).toLocaleString()+'時間';}
 function pct(n,t){return !t?'0%':Math.round(n/t*100)+'%';}
 function daysSince(iso){return !iso?9999:Math.floor((Date.now()-new Date(iso).getTime())/86400000);}
 function avg(arr){return !arr.length?0:Math.round(arr.reduce((s,v)=>s+v,0)/arr.length);}
@@ -712,7 +712,7 @@ function renderSakura(containerId, overflowId, totalMin, maxDisplay) {
   el.innerHTML = html;
   if (ov) {
     ov.textContent = count > maxDisplay
-      ? `🌸 × ${count.toLocaleString()} 個（${fmt(totalMin)} 分の軌跡！）`
+      ? `🌸 × ${count.toLocaleString()} 個（${Math.round(totalMin/60).toLocaleString()}時間の軌跡！）`
       : count > 0 ? `🌸 × ${count} 個（10分 × ${count} 回の軌跡）` : '';
   }
 }
@@ -871,14 +871,18 @@ async function loadData(){
       // ④ 該当なし → 除外
     });
 
+    // ストーリー選択者の合計（分母をHP基準「選択者の中での比率」に統一）
+    const storyTotal = Object.values(storyCount).reduce((s,v)=>s+v,0)
+                     + Object.values(licenseCount).reduce((s,v)=>s+v,0);
+
     drawBars('bar-story',
       Object.entries(storyCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v})),
-      'sakura', total);
+      'sakura', storyTotal);
 
     // 資格の道
     const licenseEntries = Object.entries(licenseCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}));
     if(licenseEntries.length > 0){
-      drawBars('bar-license', licenseEntries, 'green', total);
+      drawBars('bar-license', licenseEntries, 'green', storyTotal);
     } else {
       document.getElementById('bar-license').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です（アプリ更新後に表示されます）</div>';
     }
