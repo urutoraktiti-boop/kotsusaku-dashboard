@@ -947,11 +947,11 @@ function drawStoryHours(containerId, items) {
     const fillColor = isLicense
       ? 'background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));'
       : 'background:linear-gradient(90deg,var(--green-dark),var(--green));';
-    return \`<div class="storyhour-row">
+    return `<div class="storyhour-row">
       <div class="storyhour-label">\${item.label}</div>
       <div class="storyhour-track"><div class="storyhour-fill" style="width:\${pct}%;\${fillColor}"></div></div>
       <div class="storyhour-val">\${hrs}時間</div>
-    </div>\`;
+    </div>`;
   }).join('');
 }
 
@@ -975,11 +975,11 @@ function drawAvgDailyDist(containerId, docs) {
   el.innerHTML = buckets.map(b => {
     const h = Math.round(b.count / maxCount * 100);
     const pct = docs.length > 0 ? Math.round(b.count / docs.length * 100) : 0;
-    return \`<div class="vbar-col">
+    return `<div class="vbar-col">
       <div class="vbar-val">\${pct}%</div>
       <div class="vbar-bar" style="height:\${h}px;background:\${b.color};"></div>
       <div class="vbar-label">\${b.label}</div>
-    </div>\`;
+    </div>`;
   }).join('');
 }
 
@@ -1003,11 +1003,11 @@ function drawLevelDist(containerId, docs) {
   el.innerHTML = buckets.map(b => {
     const h = Math.round(b.count / maxCount * 100);
     const pct = docs.length > 0 ? Math.round(b.count / docs.length * 100) : 0;
-    return \`<div class="vbar-col">
+    return `<div class="vbar-col">
       <div class="vbar-val">\${pct}%</div>
       <div class="vbar-bar" style="height:\${h}px;background:\${b.color};"></div>
       <div class="vbar-label">\${b.label}</div>
-    </div>\`;
+    </div>`;
   }).join('');
 }
 
@@ -1025,10 +1025,10 @@ function drawHourChartV2(containerId, data) {
     else if (h >= 17 && h <= 22) cls = 'night';
     else if (h >= 23 || h <= 4)  cls = 'latenight';
     if (h === peakIdx && v > 0)  cls = (cls || 'night') + ' peak';
-    return \`<div class="hour-col-wrap">
+    return `<div class="hour-col-wrap">
       <div class="hour-bar-bg"><div class="hour-bar-fill \${cls}" style="height:\${ph}%"></div></div>
       <div class="hour-label">\${h}</div>
-    </div>\`;
+    </div>`;
   }).join('');
 }
 
