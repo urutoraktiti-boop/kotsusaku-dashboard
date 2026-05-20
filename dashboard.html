@@ -500,6 +500,25 @@ body::before {
 }
 .save-result.ok  { color: var(--green-dark); }
 .save-result.err { color: #dc2626; }
+
+/* ===== バッジランキング 2列表示 ===== */
+.badge-ranking-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media(max-width:600px){ .badge-ranking-grid { grid-template-columns: 1fr; } }
+.badge-col-title {
+  font-size: .6rem; font-weight: 900; color: var(--muted);
+  letter-spacing: .05em; margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid var(--border);
+}
+.badge-name-wrap { flex: 1; }
+.badge-story-sub {
+  font-size: .52rem; color: var(--green-dark);
+  font-weight: 700; margin-top: 1px;
+}
 .error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
 </style>
 </head>
@@ -554,6 +573,40 @@ body::before {
   <!-- ダッシュボード -->
   <div id="dashboard" style="display:none;">
 
+    <!-- 学習時間 -->
+    <div class="section">
+      <div class="section-label">⏱ みんなの軌跡</div>
+
+      <div class="time-card">
+        <div class="time-title">みんなの総学習時間</div>
+        <div class="time-num" id="kpi-total-hours">-</div>
+        <div class="nakama-copy" style="margin-bottom:12px;">仲間全員の10分が積み重なった軌跡。🌸1個 ＝ 10分です。</div>
+        <div class="sakura-crowd" id="sakura-crowd"></div>
+        <div class="crowd-overflow" id="sakura-overflow"></div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card sakura">
+          <span class="kpi-emoji">📅</span>
+          <div class="kpi-val" id="kpi-avg-daily">-</div>
+          <div class="kpi-lab">1日の平均学習時間</div>
+          <div class="kpi-copy">仲間の1日の平均コツコツ時間</div>
+        </div>
+        <div class="kpi-card gold">
+          <span class="kpi-emoji">📚</span>
+          <div class="kpi-val" id="kpi-avg-total">-</div>
+          <div class="kpi-lab">1人あたりの平均累計</div>
+          <div class="kpi-copy">1人が積み上げた平均時間</div>
+        </div>
+        <div class="kpi-card green">
+          <span class="kpi-emoji">🔥</span>
+          <div class="kpi-val" id="kpi-avg-streak">-</div>
+          <div class="kpi-lab">平均連続学習日数</div>
+          <div class="kpi-copy">仲間の平均コツコツ継続日数</div>
+        </div>
+      </div>
+    </div>
+
     <!-- 仲間の数 -->
     <div class="section">
       <div class="section-label">🌱 冒険の仲間たち</div>
@@ -604,172 +657,6 @@ body::before {
       </div>
     </div>
 
-    <!-- 学習時間 -->
-    <div class="section">
-      <div class="section-label">⏱ みんなの軌跡</div>
-
-      <div class="time-card">
-        <div class="time-title">みんなの総学習時間</div>
-        <div class="time-num" id="kpi-total-hours">-</div>
-        <div class="nakama-copy" style="margin-bottom:12px;">仲間全員の10分が積み重なった軌跡。🌸1個 ＝ 10分です。</div>
-        <div class="sakura-crowd" id="sakura-crowd"></div>
-        <div class="crowd-overflow" id="sakura-overflow"></div>
-      </div>
-
-      <div class="kpi-grid">
-        <div class="kpi-card sakura">
-          <span class="kpi-emoji">📅</span>
-          <div class="kpi-val" id="kpi-avg-daily">-</div>
-          <div class="kpi-lab">1日の平均学習時間</div>
-          <div class="kpi-copy">仲間の1日の平均コツコツ時間</div>
-        </div>
-        <div class="kpi-card gold">
-          <span class="kpi-emoji">📚</span>
-          <div class="kpi-val" id="kpi-avg-total">-</div>
-          <div class="kpi-lab">1人あたりの平均累計</div>
-          <div class="kpi-copy">1人が積み上げた平均時間</div>
-        </div>
-        <div class="kpi-card green">
-          <span class="kpi-emoji">🔥</span>
-          <div class="kpi-val" id="kpi-avg-streak">-</div>
-          <div class="kpi-lab">平均連続学習日数</div>
-          <div class="kpi-copy">仲間の平均コツコツ継続日数</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 物語・資格 -->
-    <div class="section">
-      <div class="section-label">📖 選んだ道</div>
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="chart-title">🥦 選んだ物語の道</div>
-          <div class="bar-chart" id="bar-story"></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">🎓 選んだ資格の道</div>
-          <div class="bar-chart" id="bar-license"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- デバイス -->
-    <div class="section">
-      <div class="section-label">📱 冒険スタイル</div>
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="chart-title">📱 デバイス & OS</div>
-          <div class="donut-wrap">
-            <svg width="80" height="80" viewBox="0 0 80 80" id="donut-device">
-              <circle cx="40" cy="40" r="28" fill="none" stroke="#f0ede8" stroke-width="12"/>
-            </svg>
-            <div class="donut-legend" id="legend-device"></div>
-          </div>
-          <div class="bar-chart" id="bar-os"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 時間帯 -->
-    <div class="section">
-      <div class="section-label">🌙 冒険の時間帯</div>
-      <div class="chart-card">
-        <div class="chart-title">⏰ 何時に冒険しているか（時間帯別アクセス数）</div>
-        <div class="hour-chart" id="hour-chart"></div>
-        <div style="font-size:.54rem;color:var(--muted);margin-top:8px;text-align:center;">🌸 ピーク時間帯はサクラ色で表示</div>
-      </div>
-    </div>
-
-    <!-- 機能活用 -->
-    <div class="section">
-      <div class="section-label">⚙️ 仲間たちの使い方</div>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-emoji">⏱</div>
-          <div class="feature-pct" id="feat-stopwatch">-</div>
-          <div class="feature-name">ストップウォッチ</div>
-          <div class="feature-copy">使って学習している仲間の割合</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-emoji">🎯</div>
-          <div class="feature-pct" id="feat-mycrazy">-</div>
-          <div class="feature-name">マイCrazy10設定</div>
-          <div class="feature-copy">自分だけの特訓枠を作った仲間</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-emoji">🔥</div>
-          <div class="feature-pct" id="feat-crazy10">-</div>
-          <div class="feature-name">Crazy10参加</div>
-          <div class="feature-copy">特別イベントに参加している仲間</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-emoji">⭐</div>
-          <div class="feature-pct" id="feat-level">-</div>
-          <div class="feature-name">平均レベル</div>
-          <div class="feature-copy">仲間の平均冒険レベル</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- バッジランキング -->
-    <div class="section">
-      <div class="section-label">🏅 人気バッジ TOP10</div>
-      <div class="chart-card">
-        <div class="chart-title">🌸 仲間たちが手にした勲章ランキング</div>
-        <div class="badge-list" id="badge-ranking"></div>
-      </div>
-    </div>
-
-
-    <!-- ストーリー別 総学習時間ランキング -->
-    <div class="section">
-      <div class="section-label">⏱ ストーリー別 総学習時間ランキング</div>
-      <div class="chart-card">
-        <div class="chart-title">⚔️🌸 どの道を歩む仲間が一番コツコツしているか</div>
-        <div class="storyhour-list" id="bar-story-hours"></div>
-      </div>
-    </div>
-
-    <!-- 1日平均学習時間 分布 -->
-    <div class="section">
-      <div class="section-label">📅 1日の平均学習時間 分布</div>
-      <div class="chart-card">
-        <div class="chart-title">⏱ 仲間たちは1日どれくらいコツコツしているか</div>
-        <div class="chart-legend">
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>〜30分</div>
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold);"></div>30〜60分</div>
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--sakura);"></div>60分〜</div>
-        </div>
-        <div class="vbar-chart" id="vbar-avg-daily"></div>
-      </div>
-    </div>
-
-    <!-- レベル分布 -->
-    <div class="section">
-      <div class="section-label">🏅 冒険者レベル分布</div>
-      <div class="chart-card">
-        <div class="chart-title">⭐ レベル帯ごとの仲間の人数</div>
-        <div class="vbar-chart" id="vbar-level"></div>
-      </div>
-    </div>
-
-    <!-- 時間帯グラフ（改良版：色分け） -->
-    <div class="section">
-      <div class="section-label">🌙 学習ピーク時間帯（改良版）</div>
-      <div class="chart-card">
-        <div class="chart-title">⏰ 朝型・夜型・深夜型 — いつコツコツしているか</div>
-        <div class="chart-legend">
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold);"></div>朝型（5〜11時）</div>
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>夜型（17〜22時）</div>
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#88aadd;"></div>深夜・早朝（23〜4時）</div>
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--bg);border:1px solid #ccc;"></div>昼間</div>
-        </div>
-        <div class="hour-chart" id="hour-chart-v2"></div>
-        <div class="hour-time-label">0時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 6時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 23時</div>
-      </div>
-    </div>
-
-
     <!-- ═══ Phase2：推移グラフ ═══ -->
     <div class="section">
       <div class="section-label">📈 みんなの軌跡 — 推移</div>
@@ -812,6 +699,160 @@ body::before {
         </div>
         <div class="stackbar-wrap" id="stackbar-story"></div>
         <div class="linechart-axis" id="stackbar-story-axis"></div>
+      </div>
+    </div>
+
+    <!-- 1日平均学習時間 分布 -->
+    <div class="section">
+      <div class="section-label">📅 1日の平均学習時間 分布</div>
+      <div class="chart-card">
+        <div class="chart-title">⏱ 仲間たちは1日どれくらいコツコツしているか</div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>〜30分</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold);"></div>30〜60分</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--sakura);"></div>60分〜</div>
+        </div>
+        <div class="vbar-chart" id="vbar-avg-daily"></div>
+      </div>
+    </div>
+
+    <!-- 継続中の仲間たち -->
+    <div class="section">
+      <div class="section-label">🔥 継続中の仲間たち</div>
+      <div class="chart-card">
+        <div class="chart-title">💪 コツコツ続けている仲間の分布</div>
+        <div class="badge-ranking-grid">
+          <div>
+            <div class="badge-col-title">📉 ○日以上継続（ファネル）</div>
+            <div id="keizoku-funnel"></div>
+          </div>
+          <div>
+            <div class="badge-col-title">📊 各ステージの人数分布</div>
+            <div id="keizoku-dist"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 物語・資格 -->
+    <div class="section">
+      <div class="section-label">📖 選んだ道</div>
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="chart-title">🥦 選んだ物語の道</div>
+          <div class="bar-chart" id="bar-story"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">🎓 選んだ資格の道</div>
+          <div class="bar-chart" id="bar-license"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ストーリー別 総学習時間ランキング -->
+    <div class="section">
+      <div class="section-label">⏱ ストーリー別 総学習時間ランキング</div>
+      <div class="chart-card">
+        <div class="chart-title">⚔️🌸 どの道を歩む仲間が一番コツコツしているか</div>
+        <div class="storyhour-list" id="bar-story-hours"></div>
+      </div>
+    </div>
+
+    <!-- 学習時間帯（既存＋改良 左右並び） -->
+    <div class="section">
+      <div class="section-label">🌙 冒険の時間帯</div>
+      <div class="chart-card">
+        <div class="chart-title">⏰ いつコツコツしているか — 2つの見方</div>
+        <div class="badge-ranking-grid">
+          <div>
+            <div class="badge-col-title">📊 シンプル分布</div>
+            <div class="hour-chart" id="hour-chart"></div>
+          </div>
+          <div>
+            <div class="badge-col-title">🎨 朝型・夜型・深夜 色分け</div>
+            <div class="chart-legend">
+              <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold);"></div>朝型（5〜11時）</div>
+              <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>夜型（17〜22時）</div>
+              <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#88aadd;"></div>深夜・早朝</div>
+            </div>
+            <div class="hour-chart" id="hour-chart-v2"></div>
+          </div>
+        </div>
+        <div class="hour-time-label">0時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 6時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 23時</div>
+      </div>
+    </div>
+    <!-- 機能活用 -->
+    <div class="section">
+      <div class="section-label">⚙️ 仲間たちの使い方</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-emoji">⏱</div>
+          <div class="feature-pct" id="feat-stopwatch">-</div>
+          <div class="feature-name">ストップウォッチ</div>
+          <div class="feature-copy">使って学習している仲間の割合</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-emoji">🎯</div>
+          <div class="feature-pct" id="feat-mycrazy">-</div>
+          <div class="feature-name">マイCrazy10設定</div>
+          <div class="feature-copy">自分だけの特訓枠を作った仲間</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-emoji">🔥</div>
+          <div class="feature-pct" id="feat-crazy10">-</div>
+          <div class="feature-name">Crazy10参加</div>
+          <div class="feature-copy">特別イベントに参加している仲間</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-emoji">⭐</div>
+          <div class="feature-pct" id="feat-level">-</div>
+          <div class="feature-name">平均レベル</div>
+          <div class="feature-copy">仲間の平均冒険レベル</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- バッジランキング -->
+    <div class="section">
+      <div class="section-label">🏅 人気バッジ TOP10</div>
+      <div class="chart-card">
+        <div class="chart-title">🌸 仲間たちが手にした勲章ランキング</div>
+        <div class="badge-ranking-grid">
+          <div>
+            <div class="badge-col-title">🅰️ ストーリー別ランキング</div>
+            <div class="badge-list" id="badge-ranking-a"></div>
+          </div>
+          <div>
+            <div class="badge-col-title">🅱️ バッジ合算ランキング</div>
+            <div class="badge-list" id="badge-ranking-b"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- レベル分布 -->
+    <div class="section">
+      <div class="section-label">🏅 冒険者レベル分布</div>
+      <div class="chart-card">
+        <div class="chart-title">⭐ レベル帯ごとの仲間の人数</div>
+        <div class="vbar-chart" id="vbar-level"></div>
+      </div>
+    </div>
+
+    <!-- デバイス -->
+    <div class="section">
+      <div class="section-label">📱 冒険スタイル</div>
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="chart-title">📱 デバイス & OS</div>
+          <div class="donut-wrap">
+            <svg width="80" height="80" viewBox="0 0 80 80" id="donut-device">
+              <circle cx="40" cy="40" r="28" fill="none" stroke="#f0ede8" stroke-width="12"/>
+            </svg>
+            <div class="donut-legend" id="legend-device"></div>
+          </div>
+          <div class="bar-chart" id="bar-os"></div>
+        </div>
       </div>
     </div>
 
@@ -1258,6 +1299,71 @@ async function loadDailyData() {
 }
 
 // ══════════════════════════════════════
+// 継続中の仲間たち：ファネル＋分布
+// ══════════════════════════════════════
+function drawKeizoku(docs) {
+  const total = docs.length;
+  const STAGES = [
+    { label: '全員',      min: 0  },
+    { label: '3日以上',   min: 3  },
+    { label: '5日以上',   min: 5  },
+    { label: '10日以上',  min: 10 },
+    { label: '14日以上',  min: 14 },
+    { label: '21日以上',  min: 21 },
+    { label: '30日以上',  min: 30 },
+  ];
+
+  // 各ステージの人数を集計
+  const counts = STAGES.map(s => ({
+    label: s.label,
+    min:   s.min,
+    count: docs.filter(d => (d.streakDays || 0) >= s.min).length,
+  }));
+
+  const maxCount = counts[0].count || 1;
+  const rankColors = ['#4caf82','#4caf82','#4caf82','#f5c842','#f5c842','#f97316','#e05a5a'];
+
+  // ファネル（左）
+  const funnelEl = document.getElementById('keizoku-funnel');
+  if (funnelEl) {
+    funnelEl.innerHTML = counts.map((s, i) => {
+      const pct = Math.round(s.count / maxCount * 100);
+      const ratePct = total > 0 ? Math.round(s.count / total * 100) : 0;
+      return '<div class="storyhour-row">'
+        + '<div class="storyhour-label">' + s.label + '</div>'
+        + '<div class="storyhour-track"><div class="storyhour-fill" style="width:' + pct + '%;background:' + rankColors[i] + ';"></div></div>'
+        + '<div class="storyhour-val">' + s.count + '人（' + ratePct + '%）</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  // 分布（右）：各ステージの「ちょうどそのステージにいる人数」
+  const distEl = document.getElementById('keizoku-dist');
+  if (distEl) {
+    const distItems = counts.map((s, i) => {
+      const nextMin = counts[i + 1] ? counts[i + 1].min : Infinity;
+      const nextCount = counts[i + 1] ? counts[i + 1].count : 0;
+      const label = i === 0 ? '1日〜2日'
+        : i === counts.length - 1 ? s.label
+        : s.min + '日〜' + (nextMin - 1) + '日';
+      const stageCount = i === counts.length - 1 ? s.count : s.count - nextCount;
+      return { label, count: stageCount, color: rankColors[i] };
+    });
+
+    const maxDist = Math.max(...distItems.map(d => d.count), 1);
+    distEl.innerHTML = distItems.map(d => {
+      const pct = Math.round(d.count / maxDist * 100);
+      const ratePct = total > 0 ? Math.round(d.count / total * 100) : 0;
+      return '<div class="storyhour-row">'
+        + '<div class="storyhour-label">' + d.label + '</div>'
+        + '<div class="storyhour-track"><div class="storyhour-fill" style="width:' + pct + '%;background:' + d.color + ';"></div></div>'
+        + '<div class="storyhour-val">' + d.count + '人（' + ratePct + '%）</div>'
+        + '</div>';
+    }).join('');
+  }
+}
+
+// ══════════════════════════════════════
 // Step2：今日の集計を保存する
 // analytics全件を集計して以下を更新：
 //   analytics_daily/YYYY-MM-DD
@@ -1342,19 +1448,132 @@ async function saveDailySnapshot() {
   }
 }
 
-function drawBadgeRanking(badgeMap){
-  const el=document.getElementById('badge-ranking'); if(!el) return;
-  const sorted=Object.entries(badgeMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const max=sorted[0]?.[1]||1;
-  const rankColors=['#f5c842','#94a3b8','#f97316'];
-  el.innerHTML=sorted.map(([id,count],i)=>`
-    <div class="badge-row">
-      <div class="badge-rank" style="color:${rankColors[i]||'#aaa'}">${i+1}</div>
-      <div class="badge-name">${BADGE_NAMES[id]||id}</div>
-      <div class="badge-bar-wrap"><div class="bar-track"><div class="bar-fill green" style="width:${Math.round(count/max*100)}%"></div></div></div>
-      <div class="badge-count-val">${count}人</div>
-    </div>`).join('');
+// ══════════════════════════════════════
+// バッジランキング 左右2列表示
+// 左：ストーリー別（タイプA）
+// 右：バッジ合算（タイプB）
+// ══════════════════════════════════════
+
+// ストーリーIDからラベルを返す
+function getStoryLabel(storyId) {
+  const STORY_LABELS = {
+    gorilla:   '🦍 ゴリラ成長記',
+    samurai:   '⚔️ 受験剣士の道',
+    space:     '🚀 宇宙探検家の旅',
+    itachacha: '🥦 正体不明育成記',
+    spartan:   '🐉 鬼教官の特訓',
+  };
+  return STORY_LABELS[storyId] || null;
 }
+
+// バッジIDからストーリーIDを抽出（例: itachacha_morning → itachacha）
+function extractStoryFromBadgeId(id) {
+  const FICTION_IDS = ['gorilla','samurai','space','itachacha','spartan'];
+  for (const s of FICTION_IDS) {
+    if (id.startsWith(s + '_')) return s;
+  }
+  return null;
+}
+
+// バッジIDから純粋なバッジIDを抽出（例: itachacha_morning → morning）
+function extractBaseBadgeId(id) {
+  const storyId = extractStoryFromBadgeId(id);
+  if (storyId) return id.slice(storyId.length + 1);
+  return id;
+}
+
+// 早朝バッジのラベルマップ
+const ASA_BADGE_NAMES = {
+  asa_first:   '🌅 夜明けの一歩',
+  asa_cnt10:   '🌤️ 朝活10回！ニヤニヤ',
+  asa_4set:    '⭐ 4SET、クリア。',
+  asa_str7:    '🔥 7日連続、尊い。',
+  asa_cnt30:   '☀️ 朝活30回！まじか',
+  asa_str30:   '🌙 30日、もはや習慣',
+  asa_cnt50:   '📣 朝の伝道師（自称）',
+  asa_cnt100:  '🌟 公認!?アンバサダー',
+  asa_str100:  '🏆 公認!?crazy',
+  asa_perfect: '💯 完璧な一週間',
+};
+
+// バッジIDから表示名を取得（全パターン対応）
+function getBadgeDisplayName(id) {
+  // 早朝バッジ
+  if (ASA_BADGE_NAMES[id]) return ASA_BADGE_NAMES[id];
+  // ストーリー別バッジ（例: itachacha_morning）
+  const storyId = extractStoryFromBadgeId(id);
+  if (storyId) {
+    const baseId = extractBaseBadgeId(id);
+    return BADGE_NAMES[baseId] || baseId;
+  }
+  // 共通バッジ
+  return BADGE_NAMES[id] || id;
+}
+
+// タイプA：ストーリー別ランキングを描画
+function drawBadgeRankingA(badgeMap) {
+  const el = document.getElementById('badge-ranking-a');
+  if (!el) return;
+  const rankColors = ['#f5c842','#94a3b8','#f97316'];
+  const sorted = Object.entries(badgeMap).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const max = sorted[0]?.[1] || 1;
+
+  el.innerHTML = sorted.map(([id, count], i) => {
+    const name      = getBadgeDisplayName(id);
+    const storyId   = extractStoryFromBadgeId(id);
+    const storyLabel = storyId ? getStoryLabel(storyId) : null;
+    const isAsa     = id.startsWith('asa_');
+    const subLabel  = isAsa ? '🌅 早朝自習室' : storyLabel ? storyLabel : '<span style="color:var(--muted);">共通バッジ</span>';
+    const pct       = Math.round(count / max * 100);
+
+    return '<div class="badge-row">'
+      + '<div class="badge-rank" style="color:' + (rankColors[i]||'#aaa') + '">' + (i+1) + '</div>'
+      + '<div class="badge-name-wrap">'
+      + '<div class="badge-name">' + name + '</div>'
+      + '<div class="badge-story-sub">' + subLabel + '</div>'
+      + '</div>'
+      + '<div class="badge-bar-wrap"><div class="bar-track"><div class="bar-fill green" style="width:' + pct + '%"></div></div></div>'
+      + '<div class="badge-count-val">' + count + '人</div>'
+      + '</div>';
+  }).join('');
+}
+
+// タイプB：バッジ合算ランキングを描画
+function drawBadgeRankingB(badgeMap) {
+  const el = document.getElementById('badge-ranking-b');
+  if (!el) return;
+  const rankColors = ['#f5c842','#94a3b8','#f97316'];
+
+  // 同じbaseBadgeIdで合算
+  const merged = {};
+  Object.entries(badgeMap).forEach(([id, count]) => {
+    const baseId = extractBaseBadgeId(id);
+    // 早朝バッジはそのまま（asa_firstなど）
+    const key = id.startsWith('asa_') ? id : baseId;
+    merged[key] = (merged[key] || 0) + count;
+  });
+
+  const sorted = Object.entries(merged).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const max = sorted[0]?.[1] || 1;
+
+  el.innerHTML = sorted.map(([id, count], i) => {
+    const name = getBadgeDisplayName(id);
+    const pct  = Math.round(count / max * 100);
+    return '<div class="badge-row">'
+      + '<div class="badge-rank" style="color:' + (rankColors[i]||'#aaa') + '">' + (i+1) + '</div>'
+      + '<div class="badge-name">' + name + '</div>'
+      + '<div class="badge-bar-wrap"><div class="bar-track"><div class="bar-fill green" style="width:' + pct + '%"></div></div></div>'
+      + '<div class="badge-count-val">' + count + '人</div>'
+      + '</div>';
+  }).join('');
+}
+
+// 旧drawBadgeRankingは両方を呼ぶように変更
+function drawBadgeRanking(badgeMap) {
+  drawBadgeRankingA(badgeMap);
+  drawBadgeRankingB(badgeMap);
+}
+
 
 async function loadData(){
   const btn=document.getElementById('refresh-btn');
@@ -1489,6 +1708,9 @@ async function loadData(){
     docs.forEach(d=>{if(Array.isArray(d.badgeList))d.badgeList.forEach(id=>{badgeMap[id]=(badgeMap[id]||0)+1;});});
     drawBadgeRanking(badgeMap);
 
+
+    // 継続中の仲間たち
+    drawKeizoku(docs);
 
     // ── Phase1 グラフ ──
     // ストーリー別 総学習時間ランキング
