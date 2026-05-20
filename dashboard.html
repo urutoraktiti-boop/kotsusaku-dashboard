@@ -565,10 +565,95 @@ body::before {
   padding: 8px 10px; margin-bottom: 10px;
   border-left: 3px solid var(--green);
 }
+/* ===== 確認ポップアップ ===== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+}
+.modal-overlay.active {
+  opacity: 1; pointer-events: all;
+}
+.modal-box {
+  background: white; border-radius: 20px;
+  padding: 28px 24px; max-width: 360px; width: 100%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  transform: translateY(12px);
+  transition: transform .2s ease;
+}
+.modal-overlay.active .modal-box {
+  transform: translateY(0);
+}
+.modal-icon { font-size: 32px; text-align: center; margin-bottom: 10px; }
+.modal-title {
+  font-size: 15px; font-weight: 900; text-align: center;
+  color: var(--text); margin-bottom: 8px;
+}
+.modal-body {
+  font-size: 11.5px; color: var(--muted); line-height: 1.8;
+  text-align: center; margin-bottom: 6px;
+}
+.modal-warning {
+  background: #fff8e8; border: 1.5px solid var(--gold);
+  border-radius: 10px; padding: 8px 12px;
+  font-size: 11px; color: #7a4f00; line-height: 1.7;
+  margin-bottom: 16px; text-align: left;
+}
+.modal-warning.hidden { display: none; }
+.modal-last {
+  font-size: 10.5px; color: var(--muted);
+  text-align: center; margin-bottom: 16px;
+}
+.modal-btns {
+  display: flex; gap: 10px;
+}
+.modal-btn-cancel {
+  flex: 1; padding: 10px;
+  background: var(--bg); border: 2px solid var(--bg);
+  border-radius: 99px; font-size: 12px; font-weight: 700;
+  color: var(--muted); cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.modal-btn-cancel:hover { border-color: var(--muted); }
+.modal-btn-ok {
+  flex: 2; padding: 10px;
+  background: var(--green-dark); border: 2px solid var(--green-dark);
+  border-radius: 99px; font-size: 12px; font-weight: 700;
+  color: white; cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.modal-btn-ok:hover { opacity: .85; }
+.modal-btn-ok.danger { background: var(--sakura-dark); border-color: var(--sakura-dark); }
+
+/* ボタンの更新済みバッジ */
+.btn-last-updated {
+  display: block; font-size: 9.5px; color: var(--muted);
+  margin-top: 4px; text-align: center; min-height: 14px;
+}
+
 .error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
 </style>
 </head>
 <body>
+
+
+<!-- 確認ポップアップ -->
+<div class="modal-overlay" id="confirm-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">📊</div>
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-warning hidden" id="modal-warning"></div>
+    <div class="modal-last" id="modal-last"></div>
+    <div class="modal-btns">
+      <button class="modal-btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="modal-btn-ok" id="modal-btn-ok" onclick="execModal()">✅ 読み込む</button>
+    </div>
+  </div>
+</div>
 
 <!-- 背景キャラ装飾 -->
 <div class="bg-deco">
@@ -600,12 +685,14 @@ body::before {
       <span class="float-char">🦍</span>
       <span class="float-char">🦍</span>
     </div>
-    <button class="refresh-btn" id="refresh-btn" onclick="loadData()">
+    <button class="refresh-btn" id="refresh-btn" onclick="showConfirmModal('load')">
       🔄 記録を更新する
     </button>
-    <button class="save-btn" id="save-btn" onclick="saveDailySnapshot()">
+    <span class="btn-last-updated" id="load-last-updated"></span>
+    <button class="save-btn" id="save-btn" onclick="showConfirmModal('save')">
       📦 今日の集計を保存する
     </button>
+    <span class="btn-last-updated" id="save-last-updated"></span>
     <div class="save-result" id="save-result"></div>
   </div>
 
@@ -1686,6 +1773,8 @@ async function saveDailySnapshot() {
 
     // 推移グラフを再読み込み
     await loadDailyData();
+    saveLastInfo(SAVE_KEY);
+    updateBtnStatus();
 
   } catch(e) {
     console.error('saveDailySnapshot error:', e);
@@ -1821,6 +1910,118 @@ function drawBadgeRanking(badgeMap) {
   drawBadgeRankingB(badgeMap);
 }
 
+
+// ══════════════════════════════════════
+// 確認ポップアップ＋1日1回制限
+// ══════════════════════════════════════
+const LOAD_KEY = 'kotsusaku-last-load';   // 最終読み込み日時
+const SAVE_KEY = 'kotsusaku-last-save';   // 最終保存日時
+
+function getTodayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getLastInfo(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    return JSON.parse(raw); // { date, time }
+  } catch(e) { return null; }
+}
+
+function saveLastInfo(key) {
+  const now = new Date();
+  localStorage.setItem(key, JSON.stringify({
+    date: now.toISOString().slice(0, 10),
+    time: now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
+  }));
+}
+
+function updateBtnStatus() {
+  // 更新ボタンの状態表示
+  const loadInfo = getLastInfo(LOAD_KEY);
+  const loadStatusEl = document.getElementById('load-last-updated');
+  if (loadStatusEl) {
+    if (loadInfo && loadInfo.date === getTodayStr()) {
+      loadStatusEl.textContent = '✅ 本日 ' + loadInfo.time + ' 更新済み';
+    } else {
+      loadStatusEl.textContent = '';
+    }
+  }
+
+  // 保存ボタンの状態表示
+  const saveInfo = getLastInfo(SAVE_KEY);
+  const saveStatusEl = document.getElementById('save-last-updated');
+  if (saveStatusEl) {
+    if (saveInfo && saveInfo.date === getTodayStr()) {
+      saveStatusEl.textContent = '✅ 本日 ' + saveInfo.time + ' 保存済み';
+    } else {
+      saveStatusEl.textContent = '';
+    }
+  }
+}
+
+// モーダルを表示して確認を取る
+function showConfirmModal(type) {
+  const overlay = document.getElementById('confirm-modal');
+  const icon    = document.getElementById('modal-icon');
+  const title   = document.getElementById('modal-title');
+  const body    = document.getElementById('modal-body');
+  const warning = document.getElementById('modal-warning');
+  const lastEl  = document.getElementById('modal-last');
+  const okBtn   = document.getElementById('modal-btn-ok');
+
+  const isLoad = type === 'load';
+  const key    = isLoad ? LOAD_KEY : SAVE_KEY;
+  const info   = getLastInfo(key);
+  const usedToday = info && info.date === getTodayStr();
+
+  icon.textContent  = isLoad ? '📊' : '📦';
+  title.textContent = isLoad ? 'データを読み込みますか？' : '集計を保存しますか？';
+  body.innerHTML    = isLoad
+    ? 'analytics・usersコレクションを全件読み取ります。<br>（約500〜1,000件）<br>1日1回を推奨しています。'
+    : 'analytics全件を読み取って集計し、<br>analytics_dailyとsummaryを更新します。<br>1日1回を推奨しています。';
+
+  if (usedToday) {
+    warning.classList.remove('hidden');
+    warning.textContent = '⚠️ 本日 ' + info.time + ' にすでに' + (isLoad ? '更新' : '保存') + '済みです。再度実行すると追加の読み取りが発生します。';
+    okBtn.classList.add('danger');
+    okBtn.textContent = '⚠️ それでも' + (isLoad ? '読み込む' : '保存する');
+  } else {
+    warning.classList.add('hidden');
+    okBtn.classList.remove('danger');
+    okBtn.textContent = isLoad ? '✅ 読み込む' : '✅ 保存する';
+  }
+
+  lastEl.textContent = info
+    ? '前回：' + info.date + ' ' + info.time
+    : '前回：記録なし';
+
+  overlay.dataset.type = type;
+  overlay.classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('confirm-modal').classList.remove('active');
+}
+
+function execModal() {
+  const overlay = document.getElementById('confirm-modal');
+  const type = overlay.dataset.type;
+  closeModal();
+  if (type === 'load') {
+    saveLastInfo(LOAD_KEY);
+    updateBtnStatus();
+    loadData();
+  } else {
+    saveDailySnapshot();
+  }
+}
+
+// ESCキーでモーダルを閉じる
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
 
 async function loadData(){
   const btn=document.getElementById('refresh-btn');
@@ -2010,7 +2211,8 @@ async function loadData(){
   btn.classList.remove('loading');btn.textContent='🔄 記録を更新する';
 }
 
-loadData();
+// 自動読み込みを廃止：ボタン押下時のみ読み込む
+updateBtnStatus();
 </script>
 </body>
 </html>
