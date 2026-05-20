@@ -559,6 +559,12 @@ body::before {
 .reunion-flow-bar { height: 4px; border-radius: 99px; margin-top: 5px; }
 .reunion-flow-arrow { text-align: center; font-size: 14px; color: var(--muted); margin: -1px 0; padding: 0 12px; }
 
+.reunion-note {
+  font-size: .58rem; color: var(--muted); line-height: 1.7;
+  background: var(--bg); border-radius: 8px;
+  padding: 8px 10px; margin-bottom: 10px;
+  border-left: 3px solid var(--green);
+}
 .error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
 </style>
 </head>
@@ -670,7 +676,7 @@ body::before {
             😴 久しぶりの仲間：<strong id="kpi-sleeping" style="color:var(--text);">-</strong>
           </div>
           <div style="font-size:.65rem;color:var(--muted);">
-            🤝 再会率：<strong id="kpi-reunion" style="color:var(--green-dark);">-</strong>
+            🥦 コツコツ軌跡率：<strong id="kpi-reunion" style="color:var(--green-dark);">-</strong>
           </div>
         </div>
       </div>
@@ -697,16 +703,16 @@ body::before {
       </div>
     </div>
 
-    <!-- 再開率・継続の旅路 -->
+    <!-- コツコツ軌跡率・継続の旅路 -->
     <div class="section">
-      <div class="section-label">🔄 再開率・継続の旅路</div>
+      <div class="section-label">🥦 コツコツ軌跡率・継続の旅路</div>
 
       <!-- 上段：案2（ゲージ）+ 案3（ドーナツ） -->
       <div class="badge-ranking-grid" style="margin-bottom:14px;">
 
         <!-- 案2：半円ゲージ -->
         <div class="chart-card">
-          <div class="badge-col-title">🎯 再開率ゲージ</div>
+          <div class="badge-col-title">🥦 コツコツ軌跡率ゲージ</div>
           <div class="reunion-gauge-wrap">
             <div class="reunion-gauge-svg-wrap">
               <svg id="gauge-svg" viewBox="0 0 180 100">
@@ -717,7 +723,7 @@ body::before {
               </svg>
               <div class="reunion-gauge-center">
                 <div class="reunion-gauge-val" id="gauge-pct">-</div>
-                <div class="reunion-gauge-label">再開率</div>
+                <div class="reunion-gauge-label">コツコツ軌跡率</div>
               </div>
             </div>
             <div class="reunion-gauge-legend">
@@ -736,6 +742,10 @@ body::before {
         <!-- 案3：ドーナツ＋数値 -->
         <div class="chart-card">
           <div class="badge-col-title">🍩 内訳ドーナツ</div>
+          <div class="reunion-note">
+            📝 アプリを登録した仲間のうち、1回以上学習記録をつけた人の割合。<br>
+            計算式：学習記録あり ÷ 登録者総数 × 100
+          </div>
           <div class="reunion-donut-section">
             <div class="reunion-donut-wrap">
               <svg viewBox="0 0 120 120">
@@ -749,7 +759,7 @@ body::before {
               </svg>
               <div class="reunion-donut-center">
                 <div class="reunion-donut-pct" id="donut-pct">-</div>
-                <div class="reunion-donut-sub">再開率</div>
+                <div class="reunion-donut-sub">コツコツ軌跡率</div>
               </div>
             </div>
             <div class="reunion-donut-stats">
@@ -795,6 +805,23 @@ body::before {
       </div>
     </div>
 
+    <!-- 継続中の仲間たち -->
+    <div class="section">
+      <div class="section-label">🔥 継続中の仲間たち</div>
+      <div class="chart-card">
+        <div class="chart-title">💪 コツコツ続けている仲間の分布</div>
+        <div class="badge-ranking-grid">
+          <div>
+            <div class="badge-col-title">📉 ○日以上継続（ファネル）</div>
+            <div id="keizoku-funnel"></div>
+          </div>
+          <div>
+            <div class="badge-col-title">📊 各ステージの人数分布</div>
+            <div id="keizoku-dist"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- ═══ Phase2：推移グラフ ═══ -->
     <div class="section">
       <div class="section-label">📈 みんなの軌跡 — 推移</div>
@@ -854,23 +881,6 @@ body::before {
       </div>
     </div>
 
-    <!-- 継続中の仲間たち -->
-    <div class="section">
-      <div class="section-label">🔥 継続中の仲間たち</div>
-      <div class="chart-card">
-        <div class="chart-title">💪 コツコツ続けている仲間の分布</div>
-        <div class="badge-ranking-grid">
-          <div>
-            <div class="badge-col-title">📉 ○日以上継続（ファネル）</div>
-            <div id="keizoku-funnel"></div>
-          </div>
-          <div>
-            <div class="badge-col-title">📊 各ステージの人数分布</div>
-            <div id="keizoku-dist"></div>
-          </div>
-        </div>
-      </div>
-    </div>
     <!-- 物語・資格 -->
     <div class="section">
       <div class="section-label">📖 選んだ道</div>
@@ -1498,7 +1508,6 @@ function drawReunion(totalRegistered, total, activeUsers, retained) {
       { label: '登録者',       count: totalRegistered, base: totalRegistered, color: 'linear-gradient(90deg,var(--green-dark),var(--green))' },
       { label: '学習記録あり', count: total,            base: totalRegistered, color: 'linear-gradient(90deg,var(--green-dark),var(--green))' },
       { label: '今週アクティブ', count: activeUsers,   base: totalRegistered, color: 'linear-gradient(90deg,var(--gold-dark),var(--gold))' },
-      { label: '30日継続',     count: retained,         base: totalRegistered, color: 'linear-gradient(90deg,var(--sakura-dark),var(--sakura))' },
     ];
     funnelEl.innerHTML = stages.map(s => {
       const pct  = s.base > 0 ? Math.round(s.count / s.base * 100) : 0;
@@ -1518,9 +1527,9 @@ function drawReunion(totalRegistered, total, activeUsers, retained) {
   if (flowEl) {
     const steps = [
       { icon: '📥', name: 'STEP 1：登録',          val: fmtCount(totalRegistered),            pct: '100%',           barW: 100,          color: 'var(--green)',  bg: 'var(--green-light)' },
-      { icon: '📖', name: 'STEP 2：学習記録あり',   val: fmtVal(reunionRate, total),           pct: '登録者の ' + reunionRate + '%（再開率）', barW: reunionRate, color: 'var(--green)',  bg: 'var(--green-light)' },
+      { icon: '📖', name: 'STEP 2：学習記録あり',   val: fmtVal(reunionRate, total),           pct: '登録者の ' + reunionRate + '%（コツコツ軌跡率）', barW: reunionRate, color: 'var(--green)',  bg: 'var(--green-light)' },
       { icon: '🔥', name: 'STEP 3：今週アクティブ', val: fmtVal(active7Rate, activeUsers),     pct: '学習者の ' + active7Rate + '%',         barW: active7Rate,  color: 'var(--gold)',   bg: '#fffbf0' },
-      { icon: '🏅', name: 'STEP 4：30日以上継続',  val: fmtVal(retainedRate, retained),       pct: '学習者の ' + retainedRate + '%',        barW: retainedRate, color: 'var(--sakura)', bg: 'var(--sakura-light)' },
+
     ];
     flowEl.innerHTML = steps.map((s, i) =>
       (i > 0 ? '<div class="reunion-flow-arrow">↓</div>' : '')
