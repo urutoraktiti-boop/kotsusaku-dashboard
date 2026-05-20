@@ -469,6 +469,37 @@ body::before {
   font-size: .65rem; color: var(--green-dark); line-height: 1.7;
   margin-bottom: 14px;
 }
+
+/* ===== Step2：集計保存ボタン ===== */
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green-dark);
+  border: 2px solid var(--green-dark);
+  border-radius: 99px;
+  padding: 10px 24px;
+  font-size: .72rem;
+  font-weight: 900;
+  font-family: inherit;
+  color: white;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 3px 3px 0 var(--green-light);
+  margin-top: 10px;
+}
+.save-btn:hover { opacity: .88; transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--green-light); }
+.save-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--green-light); }
+.save-btn.loading { opacity: .5; pointer-events: none; }
+.save-result {
+  margin-top: 10px;
+  font-size: .65rem;
+  font-weight: 700;
+  min-height: 20px;
+  text-align: center;
+}
+.save-result.ok  { color: var(--green-dark); }
+.save-result.err { color: #dc2626; }
 .error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
 </style>
 </head>
@@ -507,6 +538,10 @@ body::before {
     <button class="refresh-btn" id="refresh-btn" onclick="loadData()">
       🔄 記録を更新する
     </button>
+    <button class="save-btn" id="save-btn" onclick="saveDailySnapshot()">
+      📦 今日の集計を保存する
+    </button>
+    <div class="save-result" id="save-result"></div>
   </div>
 
   <!-- ローディング -->
@@ -1207,6 +1242,91 @@ async function loadDailyData() {
     console.warn('daily data load error:', e);
   }
 }
+// ══════════════════════════════════════
+// Step2：今日の集計を保存する
+// analytics全件を集計して以下を更新：
+//   analytics_daily/YYYY-MM-DD
+//   analytics_summary/summary（正確な値で上書き）
+// ══════════════════════════════════════
+async function saveDailySnapshot() {
+  const btn = document.getElementById('save-btn');
+  const resultEl = document.getElementById('save-result');
+  if (btn) { btn.classList.add('loading'); btn.textContent = '⏳ 集計中…'; }
+  if (resultEl) { resultEl.textContent = ''; resultEl.className = 'save-result'; }
+
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+
+    // analytics全件取得
+    const analyticsSnap = await db.collection('analytics').get();
+    const docs = analyticsSnap.docs.map(d => d.data());
+    const analyticsCount = docs.length;
+
+    // users全件取得
+    const usersSnap = await db.collection('users').get();
+    const usersCount = usersSnap.size;
+
+    // 総学習時間（分）
+    const totalStudyMin = docs.reduce((s, d) => s + (d.totalStudyMin || 0), 0);
+    const totalHours = Math.round(totalStudyMin / 60);
+
+    // ストーリー・資格の選択人数集計
+    const FICTION_IDS = ['gorilla','samurai','space','itachacha','spartan'];
+    const LICENSE_IDS = ['boki3','boki2','takken','sharoshi','zeirishi','fp2','koumuin','shindanshi','kaikeishi'];
+    const storyCount   = {};
+    const licenseCount = {};
+    docs.forEach(d => {
+      const s  = d.storyMode || '';
+      const lc = d.licenseCategory || '';
+      if (FICTION_IDS.includes(s)) {
+        storyCount[s] = (storyCount[s] || 0) + 1;
+      } else if (LICENSE_IDS.includes(s)) {
+        licenseCount[s] = (licenseCount[s] || 0) + 1;
+      } else if (lc) {
+        licenseCount[lc] = (licenseCount[lc] || 0) + 1;
+      }
+    });
+
+    const now = firebase.firestore.FieldValue.serverTimestamp();
+
+    // analytics_daily/{today} に保存
+    await db.collection('analytics_daily').doc(today).set({
+      date: today,
+      totalStudyMin,
+      analyticsCount,
+      usersCount,
+      storyCount,
+      licenseCount,
+      savedAt: now,
+    });
+
+    // analytics_summary/summary を正確な値で上書き
+    // （incrementではなくsetで上書きすることでズレを解消）
+    const storeCounts = {};
+    Object.assign(storeCounts, storyCount, licenseCount);
+    await db.collection('analytics_summary').doc('summary').set({
+      totalStudyMin,
+      userCount: analyticsCount,
+      storyCounts: storyCount,
+      licenseCounts: licenseCount,
+      updatedAt: now,
+    }, { merge: true });
+
+    const msg = today + ' の集計を保存しました（' + totalHours.toLocaleString() + '時間・' + analyticsCount + '人）';
+    if (resultEl) { resultEl.textContent = '✅ ' + msg; resultEl.className = 'save-result ok'; }
+    console.log('saveDailySnapshot:', msg);
+
+    // 推移グラフを再読み込み
+    await loadDailyData();
+
+  } catch(e) {
+    console.error('saveDailySnapshot error:', e);
+    if (resultEl) { resultEl.textContent = '❌ 保存に失敗しました: ' + e.message; resultEl.className = 'save-result err'; }
+  } finally {
+    if (btn) { btn.classList.remove('loading'); btn.textContent = '📦 今日の集計を保存する'; }
+  }
+}
+
 function drawBadgeRanking(badgeMap){
   const el=document.getElementById('badge-ranking'); if(!el) return;
   const sorted=Object.entries(badgeMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
