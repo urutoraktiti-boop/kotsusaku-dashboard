@@ -6,21 +6,20 @@
 <title>コツサク 軌跡の記録帳</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Kaisei+Tokumin:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --green: #4caf82;
-  --green-dark: #2d7a57;
-  --green-light: #d4f5e2;
-  --sakura: #f4a0c0;
-  --sakura-dark: #c04070;
-  --sakura-light: #fde8f0;
-  --gold: #f5c842;
-  --gold-dark: #b88a00;
+  --green: #35b95b;
+  --green-dark: #1f813d;
+  --green-light: #d8f7e0;
+  --sakura: #f06a9d;
+  --sakura-dark: #bd2a5c;
+  --sakura-light: #fce0ed;
+  --gold: #ffd94f;
+  --gold-dark: #c09600;
   --cream: #fffdf7;
   --bg: #f8f4ef;
-  --text: #2c2c2c;
-  --muted: #9a9080;
+  --text: #172033;
+  --muted: #647084;
   --white: #ffffff;
   --shadow: 0 4px 20px rgba(0,0,0,0.08);
   --shadow-pop: 4px 4px 0px rgba(0,0,0,0.12);
@@ -29,7 +28,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body {
-  font-family: 'Zen Maru Gothic', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -106,7 +105,7 @@ body::before {
   box-shadow: 3px 3px 0 var(--sakura-light);
 }
 .header-title {
-  font-family: 'Kaisei Tokumin', serif;
+  font-family: inherit;
   font-size: clamp(1.5rem, 4vw, 2.2rem);
   font-weight: 700;
   line-height: 1.4;
@@ -196,7 +195,7 @@ body::before {
   margin-bottom: 4px;
 }
 .nakama-num {
-  font-family: 'Kaisei Tokumin', serif;
+  font-family: inherit;
   font-size: 3rem;
   font-weight: 700;
   color: var(--green-dark);
@@ -261,7 +260,7 @@ body::before {
   margin-bottom: 4px;
 }
 .time-num {
-  font-family: 'Kaisei Tokumin', serif;
+  font-family: inherit;
   font-size: 2.4rem;
   font-weight: 700;
   color: var(--sakura-dark);
@@ -303,7 +302,7 @@ body::before {
 .kpi-card.sakura{border-color:var(--sakura-light);box-shadow:4px 4px 0 var(--sakura-light);}
 .kpi-card.gold{border-color:#fde8a0;box-shadow:4px 4px 0 #fde8a0;}
 .kpi-emoji{font-size:1.6rem;margin-bottom:8px;display:block;}
-.kpi-val{font-family:'Kaisei Tokumin',serif;font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-val{font-family:inherit;font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:4px;}
 .kpi-card.green .kpi-val{color:var(--green-dark);}
 .kpi-card.sakura .kpi-val{color:var(--sakura-dark);}
 .kpi-card.gold .kpi-val{color:var(--gold-dark);}
@@ -331,7 +330,7 @@ body::before {
 .bar-fill.green{background:linear-gradient(90deg,var(--green-dark),var(--green));}
 .bar-fill.sakura{background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));}
 .bar-fill.gold{background:linear-gradient(90deg,var(--gold-dark),var(--gold));}
-.bar-count{font-size:.62rem;font-weight:700;color:var(--text);text-align:right;font-family:'Kaisei Tokumin',serif;}
+.bar-count{font-size:.62rem;font-weight:700;color:var(--text);text-align:right;font-family:inherit;}
 
 /* ドーナツ */
 .donut-wrap{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
@@ -339,7 +338,7 @@ body::before {
 .donut-item{display:flex;align-items:center;gap:7px;font-size:.65rem;}
 .donut-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .donut-item-label{color:var(--muted);flex:1;}
-.donut-item-val{font-weight:700;color:var(--text);font-family:'Kaisei Tokumin',serif;}
+.donut-item-val{font-weight:700;color:var(--text);font-family:inherit;}
 
 /* 時間帯 */
 .hour-chart{display:flex;align-items:flex-end;gap:2px;height:72px;}
@@ -362,7 +361,7 @@ body::before {
 }
 .feature-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(0,0,0,.09);}
 .feature-emoji{font-size:1.8rem;margin-bottom:8px;}
-.feature-pct{font-family:'Kaisei Tokumin',serif;font-size:1.5rem;font-weight:700;color:var(--green-dark);margin-bottom:3px;}
+.feature-pct{font-family:inherit;font-size:1.5rem;font-weight:700;color:var(--green-dark);margin-bottom:3px;}
 .feature-name{font-size:.58rem;font-weight:700;color:var(--muted);}
 .feature-copy{font-size:.52rem;color:var(--muted);margin-top:3px;line-height:1.5;}
 
@@ -377,10 +376,10 @@ body::before {
   border:1.5px solid transparent;
 }
 .badge-row:hover{background:var(--green-light);border-color:var(--green);}
-.badge-rank{font-size:.6rem;font-weight:900;min-width:18px;text-align:center;font-family:'Kaisei Tokumin',serif;}
+.badge-rank{font-size:.6rem;font-weight:900;min-width:18px;text-align:center;font-family:inherit;}
 .badge-name{flex:1;font-size:.7rem;color:var(--text);}
 .badge-bar-wrap{width:64px;}
-.badge-count-val{font-size:.65rem;font-weight:700;color:var(--green-dark);font-family:'Kaisei Tokumin',serif;min-width:34px;text-align:right;}
+.badge-count-val{font-size:.65rem;font-weight:700;color:var(--green-dark);font-family:inherit;min-width:34px;text-align:right;}
 
 /* フッター */
 .footer{text-align:center;padding-top:40px;}
@@ -420,7 +419,7 @@ body::before {
 .storyhour-label { font-size: .6rem; color: var(--text); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .storyhour-track { background: var(--bg); border-radius: 99px; height: 11px; overflow: hidden; }
 .storyhour-fill { height: 100%; border-radius: 99px; transition: width .8s cubic-bezier(.4,0,.2,1); }
-.storyhour-val { font-size: .58rem; font-weight: 700; color: var(--text); text-align: right; font-family: 'Kaisei Tokumin', serif; }
+.storyhour-val { font-size: .58rem; font-weight: 700; color: var(--text); text-align: right; font-family: inherit; }
 
 
 /* ===== Phase2 推移グラフ ===== */
@@ -1036,11 +1035,11 @@ function drawAvgDailyDist(containerId, docs) {
   const el = document.getElementById(containerId);
   if (!el) return;
   const buckets = [
-    { label: '〜10分',  min: 0,   max: 10,  color: 'linear-gradient(to top,#2d7a57,var(--green))', count: 0 },
-    { label: '10〜30分', min: 10,  max: 30,  color: 'linear-gradient(to top,#2d7a57,var(--green))', count: 0 },
+    { label: '〜10分',  min: 0,   max: 10,  color: 'linear-gradient(to top,var(--green-dark),var(--green))', count: 0 },
+    { label: '10〜30分', min: 10,  max: 30,  color: 'linear-gradient(to top,var(--green-dark),var(--green))', count: 0 },
     { label: '30〜60分', min: 30,  max: 60,  color: 'linear-gradient(to top,#b88a00,var(--gold))',  count: 0 },
-    { label: '60〜90分', min: 60,  max: 90,  color: 'linear-gradient(to top,#c04070,var(--sakura))', count: 0 },
-    { label: '90分〜',  min: 90,  max: Infinity, color: 'linear-gradient(to top,#c04070,var(--sakura))', count: 0 },
+    { label: '60〜90分', min: 60,  max: 90,  color: 'linear-gradient(to top,var(--sakura-dark),var(--sakura))', count: 0 },
+    { label: '90分〜',  min: 90,  max: Infinity, color: 'linear-gradient(to top,var(--sakura-dark),var(--sakura))', count: 0 },
   ];
   docs.forEach(d => {
     const v = d.avgDailyMinutes || 0;
@@ -1064,10 +1063,10 @@ function drawLevelDist(containerId, docs) {
   const el = document.getElementById(containerId);
   if (!el) return;
   const buckets = [
-    { label: 'Lv.1〜5',   min: 1,  max: 5,   color: 'linear-gradient(to top,#2d7a57,var(--green))',  count: 0 },
-    { label: 'Lv.6〜10',  min: 6,  max: 10,  color: 'linear-gradient(to top,#2d7a57,var(--green))',  count: 0 },
+    { label: 'Lv.1〜5',   min: 1,  max: 5,   color: 'linear-gradient(to top,var(--green-dark),var(--green))',  count: 0 },
+    { label: 'Lv.6〜10',  min: 6,  max: 10,  color: 'linear-gradient(to top,var(--green-dark),var(--green))',  count: 0 },
     { label: 'Lv.11〜20', min: 11, max: 20,  color: 'linear-gradient(to top,#b88a00,var(--gold))',   count: 0 },
-    { label: 'Lv.21〜50', min: 21, max: 50,  color: 'linear-gradient(to top,#c04070,var(--sakura))', count: 0 },
+    { label: 'Lv.21〜50', min: 21, max: 50,  color: 'linear-gradient(to top,var(--sakura-dark),var(--sakura))', count: 0 },
     { label: 'Lv.51〜',   min: 51, max: Infinity, color: 'linear-gradient(to top,#800000,#e05a5a)', count: 0 },
   ];
   docs.forEach(d => {
@@ -1271,7 +1270,7 @@ async function loadDailyData() {
     // 総学習時間の推移（1点から表示）
     drawLineChart(
       'linechart-hours-wrap', 'linechart-hours-axis', points,
-      '#4caf82',
+      '#35b95b',
       p => Math.round(p.totalStudyMin / 60).toLocaleString() + '時間',
       p => p.totalStudyMin || 0
     );
@@ -1279,7 +1278,7 @@ async function loadDailyData() {
     // 仲間の数の推移（1点から表示）
     drawLineChart(
       'linechart-users-wrap', 'linechart-users-axis', points,
-      '#f4a0c0',
+      '#f06a9d',
       p => (p.analyticsCount || 0) + '人',
       p => p.analyticsCount || 0
     );
@@ -1321,7 +1320,7 @@ function drawKeizoku(docs) {
   }));
 
   const maxCount = counts[0].count || 1;
-  const rankColors = ['#4caf82','#4caf82','#4caf82','#f5c842','#f5c842','#f97316','#e05a5a'];
+  const rankColors = ['#35b95b','#35b95b','#35b95b','#ffd94f','#ffd94f','#f97316','#e05a5a'];
 
   // ファネル（左）
   const funnelEl = document.getElementById('keizoku-funnel');
@@ -1686,10 +1685,10 @@ async function loadData(){
 
     const deviceCount={mobile:0,pc:0};
     docs.forEach(d=>{if(d.deviceType==='mobile')deviceCount.mobile++;else deviceCount.pc++;});
-    drawDonut('donut-device',[{value:deviceCount.mobile,color:'#4caf82'},{value:deviceCount.pc,color:'#f4a0c0'}]);
+    drawDonut('donut-device',[{value:deviceCount.mobile,color:'#35b95b'},{value:deviceCount.pc,color:'#f06a9d'}]);
     document.getElementById('legend-device').innerHTML=[
-      {label:'スマホ',value:deviceCount.mobile,color:'#4caf82'},
-      {label:'PC',value:deviceCount.pc,color:'#f4a0c0'}
+      {label:'スマホ',value:deviceCount.mobile,color:'#35b95b'},
+      {label:'PC',value:deviceCount.pc,color:'#f06a9d'}
     ].map(item=>`<div class="donut-item">
       <div class="donut-dot" style="background:${item.color}"></div>
       <div class="donut-item-label">${item.label}</div>
