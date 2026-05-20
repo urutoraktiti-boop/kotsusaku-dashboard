@@ -518,6 +518,47 @@ body::before {
   font-size: .52rem; color: var(--green-dark);
   font-weight: 700; margin-top: 1px;
 }
+/* ===== 再開率・継続の旅路 ===== */
+.reunion-gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.reunion-gauge-svg-wrap { position: relative; width: 160px; height: 90px; }
+.reunion-gauge-svg-wrap svg { width: 100%; height: 100%; }
+.reunion-gauge-center { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); text-align: center; }
+.reunion-gauge-val { font-size: 26px; font-weight: 900; color: var(--green-dark); line-height: 1; }
+.reunion-gauge-label { font-size: 10px; color: var(--muted); }
+.reunion-gauge-legend { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+.reunion-leg-item { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--muted); }
+.reunion-leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+.reunion-donut-section { display: flex; gap: 14px; align-items: center; }
+.reunion-donut-wrap { position: relative; flex-shrink: 0; }
+.reunion-donut-wrap svg { width: 110px; height: 110px; }
+.reunion-donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.reunion-donut-pct { font-size: 20px; font-weight: 900; color: var(--green-dark); line-height: 1; }
+.reunion-donut-sub { font-size: 9px; color: var(--muted); }
+.reunion-donut-stats { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+.reunion-stat-row { display: flex; align-items: center; gap: 7px; }
+.reunion-stat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.reunion-stat-name { font-size: 10px; color: var(--muted); flex: 1; }
+.reunion-stat-val { font-size: 12px; font-weight: 900; color: var(--text); }
+
+.reunion-funnel { display: flex; flex-direction: column; gap: 7px; }
+.reunion-funnel-row { display: flex; align-items: center; gap: 8px; }
+.reunion-funnel-label { font-size: 10.5px; width: 80px; flex-shrink: 0; text-align: right; color: var(--text); }
+.reunion-funnel-track { flex: 1; height: 24px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+.reunion-funnel-fill { height: 100%; border-radius: 5px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; transition: width .8s ease; }
+.reunion-funnel-fill-val { font-size: 9.5px; font-weight: 700; color: white; white-space: nowrap; }
+.reunion-funnel-pct { font-size: 10px; font-weight: 700; width: 80px; text-align: right; color: var(--muted); }
+
+.reunion-flow { display: flex; flex-direction: column; gap: 0; }
+.reunion-flow-step { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; margin-bottom: 3px; }
+.reunion-flow-icon { font-size: 18px; flex-shrink: 0; }
+.reunion-flow-info { flex: 1; }
+.reunion-flow-name { font-size: 10px; font-weight: 700; color: var(--muted); }
+.reunion-flow-val { font-size: 16px; font-weight: 900; line-height: 1.2; }
+.reunion-flow-pct { font-size: 9.5px; color: var(--muted); margin-top: 1px; }
+.reunion-flow-bar { height: 4px; border-radius: 99px; margin-top: 5px; }
+.reunion-flow-arrow { text-align: center; font-size: 14px; color: var(--muted); margin: -1px 0; padding: 0 12px; }
+
 .error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
 </style>
 </head>
@@ -652,6 +693,104 @@ body::before {
           <div class="kpi-val" id="kpi-pwa">-</div>
           <div class="kpi-lab">PWAインストール率</div>
           <div class="kpi-copy">ホーム画面に追加している仲間</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 再開率・継続の旅路 -->
+    <div class="section">
+      <div class="section-label">🔄 再開率・継続の旅路</div>
+
+      <!-- 上段：案2（ゲージ）+ 案3（ドーナツ） -->
+      <div class="badge-ranking-grid" style="margin-bottom:14px;">
+
+        <!-- 案2：半円ゲージ -->
+        <div class="chart-card">
+          <div class="badge-col-title">🎯 再開率ゲージ</div>
+          <div class="reunion-gauge-wrap">
+            <div class="reunion-gauge-svg-wrap">
+              <svg id="gauge-svg" viewBox="0 0 180 100">
+                <path d="M 20 90 A 70 70 0 0 1 160 90" fill="none" stroke="var(--bg)" stroke-width="16" stroke-linecap="round"/>
+                <path id="gauge-arc" d="M 20 90 A 70 70 0 0 1 160 90" fill="none" stroke="var(--green)" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 220"/>
+                <text x="12" y="102" font-size="9" fill="var(--muted)">0%</text>
+                <text x="148" y="102" font-size="9" fill="var(--muted)">100%</text>
+              </svg>
+              <div class="reunion-gauge-center">
+                <div class="reunion-gauge-val" id="gauge-pct">-</div>
+                <div class="reunion-gauge-label">再開率</div>
+              </div>
+            </div>
+            <div class="reunion-gauge-legend">
+              <div class="reunion-leg-item">
+                <div class="reunion-leg-dot" style="background:var(--green);"></div>
+                <span>学習記録あり：<strong id="gauge-active">-</strong></span>
+              </div>
+              <div class="reunion-leg-item">
+                <div class="reunion-leg-dot" style="background:var(--bg);border:1.5px solid var(--muted);"></div>
+                <span>未学習：<strong id="gauge-sleeping">-</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 案3：ドーナツ＋数値 -->
+        <div class="chart-card">
+          <div class="badge-col-title">🍩 内訳ドーナツ</div>
+          <div class="reunion-donut-section">
+            <div class="reunion-donut-wrap">
+              <svg viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="44" fill="none" stroke="var(--bg)" stroke-width="16"/>
+                <circle id="donut-arc-active" cx="60" cy="60" r="44" fill="none" stroke="var(--green)" stroke-width="16"
+                  stroke-dasharray="0 276" stroke-dashoffset="69"
+                  style="transform:rotate(-90deg);transform-origin:60px 60px;"/>
+                <circle id="donut-arc-sleeping" cx="60" cy="60" r="44" fill="none" stroke="var(--sakura)" stroke-width="16"
+                  stroke-dasharray="0 276" stroke-dashoffset="0"
+                  style="transform:rotate(-90deg);transform-origin:60px 60px;"/>
+              </svg>
+              <div class="reunion-donut-center">
+                <div class="reunion-donut-pct" id="donut-pct">-</div>
+                <div class="reunion-donut-sub">再開率</div>
+              </div>
+            </div>
+            <div class="reunion-donut-stats">
+              <div class="reunion-stat-row">
+                <div class="reunion-stat-dot" style="background:var(--green);"></div>
+                <div class="reunion-stat-name">学習記録あり</div>
+                <div class="reunion-stat-val" id="donut-active">-</div>
+              </div>
+              <div class="reunion-stat-row">
+                <div class="reunion-stat-dot" style="background:var(--sakura);"></div>
+                <div class="reunion-stat-name">未学習</div>
+                <div class="reunion-stat-val" id="donut-sleeping" style="color:var(--sakura-dark);">-</div>
+              </div>
+              <div class="reunion-stat-row">
+                <div class="reunion-stat-dot" style="background:var(--gold);"></div>
+                <div class="reunion-stat-name">今週アクティブ</div>
+                <div class="reunion-stat-val" id="donut-active7" style="color:var(--gold-dark);">-</div>
+              </div>
+              <div class="reunion-stat-row">
+                <div class="reunion-stat-dot" style="background:var(--muted);"></div>
+                <div class="reunion-stat-name">登録者総数</div>
+                <div class="reunion-stat-val" id="donut-total" style="color:var(--muted);">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 下段：案1（ファネル）+ 案4（フロー） -->
+      <div class="badge-ranking-grid">
+
+        <!-- 案1：登録→学習ファネル -->
+        <div class="chart-card">
+          <div class="badge-col-title">📉 登録→学習ファネル</div>
+          <div class="reunion-funnel" id="reunion-funnel"></div>
+        </div>
+
+        <!-- 案4：ステップフロー -->
+        <div class="chart-card">
+          <div class="badge-col-title">🪜 継続の旅路</div>
+          <div class="reunion-flow" id="reunion-flow"></div>
         </div>
       </div>
     </div>
@@ -1298,6 +1437,106 @@ async function loadDailyData() {
 }
 
 // ══════════════════════════════════════
+// 再開率・継続の旅路 描画関数
+// ══════════════════════════════════════
+function drawReunion(totalRegistered, total, activeUsers, retained) {
+  const sleeping    = Math.max(totalRegistered - total, 0);
+  const reunionRate = totalRegistered > 0 ? Math.round(total / totalRegistered * 100) : 0;
+  const active7Rate = total > 0 ? Math.round(activeUsers / total * 100) : 0;
+  const retainedRate = total > 0 ? Math.round(retained / total * 100) : 0;
+
+  // 人数表記ヘルパー（割合%（人数人）形式）
+  function fmtVal(rate, count) { return rate + '%（' + count + '人）'; }
+  function fmtCount(count) { return count + '人'; }
+
+  // ── 案2：ゲージ ──
+  const gaugeArc = document.getElementById('gauge-arc');
+  if (gaugeArc) {
+    const total_arc = 220;
+    const filled = Math.round(reunionRate / 100 * total_arc);
+    gaugeArc.setAttribute('stroke-dasharray', filled + ' ' + total_arc);
+  }
+  const gaugePct = document.getElementById('gauge-pct');
+  if (gaugePct) gaugePct.textContent = reunionRate + '%';
+  const gaugeActive = document.getElementById('gauge-active');
+  if (gaugeActive) gaugeActive.textContent = fmtVal(reunionRate, total);
+  const gaugeSleeping = document.getElementById('gauge-sleeping');
+  if (gaugeSleeping) {
+    const sleepRate = totalRegistered > 0 ? Math.round(sleeping / totalRegistered * 100) : 0;
+    gaugeSleeping.textContent = fmtVal(sleepRate, sleeping);
+  }
+
+  // ── 案3：ドーナツ ──
+  const circ = 2 * Math.PI * 44;
+  const activeArc  = document.getElementById('donut-arc-active');
+  const sleepArc   = document.getElementById('donut-arc-sleeping');
+  if (activeArc && sleepArc) {
+    const activeDash  = Math.round(reunionRate / 100 * circ);
+    const sleepDash   = circ - activeDash;
+    activeArc.setAttribute('stroke-dasharray', activeDash + ' ' + (circ - activeDash));
+    sleepArc.setAttribute('stroke-dasharray', sleepDash + ' ' + (circ - sleepDash));
+    sleepArc.setAttribute('stroke-dashoffset', -(activeDash - 69));
+  }
+  const donutPct = document.getElementById('donut-pct');
+  if (donutPct) donutPct.textContent = reunionRate + '%';
+  const donutActive = document.getElementById('donut-active');
+  if (donutActive) donutActive.textContent = fmtVal(reunionRate, total);
+  const donutSleeping = document.getElementById('donut-sleeping');
+  if (donutSleeping) {
+    const sleepRate = totalRegistered > 0 ? Math.round(sleeping / totalRegistered * 100) : 0;
+    donutSleeping.textContent = fmtVal(sleepRate, sleeping);
+  }
+  const donutActive7 = document.getElementById('donut-active7');
+  if (donutActive7) donutActive7.textContent = fmtVal(active7Rate, activeUsers);
+  const donutTotal = document.getElementById('donut-total');
+  if (donutTotal) donutTotal.textContent = fmtCount(totalRegistered);
+
+  // ── 案1：ファネル ──
+  const funnelEl = document.getElementById('reunion-funnel');
+  if (funnelEl) {
+    const stages = [
+      { label: '登録者',       count: totalRegistered, base: totalRegistered, color: 'linear-gradient(90deg,var(--green-dark),var(--green))' },
+      { label: '学習記録あり', count: total,            base: totalRegistered, color: 'linear-gradient(90deg,var(--green-dark),var(--green))' },
+      { label: '今週アクティブ', count: activeUsers,   base: totalRegistered, color: 'linear-gradient(90deg,var(--gold-dark),var(--gold))' },
+      { label: '30日継続',     count: retained,         base: totalRegistered, color: 'linear-gradient(90deg,var(--sakura-dark),var(--sakura))' },
+    ];
+    funnelEl.innerHTML = stages.map(s => {
+      const pct  = s.base > 0 ? Math.round(s.count / s.base * 100) : 0;
+      const barW = s.base > 0 ? Math.round(s.count / s.base * 100) : 0;
+      return '<div class="reunion-funnel-row">'
+        + '<div class="reunion-funnel-label">' + s.label + '</div>'
+        + '<div class="reunion-funnel-track">'
+        + '<div class="reunion-funnel-fill" style="width:' + barW + '%;background:' + s.color + ';">'
+        + '<div class="reunion-funnel-fill-val">' + pct + '%（' + s.count + '人）</div>'
+        + '</div></div>'
+        + '</div>';
+    }).join('');
+  }
+
+  // ── 案4：フロー ──
+  const flowEl = document.getElementById('reunion-flow');
+  if (flowEl) {
+    const steps = [
+      { icon: '📥', name: 'STEP 1：登録',          val: fmtCount(totalRegistered),            pct: '100%',           barW: 100,          color: 'var(--green)',  bg: 'var(--green-light)' },
+      { icon: '📖', name: 'STEP 2：学習記録あり',   val: fmtVal(reunionRate, total),           pct: '登録者の ' + reunionRate + '%（再開率）', barW: reunionRate, color: 'var(--green)',  bg: 'var(--green-light)' },
+      { icon: '🔥', name: 'STEP 3：今週アクティブ', val: fmtVal(active7Rate, activeUsers),     pct: '学習者の ' + active7Rate + '%',         barW: active7Rate,  color: 'var(--gold)',   bg: '#fffbf0' },
+      { icon: '🏅', name: 'STEP 4：30日以上継続',  val: fmtVal(retainedRate, retained),       pct: '学習者の ' + retainedRate + '%',        barW: retainedRate, color: 'var(--sakura)', bg: 'var(--sakura-light)' },
+    ];
+    flowEl.innerHTML = steps.map((s, i) =>
+      (i > 0 ? '<div class="reunion-flow-arrow">↓</div>' : '')
+      + '<div class="reunion-flow-step" style="background:' + s.bg + ';">'
+      + '<div class="reunion-flow-icon">' + s.icon + '</div>'
+      + '<div class="reunion-flow-info">'
+      + '<div class="reunion-flow-name">' + s.name + '</div>'
+      + '<div class="reunion-flow-val" style="color:' + s.color + ';">' + s.val + '</div>'
+      + '<div class="reunion-flow-pct">' + s.pct + '</div>'
+      + '<div class="reunion-flow-bar" style="width:' + s.barW + '%;background:' + s.color + ';"></div>'
+      + '</div></div>'
+    ).join('');
+  }
+}
+
+// ══════════════════════════════════════
 // 継続中の仲間たち：ファネル＋分布
 // ══════════════════════════════════════
 function drawKeizoku(docs) {
@@ -1707,6 +1946,9 @@ async function loadData(){
     docs.forEach(d=>{if(Array.isArray(d.badgeList))d.badgeList.forEach(id=>{badgeMap[id]=(badgeMap[id]||0)+1;});});
     drawBadgeRanking(badgeMap);
 
+
+    // 再開率・継続の旅路
+    drawReunion(totalRegistered, total, activeUsers, retained);
 
     // 継続中の仲間たち
     drawKeizoku(docs);
