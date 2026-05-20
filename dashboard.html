@@ -422,6 +422,53 @@ body::before {
 .storyhour-fill { height: 100%; border-radius: 99px; transition: width .8s cubic-bezier(.4,0,.2,1); }
 .storyhour-val { font-size: .58rem; font-weight: 700; color: var(--text); text-align: right; font-family: 'Kaisei Tokumin', serif; }
 
+
+/* ===== Phase2 推移グラフ ===== */
+.trend-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  border: 2px solid rgba(0,0,0,.05);
+  margin-bottom: 14px;
+}
+.trend-title { font-size: .65rem; font-weight: 900; color: var(--muted); letter-spacing: .06em; margin-bottom: 4px; }
+.trend-note  { font-size: .56rem; color: var(--muted); margin-bottom: 12px; }
+
+/* 折れ線グラフ */
+.linechart-wrap { position: relative; width: 100%; }
+.linechart-wrap svg { width: 100%; display: block; }
+.linechart-axis {
+  display: flex; justify-content: space-between;
+  font-size: .5rem; color: var(--muted); margin-top: 4px;
+  padding: 0 4px;
+}
+.linechart-no-data {
+  text-align: center; font-size: .72rem; color: var(--muted);
+  padding: 32px 0; background: var(--bg); border-radius: 12px;
+}
+
+/* 積み上げ棒グラフ（推移） */
+.stackbar-wrap { display: flex; align-items: flex-end; gap: 4px; height: 110px; }
+.stackbar-col  { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+.stackbar-bar  { width: 100%; display: flex; flex-direction: column-reverse; border-radius: 5px 5px 0 0; overflow: hidden; }
+.stackbar-seg  { width: 100%; transition: height .6s ease; }
+.stackbar-label { font-size: .46rem; color: var(--muted); text-align: center; }
+
+/* 差分棒グラフ */
+.diffbar-wrap { display: flex; align-items: flex-end; gap: 4px; height: 90px; }
+.diffbar-col  { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+.diffbar-bar  { width: 100%; border-radius: 4px 4px 0 0; transition: height .6s ease; }
+.diffbar-val  { font-size: .44rem; color: var(--muted); font-weight: 700; }
+.diffbar-label { font-size: .44rem; color: var(--muted); text-align: center; }
+
+/* データ収集中バナー */
+.daily-collecting {
+  background: var(--green-light); border: 1.5px solid var(--green);
+  border-radius: 10px; padding: 10px 14px;
+  font-size: .65rem; color: var(--green-dark); line-height: 1.7;
+  margin-bottom: 14px;
+}
 .error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
 </style>
 </head>
@@ -687,6 +734,52 @@ body::before {
       </div>
     </div>
 
+
+    <!-- ═══ Phase2：推移グラフ ═══ -->
+    <div class="section">
+      <div class="section-label">📈 みんなの軌跡 — 推移</div>
+      <div class="daily-collecting" id="daily-collecting-banner" style="display:none;">
+        📦 データを蓄積中です。アプリを開いた仲間が増えるほど記録が積み上がります。<br>
+        グラフは翌日以降から表示されます（現在 <span id="daily-count">0</span> 日分のデータあり）。
+      </div>
+
+      <!-- 総学習時間の推移 -->
+      <div class="trend-card">
+        <div class="trend-title">⏱ みんなの総学習時間 推移</div>
+        <div class="trend-note">日々どれだけ積み上がっているか</div>
+        <div class="linechart-wrap" id="linechart-hours-wrap"></div>
+        <div class="linechart-axis" id="linechart-hours-axis"></div>
+      </div>
+
+      <!-- 仲間の数の推移 -->
+      <div class="trend-card">
+        <div class="trend-title">👥 冒険者の数 推移</div>
+        <div class="trend-note">アクティブな仲間がどれくらい増えているか</div>
+        <div class="linechart-wrap" id="linechart-users-wrap"></div>
+        <div class="linechart-axis" id="linechart-users-axis"></div>
+      </div>
+
+      <!-- 1日あたりの増加量 -->
+      <div class="trend-card">
+        <div class="trend-title">➕ 1日あたりの学習時間増加量</div>
+        <div class="trend-note">毎日どれだけ積み上げられているか（前日差分）</div>
+        <div class="diffbar-wrap" id="diffbar-hours"></div>
+        <div class="linechart-axis" id="diffbar-hours-axis"></div>
+      </div>
+
+      <!-- ストーリー選択比率の推移（積み上げ棒） -->
+      <div class="trend-card">
+        <div class="trend-title">⚔️🌸 ストーリー選択比率 推移</div>
+        <div class="trend-note">メイン vs 資格の割合が時間でどう変わるか</div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>メインストーリー</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--sakura);"></div>資格ストーリー</div>
+        </div>
+        <div class="stackbar-wrap" id="stackbar-story"></div>
+        <div class="linechart-axis" id="stackbar-story-axis"></div>
+      </div>
+    </div>
+
     <!-- フッター -->
     <div class="footer">
       <div class="footer-chars">🥦🥦🦍🦍🌸</div>
@@ -938,6 +1031,182 @@ function drawHourChartV2(containerId, data) {
     </div>\`;
   }).join('');
 }
+
+// ══════════════════════════════════════
+// Phase2：analytics_daily 推移グラフ
+// ══════════════════════════════════════
+
+// 折れ線グラフをSVGで描画
+function drawLineChart(wrapId, axisId, points, color, labelFn, valueFn) {
+  const wrap = document.getElementById(wrapId);
+  const axis = document.getElementById(axisId);
+  if (!wrap) return;
+  if (points.length < 2) {
+    wrap.innerHTML = '<div class="linechart-no-data">📦 データ蓄積中…（2日分以上でグラフ表示）</div>';
+    if (axis) axis.innerHTML = '';
+    return;
+  }
+  const W = 560, H = 100, PAD = 12;
+  const values = points.map(valueFn);
+  const minV = Math.min(...values);
+  const maxV = Math.max(...values);
+  const range = maxV - minV || 1;
+
+  const toX = i => PAD + (i / (points.length - 1)) * (W - PAD * 2);
+  const toY = v => H - PAD - ((v - minV) / range) * (H - PAD * 2);
+
+  const polyline = points.map((p, i) => `${toX(i)},${toY(valueFn(p))}`).join(' ');
+  const areaPath = `M${toX(0)},${H} ` +
+    points.map((p, i) => `L${toX(i)},${toY(valueFn(p))}`).join(' ') +
+    ` L${toX(points.length - 1)},${H} Z`;
+
+  // グリッド線（3本）
+  const gridLines = [0.25, 0.5, 0.75].map(r => {
+    const y = PAD + r * (H - PAD * 2);
+    return `<line x1="${PAD}" y1="${y}" x2="${W - PAD}" y2="${y}" stroke="#f0ede8" stroke-width="1"/>`;
+  }).join('');
+
+  // 最新値ラベル
+  const lastX = toX(points.length - 1);
+  const lastY = toY(valueFn(points[points.length - 1]));
+  const lastLabel = labelFn(points[points.length - 1]);
+
+  wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="grad-${wrapId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${color}" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+    ${gridLines}
+    <path d="${areaPath}" fill="url(#grad-${wrapId})"/>
+    <polyline points="${polyline}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${lastX}" cy="${lastY}" r="3.5" fill="${color}"/>
+    <text x="${Math.min(lastX + 5, W - 60)}" y="${Math.max(lastY - 6, 12)}" font-size="9" fill="${color}" font-weight="700">${lastLabel}</text>
+  </svg>`;
+
+  // X軸ラベル（最大6点）
+  if (axis) {
+    const step = Math.max(1, Math.floor(points.length / 6));
+    const labels = points.filter((_, i) => i % step === 0 || i === points.length - 1);
+    axis.innerHTML = labels.map(p => `<span>${p.date.slice(5)}</span>`).join('');
+  }
+}
+
+// 差分棒グラフを描画
+function drawDiffBars(wrapId, axisId, points, valueFn) {
+  const wrap = document.getElementById(wrapId);
+  const axis = document.getElementById(axisId);
+  if (!wrap) return;
+  if (points.length < 2) {
+    wrap.innerHTML = '<div class="linechart-no-data">📦 データ蓄積中…（2日分以上でグラフ表示）</div>';
+    if (axis) axis.innerHTML = '';
+    return;
+  }
+  // 差分を計算
+  const diffs = points.slice(1).map((p, i) => ({
+    date: p.date,
+    diff: Math.max(0, valueFn(p) - valueFn(points[i]))
+  }));
+  const maxDiff = Math.max(...diffs.map(d => d.diff), 1);
+  wrap.innerHTML = diffs.map(d => {
+    const h = Math.round(d.diff / maxDiff * 80);
+    const hrs = Math.round(d.diff / 60);
+    return `<div class="diffbar-col">
+      <div class="diffbar-val">${hrs > 0 ? '+' + hrs + 'h' : ''}</div>
+      <div class="diffbar-bar" style="height:${Math.max(h, 2)}px;background:linear-gradient(to top,var(--green-dark),var(--green));"></div>
+      <div class="diffbar-label">${d.date.slice(5)}</div>
+    </div>`;
+  }).join('');
+  if (axis) axis.innerHTML = '';
+}
+
+// ストーリー比率の積み上げ棒グラフを描画
+function drawStackBars(wrapId, axisId, points) {
+  const wrap = document.getElementById(wrapId);
+  const axis = document.getElementById(axisId);
+  if (!wrap) return;
+  if (points.length < 2) {
+    wrap.innerHTML = '<div class="linechart-no-data">📦 データ蓄積中…（2日分以上でグラフ表示）</div>';
+    if (axis) axis.innerHTML = '';
+    return;
+  }
+  const FICTION_IDS = ['gorilla','samurai','space','itachacha','spartan'];
+  wrap.innerHTML = points.map(p => {
+    const sc = p.storyCount || {};
+    const lc = p.licenseCount || {};
+    const mainN    = Object.entries(sc).filter(([k]) => FICTION_IDS.includes(k)).reduce((s,[,v]) => s + v, 0);
+    const licenseN = Object.entries(sc).filter(([k]) => !FICTION_IDS.includes(k)).reduce((s,[,v]) => s + v, 0)
+                   + Object.values(lc).reduce((s, v) => s + v, 0);
+    const total = mainN + licenseN || 1;
+    const mainH    = Math.round(mainN    / total * 100);
+    const licenseH = 100 - mainH;
+    return `<div class="stackbar-col">
+      <div class="stackbar-bar" style="height:100px;">
+        <div class="stackbar-seg" style="height:${licenseH}%;background:var(--sakura);"></div>
+        <div class="stackbar-seg" style="height:${mainH}%;background:var(--green);"></div>
+      </div>
+      <div class="stackbar-label">${p.date.slice(5)}</div>
+    </div>`;
+  }).join('');
+  if (axis) axis.innerHTML = '';
+}
+
+// analytics_daily を読み込んでグラフを描画
+async function loadDailyData() {
+  if (!db) return;
+  try {
+    const snap = await db.collection('analytics_daily')
+      .orderBy('date', 'asc')
+      .limit(30)
+      .get();
+
+    const points = snap.docs.map(d => d.data()).filter(d => d.date);
+    const count = points.length;
+
+    // 収集中バナーの制御
+    const banner = document.getElementById('daily-collecting-banner');
+    const countEl = document.getElementById('daily-count');
+    if (countEl) countEl.textContent = count;
+    if (banner) banner.style.display = count < 2 ? 'block' : 'none';
+
+    if (count === 0) {
+      ['linechart-hours-wrap','linechart-users-wrap','diffbar-hours','stackbar-story'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<div class="linechart-no-data">📦 データ蓄積中…アプリを開いた仲間が増えると記録されます</div>';
+      });
+      return;
+    }
+
+    // 総学習時間の推移
+    drawLineChart(
+      'linechart-hours-wrap', 'linechart-hours-axis', points,
+      '#4caf82',
+      p => Math.round(p.totalStudyMin / 60).toLocaleString() + '時間',
+      p => p.totalStudyMin || 0
+    );
+
+    // 仲間の数の推移
+    drawLineChart(
+      'linechart-users-wrap', 'linechart-users-axis', points,
+      '#f4a0c0',
+      p => (p.analyticsCount || 0) + '人',
+      p => p.analyticsCount || 0
+    );
+
+    // 1日あたりの増加量
+    drawDiffBars(
+      'diffbar-hours', 'diffbar-hours-axis', points,
+      p => p.totalStudyMin || 0
+    );
+
+    // ストーリー比率推移
+    drawStackBars('stackbar-story', 'stackbar-story-axis', points);
+
+  } catch(e) {
+    console.warn('daily data load error:', e);
+  }
+}
 function drawBadgeRanking(badgeMap){
   const el=document.getElementById('badge-ranking'); if(!el) return;
   const sorted=Object.entries(badgeMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -1118,6 +1387,9 @@ async function loadData(){
     const hourData2 = new Array(24).fill(0);
     docs.forEach(d => { if (typeof d.accessHour === 'number') hourData2[d.accessHour]++; });
     drawHourChartV2('hour-chart-v2', hourData2);
+    // Phase2: 推移グラフ読み込み
+    loadDailyData();
+
     document.getElementById('last-updated').textContent='最終更新: '+new Date().toLocaleString('ja-JP');
     document.getElementById('loading').style.display='none';
     document.getElementById('dashboard').style.display='block';
