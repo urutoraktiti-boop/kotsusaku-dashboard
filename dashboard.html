@@ -394,6 +394,34 @@ body::before {
 @keyframes spin{to{transform:rotate(360deg);}}
 .spinner{width:22px;height:22px;border:2.5px solid var(--green-light);border-top-color:var(--green-dark);border-radius:50%;animation:spin .7s linear infinite;}
 
+
+/* ===== Phase1 追加グラフ ===== */
+/* 縦棒グラフ共通 */
+.vbar-chart { display: flex; align-items: flex-end; gap: 6px; height: 110px; margin-top: 6px; }
+.vbar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.vbar-bar { width: 100%; border-radius: 6px 6px 0 0; transition: height .7s cubic-bezier(.4,0,.2,1); }
+.vbar-val { font-size: .5rem; font-weight: 700; color: var(--muted); }
+.vbar-label { font-size: .48rem; color: var(--muted); text-align: center; line-height: 1.3; }
+
+/* 凡例行 */
+.chart-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.chart-legend-item { display: flex; align-items: center; gap: 4px; font-size: .56rem; color: var(--muted); }
+.chart-legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+/* 時間帯色分け（改良版） */
+.hour-bar-fill.morning { opacity: 1; background: linear-gradient(to top, #c08000, var(--gold)); }
+.hour-bar-fill.night   { opacity: 1; background: linear-gradient(to top, var(--green-dark), var(--green)); }
+.hour-bar-fill.latenight { opacity: .55; background: linear-gradient(to top, #4466aa, #88aadd); }
+.hour-time-label { font-size: .46rem; color: var(--muted); text-align: center; margin-top: 6px; }
+
+/* ストーリー別総学習時間（横棒） */
+.storyhour-list { display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
+.storyhour-row { display: grid; grid-template-columns: 96px 1fr 68px; align-items: center; gap: 8px; }
+.storyhour-label { font-size: .6rem; color: var(--text); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.storyhour-track { background: var(--bg); border-radius: 99px; height: 11px; overflow: hidden; }
+.storyhour-fill { height: 100%; border-radius: 99px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+.storyhour-val { font-size: .58rem; font-weight: 700; color: var(--text); text-align: right; font-family: 'Kaisei Tokumin', serif; }
+
 .error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
 </style>
 </head>
@@ -610,6 +638,55 @@ body::before {
       </div>
     </div>
 
+
+    <!-- ストーリー別 総学習時間ランキング -->
+    <div class="section">
+      <div class="section-label">⏱ ストーリー別 総学習時間ランキング</div>
+      <div class="chart-card">
+        <div class="chart-title">⚔️🌸 どの道を歩む仲間が一番コツコツしているか</div>
+        <div class="storyhour-list" id="bar-story-hours"></div>
+      </div>
+    </div>
+
+    <!-- 1日平均学習時間 分布 -->
+    <div class="section">
+      <div class="section-label">📅 1日の平均学習時間 分布</div>
+      <div class="chart-card">
+        <div class="chart-title">⏱ 仲間たちは1日どれくらいコツコツしているか</div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>〜30分</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold);"></div>30〜60分</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--sakura);"></div>60分〜</div>
+        </div>
+        <div class="vbar-chart" id="vbar-avg-daily"></div>
+      </div>
+    </div>
+
+    <!-- レベル分布 -->
+    <div class="section">
+      <div class="section-label">🏅 冒険者レベル分布</div>
+      <div class="chart-card">
+        <div class="chart-title">⭐ レベル帯ごとの仲間の人数</div>
+        <div class="vbar-chart" id="vbar-level"></div>
+      </div>
+    </div>
+
+    <!-- 時間帯グラフ（改良版：色分け） -->
+    <div class="section">
+      <div class="section-label">🌙 学習ピーク時間帯（改良版）</div>
+      <div class="chart-card">
+        <div class="chart-title">⏰ 朝型・夜型・深夜型 — いつコツコツしているか</div>
+        <div class="chart-legend">
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold);"></div>朝型（5〜11時）</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>夜型（17〜22時）</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#88aadd;"></div>深夜・早朝（23〜4時）</div>
+          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--bg);border:1px solid #ccc;"></div>昼間</div>
+        </div>
+        <div class="hour-chart" id="hour-chart-v2"></div>
+        <div class="hour-time-label">0時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 6時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 23時</div>
+      </div>
+    </div>
+
     <!-- フッター -->
     <div class="footer">
       <div class="footer-chars">🥦🥦🦍🦍🌸</div>
@@ -764,6 +841,103 @@ function drawHourChart(data){
   }).join('');
 }
 
+
+// ── Phase1: ストーリー別 総学習時間ランキング ──
+function drawStoryHours(containerId, items) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const max = Math.max(...items.map(i => i.value), 1);
+  el.innerHTML = items.map(item => {
+    const pct = Math.round(item.value / max * 100);
+    const hrs = Math.round(item.value / 60).toLocaleString();
+    const isLicense = ['📗','📒','🧮','⚖️','🏠','💰','🏛️','💼','🔍'].some(e => item.label.startsWith(e));
+    const fillColor = isLicense
+      ? 'background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));'
+      : 'background:linear-gradient(90deg,var(--green-dark),var(--green));';
+    return \`<div class="storyhour-row">
+      <div class="storyhour-label">\${item.label}</div>
+      <div class="storyhour-track"><div class="storyhour-fill" style="width:\${pct}%;\${fillColor}"></div></div>
+      <div class="storyhour-val">\${hrs}時間</div>
+    </div>\`;
+  }).join('');
+}
+
+// ── Phase1: 1日平均学習時間 分布（縦棒）──
+function drawAvgDailyDist(containerId, docs) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const buckets = [
+    { label: '〜10分',  min: 0,   max: 10,  color: 'linear-gradient(to top,#2d7a57,var(--green))', count: 0 },
+    { label: '10〜30分', min: 10,  max: 30,  color: 'linear-gradient(to top,#2d7a57,var(--green))', count: 0 },
+    { label: '30〜60分', min: 30,  max: 60,  color: 'linear-gradient(to top,#b88a00,var(--gold))',  count: 0 },
+    { label: '60〜90分', min: 60,  max: 90,  color: 'linear-gradient(to top,#c04070,var(--sakura))', count: 0 },
+    { label: '90分〜',  min: 90,  max: Infinity, color: 'linear-gradient(to top,#c04070,var(--sakura))', count: 0 },
+  ];
+  docs.forEach(d => {
+    const v = d.avgDailyMinutes || 0;
+    const b = buckets.find(b => v >= b.min && v < b.max);
+    if (b) b.count++;
+  });
+  const maxCount = Math.max(...buckets.map(b => b.count), 1);
+  el.innerHTML = buckets.map(b => {
+    const h = Math.round(b.count / maxCount * 100);
+    const pct = docs.length > 0 ? Math.round(b.count / docs.length * 100) : 0;
+    return \`<div class="vbar-col">
+      <div class="vbar-val">\${pct}%</div>
+      <div class="vbar-bar" style="height:\${h}px;background:\${b.color};"></div>
+      <div class="vbar-label">\${b.label}</div>
+    </div>\`;
+  }).join('');
+}
+
+// ── Phase1: レベル分布（縦棒）──
+function drawLevelDist(containerId, docs) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const buckets = [
+    { label: 'Lv.1〜5',   min: 1,  max: 5,   color: 'linear-gradient(to top,#2d7a57,var(--green))',  count: 0 },
+    { label: 'Lv.6〜10',  min: 6,  max: 10,  color: 'linear-gradient(to top,#2d7a57,var(--green))',  count: 0 },
+    { label: 'Lv.11〜20', min: 11, max: 20,  color: 'linear-gradient(to top,#b88a00,var(--gold))',   count: 0 },
+    { label: 'Lv.21〜50', min: 21, max: 50,  color: 'linear-gradient(to top,#c04070,var(--sakura))', count: 0 },
+    { label: 'Lv.51〜',   min: 51, max: Infinity, color: 'linear-gradient(to top,#800000,#e05a5a)', count: 0 },
+  ];
+  docs.forEach(d => {
+    const lv = d.level || 1;
+    const b = buckets.find(b => lv >= b.min && lv <= b.max);
+    if (b) b.count++;
+  });
+  const maxCount = Math.max(...buckets.map(b => b.count), 1);
+  el.innerHTML = buckets.map(b => {
+    const h = Math.round(b.count / maxCount * 100);
+    const pct = docs.length > 0 ? Math.round(b.count / docs.length * 100) : 0;
+    return \`<div class="vbar-col">
+      <div class="vbar-val">\${pct}%</div>
+      <div class="vbar-bar" style="height:\${h}px;background:\${b.color};"></div>
+      <div class="vbar-label">\${b.label}</div>
+    </div>\`;
+  }).join('');
+}
+
+// ── Phase1: 時間帯グラフ 改良版（色分け）──
+function drawHourChartV2(containerId, data) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const max = Math.max(...data, 1);
+  const peakIdx = data.indexOf(max);
+  el.innerHTML = Array.from({ length: 24 }, (_, h) => {
+    const v = data[h] || 0;
+    const ph = Math.round(v / max * 100);
+    let cls = '';
+    if      (h >= 5  && h <= 11) cls = 'morning';
+    else if (h >= 17 && h <= 22) cls = 'night';
+    else if (h >= 23 || h <= 4)  cls = 'latenight';
+    if (h === peakIdx && v > 0)  cls = (cls || 'night') + ' peak';
+    return \`<div class="hour-col-wrap">
+      <div class="hour-bar-bg"><div class="hour-bar-fill \${cls}" style="height:\${ph}%"></div></div>
+      <div class="hour-label">\${h}</div>
+    </div>\`;
+  }).join('');
+}
 function drawBadgeRanking(badgeMap){
   const el=document.getElementById('badge-ranking'); if(!el) return;
   const sorted=Object.entries(badgeMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -911,6 +1085,39 @@ async function loadData(){
     docs.forEach(d=>{if(Array.isArray(d.badgeList))d.badgeList.forEach(id=>{badgeMap[id]=(badgeMap[id]||0)+1;});});
     drawBadgeRanking(badgeMap);
 
+
+    // ── Phase1 グラフ ──
+    // ストーリー別 総学習時間ランキング
+    const storyHourMap = {};
+    docs.forEach(d => {
+      const s  = d.storyMode || '';
+      const lc = d.licenseCategory || '';
+      const min = d.totalStudyMin || 0;
+      if (FICTION_IDS.includes(s)) {
+        const label = STORY_NAMES[s] || s;
+        storyHourMap[label] = (storyHourMap[label] || 0) + min;
+      } else if (LICENSE_IDS.includes(s)) {
+        const label = LICENSE_STORY_NAMES[s] || s;
+        storyHourMap[label] = (storyHourMap[label] || 0) + min;
+      } else if (lc && LICENSE_CATEGORY_NAMES[lc]) {
+        const label = LICENSE_CATEGORY_NAMES[lc];
+        storyHourMap[label] = (storyHourMap[label] || 0) + min;
+      }
+    });
+    drawStoryHours('bar-story-hours',
+      Object.entries(storyHourMap).sort((a,b) => b[1]-a[1]).map(([k,v]) => ({label:k, value:v}))
+    );
+
+    // 1日平均学習時間 分布
+    drawAvgDailyDist('vbar-avg-daily', docs);
+
+    // レベル分布
+    drawLevelDist('vbar-level', docs);
+
+    // 時間帯グラフ改良版
+    const hourData2 = new Array(24).fill(0);
+    docs.forEach(d => { if (typeof d.accessHour === 'number') hourData2[d.accessHour]++; });
+    drawHourChartV2('hour-chart-v2', hourData2);
     document.getElementById('last-updated').textContent='最終更新: '+new Date().toLocaleString('ja-JP');
     document.getElementById('loading').style.display='none';
     document.getElementById('dashboard').style.display='block';
