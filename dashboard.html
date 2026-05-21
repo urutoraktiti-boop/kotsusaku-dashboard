@@ -490,6 +490,13 @@ body::before {
 .save-btn:hover { opacity: .88; transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--green-light); }
 .save-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--green-light); }
 .save-btn.loading { opacity: .5; pointer-events: none; }
+.save-btn.disabled {
+  opacity: .45;
+  pointer-events: none;
+  background: var(--muted);
+  border-color: var(--muted);
+  box-shadow: 3px 3px 0 #e0d8d0;
+}
 .save-result {
   margin-top: 10px;
   font-size: .65rem;
@@ -689,8 +696,8 @@ body::before {
       🔄 記録を更新する
     </button>
     <span class="btn-last-updated" id="load-last-updated"></span>
-    <button class="save-btn" id="save-btn" onclick="showConfirmModal('save')">
-      📦 今日の集計を保存する
+    <button class="save-btn disabled" id="save-btn" disabled title="一時停止中：Cloud Functions集計へ移行予定です">
+      📦 集計保存は一時停止中
     </button>
     <span class="btn-last-updated" id="save-last-updated"></span>
     <div class="save-result" id="save-result"></div>
@@ -1508,7 +1515,7 @@ async function loadDailyData() {
     if (count === 0) {
       ['linechart-hours-wrap','linechart-users-wrap','diffbar-hours','stackbar-story'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.innerHTML = '<div class="linechart-no-data">📦 「今日の集計を保存する」ボタンを押すとグラフが表示されます</div>';
+        if (el) el.innerHTML = '<div class="linechart-no-data">📦 日次集計は一時停止中です。Cloud Functions集計へ移行後に表示されます</div>';
       });
       return;
     }
@@ -1709,88 +1716,19 @@ function drawKeizoku(docs) {
 
 // ══════════════════════════════════════
 // Step2：今日の集計を保存する
-// analytics全件を集計して以下を更新：
-//   analytics_daily/YYYY-MM-DD
-//   analytics_summary/summary（正確な値で上書き）
+// 一時停止中。ユーザー端末・管理画面からsummaryを上書きせず、
+// 今後Cloud Functionsなど管理側の自動集計へ移行する。
 // ══════════════════════════════════════
 async function saveDailySnapshot() {
   const btn = document.getElementById('save-btn');
   const resultEl = document.getElementById('save-result');
-  if (btn) { btn.classList.add('loading'); btn.textContent = '⏳ 集計中…'; }
-  if (resultEl) { resultEl.textContent = ''; resultEl.className = 'save-result'; }
-
-  try {
-    const today = new Date().toISOString().slice(0, 10);
-
-    // analytics全件取得
-    const analyticsSnap = await db.collection('analytics').get();
-    const docs = analyticsSnap.docs.map(d => d.data());
-    const analyticsCount = docs.length;
-
-    // users全件取得
-    const usersSnap = await db.collection('users').get();
-    const usersCount = usersSnap.size;
-
-    // 総学習時間（分）
-    const totalStudyMin = docs.reduce((s, d) => s + (d.totalStudyMin || 0), 0);
-    const totalHours = Math.round(totalStudyMin / 60);
-
-    // ストーリー・資格の選択人数集計
-    const FICTION_IDS = ['gorilla','samurai','space','itachacha','spartan'];
-    const LICENSE_IDS = ['boki3','boki2','takken','sharoshi','zeirishi','fp2','koumuin','shindanshi','kaikeishi'];
-    const storyCount   = {};
-    const licenseCount = {};
-    docs.forEach(d => {
-      const s  = d.storyMode || '';
-      const lc = d.licenseCategory || '';
-      if (FICTION_IDS.includes(s)) {
-        storyCount[s] = (storyCount[s] || 0) + 1;
-      } else if (LICENSE_IDS.includes(s)) {
-        licenseCount[s] = (licenseCount[s] || 0) + 1;
-      } else if (lc) {
-        licenseCount[lc] = (licenseCount[lc] || 0) + 1;
-      }
-    });
-
-    const now = firebase.firestore.FieldValue.serverTimestamp();
-
-    // analytics_daily/{today} に保存
-    await db.collection('analytics_daily').doc(today).set({
-      date: today,
-      totalStudyMin,
-      analyticsCount,
-      usersCount,
-      storyCount,
-      licenseCount,
-      savedAt: now,
-    });
-
-    // analytics_summary/summary を正確な値で上書き
-    // （incrementではなくsetで上書きすることでズレを解消）
-    const storeCounts = {};
-    Object.assign(storeCounts, storyCount, licenseCount);
-    await db.collection('analytics_summary').doc('summary').set({
-      totalStudyMin,
-      userCount: analyticsCount,
-      storyCounts: storyCount,
-      licenseCounts: licenseCount,
-      updatedAt: now,
-    }, { merge: true });
-
-    const msg = today + ' の集計を保存しました（' + totalHours.toLocaleString() + '時間・' + analyticsCount + '人）';
-    if (resultEl) { resultEl.textContent = '✅ ' + msg; resultEl.className = 'save-result ok'; }
-    console.log('saveDailySnapshot:', msg);
-
-    // 推移グラフを再読み込み
-    await loadDailyData();
-    saveLastInfo(SAVE_KEY);
-    updateBtnStatus();
-
-  } catch(e) {
-    console.error('saveDailySnapshot error:', e);
-    if (resultEl) { resultEl.textContent = '❌ 保存に失敗しました: ' + e.message; resultEl.className = 'save-result err'; }
-  } finally {
-    if (btn) { btn.classList.remove('loading'); btn.textContent = '📦 今日の集計を保存する'; }
+  if (resultEl) {
+    resultEl.textContent = '⚠️ 集計保存は一時停止中です。summaryの再上書きを防ぐため、このボタンは使えません。';
+    resultEl.className = 'save-result err';
+  }
+  if (btn) {
+    btn.classList.add('disabled');
+    btn.textContent = '📦 集計保存は一時停止中';
   }
 }
 
@@ -1960,19 +1898,18 @@ function updateBtnStatus() {
   }
 
   // 保存ボタンの状態表示
-  const saveInfo = getLastInfo(SAVE_KEY);
   const saveStatusEl = document.getElementById('save-last-updated');
   if (saveStatusEl) {
-    if (saveInfo && saveInfo.date === getTodayStr()) {
-      saveStatusEl.textContent = '✅ 本日 ' + saveInfo.time + ' 保存済み';
-    } else {
-      saveStatusEl.textContent = '';
-    }
+    saveStatusEl.textContent = '⚠️ 一時停止中';
   }
 }
 
 // モーダルを表示して確認を取る
 function showConfirmModal(type) {
+  if (type === 'save') {
+    saveDailySnapshot();
+    return;
+  }
   const overlay = document.getElementById('confirm-modal');
   const icon    = document.getElementById('modal-icon');
   const title   = document.getElementById('modal-title');
@@ -2143,6 +2080,8 @@ async function loadData(){
     document.getElementById('kpi-avg-daily').textContent=avgDailyMins+'分';
     document.getElementById('kpi-avg-total').textContent=fmt(avgTotalMins);
     document.getElementById('kpi-avg-streak').textContent=avgStreak+'日';
+    // 総学習時間はsummaryの復旧済み値を優先表示する。
+    await loadTotalHoursFromSummary();
 
     // ゴリラ群衆（最大100個表示）
     renderCrowd('gorilla-crowd','gorilla-overflow','🦍',totalRegistered,100);
