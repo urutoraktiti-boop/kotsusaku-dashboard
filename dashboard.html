@@ -159,6 +159,9 @@ body::before {
 .manual-status{margin-top:10px;font-size:.68rem;font-weight:700;color:var(--muted);min-height:1.2em;}
 .manual-status.ok{color:var(--green-dark);}
 .manual-status.warn{color:var(--sakura-dark);}
+.admin-card{background:white;border:2px dashed var(--sakura);border-radius:var(--radius);padding:18px 18px;text-align:center;box-shadow:var(--shadow);}
+.admin-title{font-size:.72rem;font-weight:900;color:var(--sakura-dark);margin-bottom:8px;}
+.admin-copy{font-size:.62rem;line-height:1.8;color:var(--muted);margin-bottom:12px;}
 
 /* セクション */
 .section{margin-bottom:36px;}
@@ -434,15 +437,9 @@ body::before {
       <span class="float-char">🦍</span>
       <span class="float-char">🦍</span>
     </div>
-    <div class="dashboard-actions">
-      <button class="refresh-btn" id="refresh-btn" onclick="loadData()">
-        🔄 表示を更新する
-      </button>
-      <button class="refresh-btn manual-btn" id="manual-aggregate-btn" onclick="runManualAggregate()">
-        ⚡ 今すぐ再集計
-      </button>
-    </div>
-    <div class="manual-status" id="manual-aggregate-status"></div>
+    <button class="refresh-btn" id="refresh-btn" onclick="loadData()">
+      🔄 画面だけ更新する
+    </button>
   </div>
 
   <!-- ローディング -->
@@ -618,6 +615,22 @@ body::before {
       <div class="chart-card">
         <div class="chart-title">🌸 仲間たちが手にした勲章ランキング</div>
         <div class="badge-list" id="badge-ranking"></div>
+      </div>
+    </div>
+
+    <!-- 管理者用 -->
+    <div class="section">
+      <div class="section-label">⚠️ 管理者用・緊急操作</div>
+      <div class="admin-card">
+        <div class="admin-title">今すぐサーバー再集計</div>
+        <div class="admin-copy">
+          通常は毎時0分に自動更新されます。<br>
+          このボタンは、表示値を急いで合わせたい時だけ使います。
+        </div>
+        <button class="refresh-btn manual-btn" id="manual-aggregate-btn" onclick="runManualAggregate()">
+          ⚡ 管理者用：今すぐサーバー再集計
+        </button>
+        <div class="manual-status" id="manual-aggregate-status"></div>
       </div>
     </div>
 
