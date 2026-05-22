@@ -6,20 +6,21 @@
 <title>コツサク 軌跡の記録帳</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Kaisei+Tokumin:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --green: #35b95b;
-  --green-dark: #1f813d;
-  --green-light: #d8f7e0;
-  --sakura: #f06a9d;
-  --sakura-dark: #bd2a5c;
-  --sakura-light: #fce0ed;
-  --gold: #ffd94f;
-  --gold-dark: #c09600;
+  --green: #4caf82;
+  --green-dark: #2d7a57;
+  --green-light: #d4f5e2;
+  --sakura: #f4a0c0;
+  --sakura-dark: #c04070;
+  --sakura-light: #fde8f0;
+  --gold: #f5c842;
+  --gold-dark: #b88a00;
   --cream: #fffdf7;
   --bg: #f8f4ef;
-  --text: #172033;
-  --muted: #647084;
+  --text: #2c2c2c;
+  --muted: #9a9080;
   --white: #ffffff;
   --shadow: 0 4px 20px rgba(0,0,0,0.08);
   --shadow-pop: 4px 4px 0px rgba(0,0,0,0.12);
@@ -28,7 +29,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Zen Maru Gothic', sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -105,7 +106,7 @@ body::before {
   box-shadow: 3px 3px 0 var(--sakura-light);
 }
 .header-title {
-  font-family: inherit;
+  font-family: 'Kaisei Tokumin', serif;
   font-size: clamp(1.5rem, 4vw, 2.2rem);
   font-weight: 700;
   line-height: 1.4;
@@ -153,6 +154,11 @@ body::before {
 .refresh-btn:hover{border-color:var(--green);color:var(--green-dark);box-shadow:3px 3px 0 var(--green-light);transform:translate(-1px,-1px);}
 .refresh-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #e0d8d0;}
 .refresh-btn.loading{opacity:.5;pointer-events:none;}
+.dashboard-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+.manual-btn{border-color:var(--sakura);color:var(--sakura-dark);box-shadow:3px 3px 0 var(--sakura-light);}
+.manual-status{margin-top:10px;font-size:.68rem;font-weight:700;color:var(--muted);min-height:1.2em;}
+.manual-status.ok{color:var(--green-dark);}
+.manual-status.warn{color:var(--sakura-dark);}
 
 /* セクション */
 .section{margin-bottom:36px;}
@@ -195,7 +201,7 @@ body::before {
   margin-bottom: 4px;
 }
 .nakama-num {
-  font-family: inherit;
+  font-family: 'Kaisei Tokumin', serif;
   font-size: 3rem;
   font-weight: 700;
   color: var(--green-dark);
@@ -260,7 +266,7 @@ body::before {
   margin-bottom: 4px;
 }
 .time-num {
-  font-family: inherit;
+  font-family: 'Kaisei Tokumin', serif;
   font-size: 2.4rem;
   font-weight: 700;
   color: var(--sakura-dark);
@@ -302,7 +308,7 @@ body::before {
 .kpi-card.sakura{border-color:var(--sakura-light);box-shadow:4px 4px 0 var(--sakura-light);}
 .kpi-card.gold{border-color:#fde8a0;box-shadow:4px 4px 0 #fde8a0;}
 .kpi-emoji{font-size:1.6rem;margin-bottom:8px;display:block;}
-.kpi-val{font-family:inherit;font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-val{font-family:'Kaisei Tokumin',serif;font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:4px;}
 .kpi-card.green .kpi-val{color:var(--green-dark);}
 .kpi-card.sakura .kpi-val{color:var(--sakura-dark);}
 .kpi-card.gold .kpi-val{color:var(--gold-dark);}
@@ -330,7 +336,7 @@ body::before {
 .bar-fill.green{background:linear-gradient(90deg,var(--green-dark),var(--green));}
 .bar-fill.sakura{background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));}
 .bar-fill.gold{background:linear-gradient(90deg,var(--gold-dark),var(--gold));}
-.bar-count{font-size:.62rem;font-weight:700;color:var(--text);text-align:right;font-family:inherit;}
+.bar-count{font-size:.62rem;font-weight:700;color:var(--text);text-align:right;font-family:'Kaisei Tokumin',serif;}
 
 /* ドーナツ */
 .donut-wrap{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
@@ -338,7 +344,7 @@ body::before {
 .donut-item{display:flex;align-items:center;gap:7px;font-size:.65rem;}
 .donut-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .donut-item-label{color:var(--muted);flex:1;}
-.donut-item-val{font-weight:700;color:var(--text);font-family:inherit;}
+.donut-item-val{font-weight:700;color:var(--text);font-family:'Kaisei Tokumin',serif;}
 
 /* 時間帯 */
 .hour-chart{display:flex;align-items:flex-end;gap:2px;height:72px;}
@@ -361,7 +367,7 @@ body::before {
 }
 .feature-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(0,0,0,.09);}
 .feature-emoji{font-size:1.8rem;margin-bottom:8px;}
-.feature-pct{font-family:inherit;font-size:1.5rem;font-weight:700;color:var(--green-dark);margin-bottom:3px;}
+.feature-pct{font-family:'Kaisei Tokumin',serif;font-size:1.5rem;font-weight:700;color:var(--green-dark);margin-bottom:3px;}
 .feature-name{font-size:.58rem;font-weight:700;color:var(--muted);}
 .feature-copy{font-size:.52rem;color:var(--muted);margin-top:3px;line-height:1.5;}
 
@@ -376,10 +382,10 @@ body::before {
   border:1.5px solid transparent;
 }
 .badge-row:hover{background:var(--green-light);border-color:var(--green);}
-.badge-rank{font-size:.6rem;font-weight:900;min-width:18px;text-align:center;font-family:inherit;}
+.badge-rank{font-size:.6rem;font-weight:900;min-width:18px;text-align:center;font-family:'Kaisei Tokumin',serif;}
 .badge-name{flex:1;font-size:.7rem;color:var(--text);}
 .badge-bar-wrap{width:64px;}
-.badge-count-val{font-size:.65rem;font-weight:700;color:var(--green-dark);font-family:inherit;min-width:34px;text-align:right;}
+.badge-count-val{font-size:.65rem;font-weight:700;color:var(--green-dark);font-family:'Kaisei Tokumin',serif;min-width:34px;text-align:right;}
 
 /* フッター */
 .footer{text-align:center;padding-top:40px;}
@@ -393,274 +399,10 @@ body::before {
 @keyframes spin{to{transform:rotate(360deg);}}
 .spinner{width:22px;height:22px;border:2.5px solid var(--green-light);border-top-color:var(--green-dark);border-radius:50%;animation:spin .7s linear infinite;}
 
-
-/* ===== Phase1 追加グラフ ===== */
-/* 縦棒グラフ共通 */
-.vbar-chart { display: flex; align-items: flex-end; gap: 6px; height: 110px; margin-top: 6px; }
-.vbar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
-.vbar-bar { width: 100%; border-radius: 6px 6px 0 0; transition: height .7s cubic-bezier(.4,0,.2,1); }
-.vbar-val { font-size: .5rem; font-weight: 700; color: var(--muted); }
-.vbar-label { font-size: .48rem; color: var(--muted); text-align: center; line-height: 1.3; }
-
-/* 凡例行 */
-.chart-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-.chart-legend-item { display: flex; align-items: center; gap: 4px; font-size: .56rem; color: var(--muted); }
-.chart-legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
-
-/* 時間帯色分け（改良版） */
-.hour-bar-fill.morning { opacity: 1; background: linear-gradient(to top, #c08000, var(--gold)); }
-.hour-bar-fill.night   { opacity: 1; background: linear-gradient(to top, var(--green-dark), var(--green)); }
-.hour-bar-fill.latenight { opacity: .55; background: linear-gradient(to top, #4466aa, #88aadd); }
-.hour-time-label { font-size: .46rem; color: var(--muted); text-align: center; margin-top: 6px; }
-
-/* ストーリー別総学習時間（横棒） */
-.storyhour-list { display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
-.storyhour-row { display: grid; grid-template-columns: 96px 1fr 68px; align-items: center; gap: 8px; }
-.storyhour-label { font-size: .6rem; color: var(--text); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.storyhour-track { background: var(--bg); border-radius: 99px; height: 11px; overflow: hidden; }
-.storyhour-fill { height: 100%; border-radius: 99px; transition: width .8s cubic-bezier(.4,0,.2,1); }
-.storyhour-val { font-size: .58rem; font-weight: 700; color: var(--text); text-align: right; font-family: inherit; }
-
-
-/* ===== Phase2 推移グラフ ===== */
-.trend-card {
-  background: white;
-  border-radius: var(--radius);
-  padding: 22px;
-  box-shadow: var(--shadow);
-  border: 2px solid rgba(0,0,0,.05);
-  margin-bottom: 14px;
-}
-.trend-title { font-size: .65rem; font-weight: 900; color: var(--muted); letter-spacing: .06em; margin-bottom: 4px; }
-.trend-note  { font-size: .56rem; color: var(--muted); margin-bottom: 12px; }
-
-/* 折れ線グラフ */
-.linechart-wrap { position: relative; width: 100%; }
-.linechart-wrap svg { width: 100%; display: block; }
-.linechart-axis {
-  display: flex; justify-content: space-between;
-  font-size: .5rem; color: var(--muted); margin-top: 4px;
-  padding: 0 4px;
-}
-.linechart-no-data {
-  text-align: center; font-size: .72rem; color: var(--muted);
-  padding: 32px 0; background: var(--bg); border-radius: 12px;
-}
-
-/* 積み上げ棒グラフ（推移） */
-.stackbar-wrap { display: flex; align-items: flex-end; gap: 4px; height: 110px; }
-.stackbar-col  { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
-.stackbar-bar  { width: 100%; display: flex; flex-direction: column-reverse; border-radius: 5px 5px 0 0; overflow: hidden; }
-.stackbar-seg  { width: 100%; transition: height .6s ease; }
-.stackbar-label { font-size: .46rem; color: var(--muted); text-align: center; }
-
-/* 差分棒グラフ */
-.diffbar-wrap { display: flex; align-items: flex-end; gap: 4px; height: 90px; }
-.diffbar-col  { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
-.diffbar-bar  { width: 100%; border-radius: 4px 4px 0 0; transition: height .6s ease; }
-.diffbar-val  { font-size: .44rem; color: var(--muted); font-weight: 700; }
-.diffbar-label { font-size: .44rem; color: var(--muted); text-align: center; }
-
-/* データ収集中バナー */
-.daily-collecting {
-  background: var(--green-light); border: 1.5px solid var(--green);
-  border-radius: 10px; padding: 10px 14px;
-  font-size: .65rem; color: var(--green-dark); line-height: 1.7;
-  margin-bottom: 14px;
-}
-
-/* ===== Step2：集計保存ボタン ===== */
-.save-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--green-dark);
-  border: 2px solid var(--green-dark);
-  border-radius: 99px;
-  padding: 10px 24px;
-  font-size: .72rem;
-  font-weight: 900;
-  font-family: inherit;
-  color: white;
-  cursor: pointer;
-  transition: all .2s;
-  box-shadow: 3px 3px 0 var(--green-light);
-  margin-top: 10px;
-}
-.save-btn:hover { opacity: .88; transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--green-light); }
-.save-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--green-light); }
-.save-btn.loading { opacity: .5; pointer-events: none; }
-.save-btn.disabled {
-  opacity: .45;
-  pointer-events: none;
-  background: var(--muted);
-  border-color: var(--muted);
-  box-shadow: 3px 3px 0 #e0d8d0;
-}
-.save-result {
-  margin-top: 10px;
-  font-size: .65rem;
-  font-weight: 700;
-  min-height: 20px;
-  text-align: center;
-}
-.save-result.ok  { color: var(--green-dark); }
-.save-result.err { color: #dc2626; }
-
-/* ===== バッジランキング 2列表示 ===== */
-.badge-ranking-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-@media(max-width:600px){ .badge-ranking-grid { grid-template-columns: 1fr; } }
-.badge-col-title {
-  font-size: .6rem; font-weight: 900; color: var(--muted);
-  letter-spacing: .05em; margin-bottom: 10px;
-  padding-bottom: 6px;
-  border-bottom: 1.5px solid var(--border);
-}
-.badge-name-wrap { flex: 1; }
-.badge-story-sub {
-  font-size: .52rem; color: var(--green-dark);
-  font-weight: 700; margin-top: 1px;
-}
-/* ===== 再開率・継続の旅路 ===== */
-.reunion-gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.reunion-gauge-svg-wrap { position: relative; width: 160px; height: 90px; }
-.reunion-gauge-svg-wrap svg { width: 100%; height: 100%; }
-.reunion-gauge-center { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); text-align: center; }
-.reunion-gauge-val { font-size: 26px; font-weight: 900; color: var(--green-dark); line-height: 1; }
-.reunion-gauge-label { font-size: 10px; color: var(--muted); }
-.reunion-gauge-legend { display: flex; flex-direction: column; gap: 5px; width: 100%; }
-.reunion-leg-item { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--muted); }
-.reunion-leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-
-.reunion-donut-section { display: flex; gap: 14px; align-items: center; }
-.reunion-donut-wrap { position: relative; flex-shrink: 0; }
-.reunion-donut-wrap svg { width: 110px; height: 110px; }
-.reunion-donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.reunion-donut-pct { font-size: 20px; font-weight: 900; color: var(--green-dark); line-height: 1; }
-.reunion-donut-sub { font-size: 9px; color: var(--muted); }
-.reunion-donut-stats { flex: 1; display: flex; flex-direction: column; gap: 7px; }
-.reunion-stat-row { display: flex; align-items: center; gap: 7px; }
-.reunion-stat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.reunion-stat-name { font-size: 10px; color: var(--muted); flex: 1; }
-.reunion-stat-val { font-size: 12px; font-weight: 900; color: var(--text); }
-
-.reunion-funnel { display: flex; flex-direction: column; gap: 7px; }
-.reunion-funnel-row { display: flex; align-items: center; gap: 8px; }
-.reunion-funnel-label { font-size: 10.5px; width: 80px; flex-shrink: 0; text-align: right; color: var(--text); }
-.reunion-funnel-track { flex: 1; height: 24px; background: var(--bg); border-radius: 5px; overflow: hidden; }
-.reunion-funnel-fill { height: 100%; border-radius: 5px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; transition: width .8s ease; }
-.reunion-funnel-fill-val { font-size: 9.5px; font-weight: 700; color: white; white-space: nowrap; }
-.reunion-funnel-pct { font-size: 10px; font-weight: 700; width: 80px; text-align: right; color: var(--muted); }
-
-.reunion-flow { display: flex; flex-direction: column; gap: 0; }
-.reunion-flow-step { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; margin-bottom: 3px; }
-.reunion-flow-icon { font-size: 18px; flex-shrink: 0; }
-.reunion-flow-info { flex: 1; }
-.reunion-flow-name { font-size: 10px; font-weight: 700; color: var(--muted); }
-.reunion-flow-val { font-size: 16px; font-weight: 900; line-height: 1.2; }
-.reunion-flow-pct { font-size: 9.5px; color: var(--muted); margin-top: 1px; }
-.reunion-flow-bar { height: 4px; border-radius: 99px; margin-top: 5px; }
-.reunion-flow-arrow { text-align: center; font-size: 14px; color: var(--muted); margin: -1px 0; padding: 0 12px; }
-
-.reunion-note {
-  font-size: .58rem; color: var(--muted); line-height: 1.7;
-  background: var(--bg); border-radius: 8px;
-  padding: 8px 10px; margin-bottom: 10px;
-  border-left: 3px solid var(--green);
-}
-/* ===== 確認ポップアップ ===== */
-.modal-overlay {
-  position: fixed; inset: 0; z-index: 1000;
-  background: rgba(0,0,0,0.45);
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-  opacity: 0; pointer-events: none;
-  transition: opacity .2s ease;
-}
-.modal-overlay.active {
-  opacity: 1; pointer-events: all;
-}
-.modal-box {
-  background: white; border-radius: 20px;
-  padding: 28px 24px; max-width: 360px; width: 100%;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-  transform: translateY(12px);
-  transition: transform .2s ease;
-}
-.modal-overlay.active .modal-box {
-  transform: translateY(0);
-}
-.modal-icon { font-size: 32px; text-align: center; margin-bottom: 10px; }
-.modal-title {
-  font-size: 15px; font-weight: 900; text-align: center;
-  color: var(--text); margin-bottom: 8px;
-}
-.modal-body {
-  font-size: 11.5px; color: var(--muted); line-height: 1.8;
-  text-align: center; margin-bottom: 6px;
-}
-.modal-warning {
-  background: #fff8e8; border: 1.5px solid var(--gold);
-  border-radius: 10px; padding: 8px 12px;
-  font-size: 11px; color: #7a4f00; line-height: 1.7;
-  margin-bottom: 16px; text-align: left;
-}
-.modal-warning.hidden { display: none; }
-.modal-last {
-  font-size: 10.5px; color: var(--muted);
-  text-align: center; margin-bottom: 16px;
-}
-.modal-btns {
-  display: flex; gap: 10px;
-}
-.modal-btn-cancel {
-  flex: 1; padding: 10px;
-  background: var(--bg); border: 2px solid var(--bg);
-  border-radius: 99px; font-size: 12px; font-weight: 700;
-  color: var(--muted); cursor: pointer; font-family: inherit;
-  transition: all .15s;
-}
-.modal-btn-cancel:hover { border-color: var(--muted); }
-.modal-btn-ok {
-  flex: 2; padding: 10px;
-  background: var(--green-dark); border: 2px solid var(--green-dark);
-  border-radius: 99px; font-size: 12px; font-weight: 700;
-  color: white; cursor: pointer; font-family: inherit;
-  transition: all .15s;
-}
-.modal-btn-ok:hover { opacity: .85; }
-.modal-btn-ok.danger { background: var(--sakura-dark); border-color: var(--sakura-dark); }
-
-/* ボタンの更新済みバッジ */
-.btn-last-updated {
-  display: block; font-size: 9.5px; color: var(--muted);
-  margin-top: 4px; text-align: center; min-height: 14px;
-}
-
 .error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
 </style>
 </head>
 <body>
-
-
-<!-- 確認ポップアップ -->
-<div class="modal-overlay" id="confirm-modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-box">
-    <div class="modal-icon" id="modal-icon">📊</div>
-    <div class="modal-title" id="modal-title"></div>
-    <div class="modal-body" id="modal-body"></div>
-    <div class="modal-warning hidden" id="modal-warning"></div>
-    <div class="modal-last" id="modal-last"></div>
-    <div class="modal-btns">
-      <button class="modal-btn-cancel" onclick="closeModal()">キャンセル</button>
-      <button class="modal-btn-ok" id="modal-btn-ok" onclick="execModal()">✅ 読み込む</button>
-    </div>
-  </div>
-</div>
 
 <!-- 背景キャラ装飾 -->
 <div class="bg-deco">
@@ -692,36 +434,76 @@ body::before {
       <span class="float-char">🦍</span>
       <span class="float-char">🦍</span>
     </div>
-    <button class="refresh-btn" id="refresh-btn" onclick="showConfirmModal('load')">
-      🔄 記録を更新する
-    </button>
-    <span class="btn-last-updated" id="load-last-updated"></span>
-    <button class="save-btn disabled" id="save-btn" disabled title="一時停止中：Cloud Functions集計へ移行予定です">
-      📦 集計保存は一時停止中
-    </button>
-    <span class="btn-last-updated" id="save-last-updated"></span>
-    <div class="save-result" id="save-result"></div>
+    <div class="dashboard-actions">
+      <button class="refresh-btn" id="refresh-btn" onclick="loadData()">
+        🔄 表示を更新する
+      </button>
+      <button class="refresh-btn manual-btn" id="manual-aggregate-btn" onclick="runManualAggregate()">
+        ⚡ 今すぐ再集計
+      </button>
+    </div>
+    <div class="manual-status" id="manual-aggregate-status"></div>
   </div>
 
   <!-- ローディング -->
-  <div id="loading" class="loading-state" style="display:none;">
+  <div id="loading" class="loading-state">
     <div class="loading-chars">🥦</div>
     <div class="spinner"></div>
     <div class="loading-text">仲間たちの軌跡を集めています…</div>
   </div>
 
   <!-- ダッシュボード -->
-  <!-- 初期案内（ボタンを押す前） -->
-  <div id="initial-guide" style="text-align:center;padding:48px 20px;">
-    <div style="font-size:48px;margin-bottom:16px;">🥦</div>
-    <div style="font-size:15px;font-weight:900;color:var(--text);margin-bottom:8px;">データがまだ読み込まれていません</div>
-    <div style="font-size:12px;color:var(--muted);line-height:1.8;">
-      上の「🔄 記録を更新する」ボタンを押して<br>仲間たちの軌跡を読み込んでください。<br>
-      <span style="font-size:10.5px;">（1日1回を推奨しています）</span>
-    </div>
-  </div>
-
   <div id="dashboard" style="display:none;">
+
+    <!-- 仲間の数 -->
+    <div class="section">
+      <div class="section-label">🌱 冒険の仲間たち</div>
+
+      <!-- 冒険をはじめた仲間（users） -->
+      <div class="nakama-card">
+        <div class="nakama-title">🌱 冒険をはじめた仲間</div>
+        <div class="nakama-num" id="kpi-total">-</div>
+        <div class="nakama-copy">コツサクで冒険をはじめた仲間の総数です。</div>
+        <div class="icon-crowd" id="gorilla-crowd"></div>
+        <div class="crowd-overflow" id="gorilla-overflow"></div>
+      </div>
+
+      <!-- 今も冒険中の仲間（analytics） -->
+      <div class="nakama-card" style="border-color:var(--sakura-light);margin-top:12px;">
+        <div class="nakama-title">🥦 今も冒険中の仲間</div>
+        <div class="nakama-num" id="kpi-active-now" style="color:var(--sakura-dark);">-</div>
+        <div class="nakama-copy">最近アプリを開いてくれた仲間たち。今日も1マスを刻んでいます。</div>
+        <div style="display:flex;align-items:center;gap:16px;margin-top:10px;flex-wrap:wrap;">
+          <div style="font-size:.65rem;color:var(--muted);">
+            😴 久しぶりの仲間：<strong id="kpi-sleeping" style="color:var(--text);">-</strong>
+          </div>
+          <div style="font-size:.65rem;color:var(--muted);">
+            🤝 再会率：<strong id="kpi-reunion" style="color:var(--green-dark);">-</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card sakura">
+          <span class="kpi-emoji">🔥</span>
+          <div class="kpi-val" id="kpi-active">-</div>
+          <div class="kpi-lab">今週の冒険者</div>
+          <div class="kpi-copy">直近7日以内にアクセスした仲間</div>
+        </div>
+        <div class="kpi-card gold">
+          <span class="kpi-emoji">🌸</span>
+          <div class="kpi-val" id="kpi-retention">-</div>
+          <div class="kpi-lab">継続中の仲間</div>
+          <div class="kpi-copy">30日以上コツコツ続けている割合</div>
+        </div>
+        <div class="kpi-card green">
+          <span class="kpi-emoji">📱</span>
+          <div class="kpi-val" id="kpi-pwa">-</div>
+          <div class="kpi-lab">PWAインストール率</div>
+          <div class="kpi-copy">ホーム画面に追加している仲間</div>
+        </div>
+      </div>
+    </div>
 
     <!-- 学習時間 -->
     <div class="section">
@@ -757,234 +539,6 @@ body::before {
       </div>
     </div>
 
-    <!-- 仲間の数 -->
-    <div class="section">
-      <div class="section-label">🌱 冒険の仲間たち</div>
-
-      <!-- 冒険をはじめた仲間（users） -->
-      <div class="nakama-card">
-        <div class="nakama-title">🌱 冒険をはじめた仲間</div>
-        <div class="nakama-num" id="kpi-total">-</div>
-        <div class="nakama-copy">コツサクで冒険をはじめた仲間の総数です。</div>
-        <div class="icon-crowd" id="gorilla-crowd"></div>
-        <div class="crowd-overflow" id="gorilla-overflow"></div>
-      </div>
-
-      <!-- 今も冒険中の仲間（analytics） -->
-      <div class="nakama-card" style="border-color:var(--sakura-light);margin-top:12px;">
-        <div class="nakama-title">🥦 今も冒険中の仲間</div>
-        <div class="nakama-num" id="kpi-active-now" style="color:var(--sakura-dark);">-</div>
-        <div class="nakama-copy">最近アプリを開いてくれた仲間たち。今日も1マスを刻んでいます。</div>
-        <div style="display:flex;align-items:center;gap:16px;margin-top:10px;flex-wrap:wrap;">
-          <div style="font-size:.65rem;color:var(--muted);">
-            😴 久しぶりの仲間：<strong id="kpi-sleeping" style="color:var(--text);">-</strong>
-          </div>
-          <div style="font-size:.65rem;color:var(--muted);">
-            🥦 コツコツ軌跡率：<strong id="kpi-reunion" style="color:var(--green-dark);">-</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="kpi-grid">
-        <div class="kpi-card sakura">
-          <span class="kpi-emoji">🔥</span>
-          <div class="kpi-val" id="kpi-active">-</div>
-          <div class="kpi-lab">今週の冒険者</div>
-          <div class="kpi-copy">直近7日以内にアクセスした仲間</div>
-        </div>
-        <div class="kpi-card gold">
-          <span class="kpi-emoji">🌸</span>
-          <div class="kpi-val" id="kpi-retention">-</div>
-          <div class="kpi-lab">継続中の仲間</div>
-          <div class="kpi-copy">30日以上コツコツ続けている割合</div>
-        </div>
-        <div class="kpi-card green">
-          <span class="kpi-emoji">📱</span>
-          <div class="kpi-val" id="kpi-pwa">-</div>
-          <div class="kpi-lab">PWAインストール率</div>
-          <div class="kpi-copy">ホーム画面に追加している仲間</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- コツコツ軌跡率・継続の旅路 -->
-    <div class="section">
-      <div class="section-label">🥦 コツコツ軌跡率・継続の旅路</div>
-
-      <!-- 上段：案2（ゲージ）+ 案3（ドーナツ） -->
-      <div class="badge-ranking-grid" style="margin-bottom:14px;">
-
-        <!-- 案2：半円ゲージ -->
-        <div class="chart-card">
-          <div class="badge-col-title">🥦 コツコツ軌跡率ゲージ</div>
-          <div class="reunion-gauge-wrap">
-            <div class="reunion-gauge-svg-wrap">
-              <svg id="gauge-svg" viewBox="0 0 180 100">
-                <path d="M 20 90 A 70 70 0 0 1 160 90" fill="none" stroke="var(--bg)" stroke-width="16" stroke-linecap="round"/>
-                <path id="gauge-arc" d="M 20 90 A 70 70 0 0 1 160 90" fill="none" stroke="var(--green)" stroke-width="16" stroke-linecap="round" stroke-dasharray="0 220"/>
-                <text x="12" y="102" font-size="9" fill="var(--muted)">0%</text>
-                <text x="148" y="102" font-size="9" fill="var(--muted)">100%</text>
-              </svg>
-              <div class="reunion-gauge-center">
-                <div class="reunion-gauge-val" id="gauge-pct">-</div>
-                <div class="reunion-gauge-label">コツコツ軌跡率</div>
-              </div>
-            </div>
-            <div class="reunion-gauge-legend">
-              <div class="reunion-leg-item">
-                <div class="reunion-leg-dot" style="background:var(--green);"></div>
-                <span>学習記録あり：<strong id="gauge-active">-</strong></span>
-              </div>
-              <div class="reunion-leg-item">
-                <div class="reunion-leg-dot" style="background:var(--bg);border:1.5px solid var(--muted);"></div>
-                <span>未学習：<strong id="gauge-sleeping">-</strong></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 案3：ドーナツ＋数値 -->
-        <div class="chart-card">
-          <div class="badge-col-title">🍩 内訳ドーナツ</div>
-          <div class="reunion-note">
-            📝 アプリを登録した仲間のうち、1回以上学習記録をつけた人の割合。<br>
-            計算式：学習記録あり ÷ 登録者総数 × 100
-          </div>
-          <div class="reunion-donut-section">
-            <div class="reunion-donut-wrap">
-              <svg viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="44" fill="none" stroke="var(--bg)" stroke-width="16"/>
-                <circle id="donut-arc-active" cx="60" cy="60" r="44" fill="none" stroke="var(--green)" stroke-width="16"
-                  stroke-dasharray="0 276" stroke-dashoffset="69"
-                  style="transform:rotate(-90deg);transform-origin:60px 60px;"/>
-                <circle id="donut-arc-sleeping" cx="60" cy="60" r="44" fill="none" stroke="var(--sakura)" stroke-width="16"
-                  stroke-dasharray="0 276" stroke-dashoffset="0"
-                  style="transform:rotate(-90deg);transform-origin:60px 60px;"/>
-              </svg>
-              <div class="reunion-donut-center">
-                <div class="reunion-donut-pct" id="donut-pct">-</div>
-                <div class="reunion-donut-sub">コツコツ軌跡率</div>
-              </div>
-            </div>
-            <div class="reunion-donut-stats">
-              <div class="reunion-stat-row">
-                <div class="reunion-stat-dot" style="background:var(--green);"></div>
-                <div class="reunion-stat-name">学習記録あり</div>
-                <div class="reunion-stat-val" id="donut-active">-</div>
-              </div>
-              <div class="reunion-stat-row">
-                <div class="reunion-stat-dot" style="background:var(--sakura);"></div>
-                <div class="reunion-stat-name">未学習</div>
-                <div class="reunion-stat-val" id="donut-sleeping" style="color:var(--sakura-dark);">-</div>
-              </div>
-              <div class="reunion-stat-row">
-                <div class="reunion-stat-dot" style="background:var(--gold);"></div>
-                <div class="reunion-stat-name">今週アクティブ</div>
-                <div class="reunion-stat-val" id="donut-active7" style="color:var(--gold-dark);">-</div>
-              </div>
-              <div class="reunion-stat-row">
-                <div class="reunion-stat-dot" style="background:var(--muted);"></div>
-                <div class="reunion-stat-name">登録者総数</div>
-                <div class="reunion-stat-val" id="donut-total" style="color:var(--muted);">-</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 下段：案1（ファネル）+ 案4（フロー） -->
-      <div class="badge-ranking-grid">
-
-        <!-- 案1：登録→学習ファネル -->
-        <div class="chart-card">
-          <div class="badge-col-title">📉 登録→学習ファネル</div>
-          <div class="reunion-funnel" id="reunion-funnel"></div>
-        </div>
-
-        <!-- 案4：ステップフロー -->
-        <div class="chart-card">
-          <div class="badge-col-title">🪜 継続の旅路</div>
-          <div class="reunion-flow" id="reunion-flow"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 継続中の仲間たち -->
-    <div class="section">
-      <div class="section-label">🔥 継続中の仲間たち</div>
-      <div class="chart-card">
-        <div class="chart-title">💪 コツコツ続けている仲間の分布</div>
-        <div class="badge-ranking-grid">
-          <div>
-            <div class="badge-col-title">📉 ○日以上継続（ファネル）</div>
-            <div id="keizoku-funnel"></div>
-          </div>
-          <div>
-            <div class="badge-col-title">📊 各ステージの人数分布</div>
-            <div id="keizoku-dist"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- ═══ Phase2：推移グラフ ═══ -->
-    <div class="section">
-      <div class="section-label">📈 みんなの軌跡 — 推移</div>
-      <div class="daily-collecting" id="daily-collecting-banner" style="display:none;">
-        📦 データを蓄積中です。アプリを開いた仲間が増えるほど記録が積み上がります。<br>
-        グラフは翌日以降から表示されます（現在 <span id="daily-count">0</span> 日分のデータあり）。
-      </div>
-
-      <!-- 総学習時間の推移 -->
-      <div class="trend-card">
-        <div class="trend-title">⏱ みんなの総学習時間 推移</div>
-        <div class="trend-note">日々どれだけ積み上がっているか</div>
-        <div class="linechart-wrap" id="linechart-hours-wrap"></div>
-        <div class="linechart-axis" id="linechart-hours-axis"></div>
-      </div>
-
-      <!-- 仲間の数の推移 -->
-      <div class="trend-card">
-        <div class="trend-title">👥 冒険者の数 推移</div>
-        <div class="trend-note">アクティブな仲間がどれくらい増えているか</div>
-        <div class="linechart-wrap" id="linechart-users-wrap"></div>
-        <div class="linechart-axis" id="linechart-users-axis"></div>
-      </div>
-
-      <!-- 1日あたりの増加量 -->
-      <div class="trend-card">
-        <div class="trend-title">➕ 1日あたりの学習時間増加量</div>
-        <div class="trend-note">毎日どれだけ積み上げられているか（前日差分）</div>
-        <div class="diffbar-wrap" id="diffbar-hours"></div>
-        <div class="linechart-axis" id="diffbar-hours-axis"></div>
-      </div>
-
-      <!-- ストーリー選択比率の推移（積み上げ棒） -->
-      <div class="trend-card">
-        <div class="trend-title">⚔️🌸 ストーリー選択比率 推移</div>
-        <div class="trend-note">メイン vs 資格の割合が時間でどう変わるか</div>
-        <div class="chart-legend">
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>メインストーリー</div>
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--sakura);"></div>資格ストーリー</div>
-        </div>
-        <div class="stackbar-wrap" id="stackbar-story"></div>
-        <div class="linechart-axis" id="stackbar-story-axis"></div>
-      </div>
-    </div>
-
-    <!-- 1日平均学習時間 分布 -->
-    <div class="section">
-      <div class="section-label">📅 1日の平均学習時間 分布</div>
-      <div class="chart-card">
-        <div class="chart-title">⏱ 仲間たちは1日どれくらいコツコツしているか</div>
-        <div class="chart-legend">
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>〜30分</div>
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold);"></div>30〜60分</div>
-          <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--sakura);"></div>60分〜</div>
-        </div>
-        <div class="vbar-chart" id="vbar-avg-daily"></div>
-      </div>
-    </div>
-
     <!-- 物語・資格 -->
     <div class="section">
       <div class="section-label">📖 選んだ道</div>
@@ -1000,38 +554,33 @@ body::before {
       </div>
     </div>
 
-    <!-- ストーリー別 総学習時間ランキング -->
+    <!-- デバイス -->
     <div class="section">
-      <div class="section-label">⏱ ストーリー別 総学習時間ランキング</div>
-      <div class="chart-card">
-        <div class="chart-title">⚔️🌸 どの道を歩む仲間が一番コツコツしているか</div>
-        <div class="storyhour-list" id="bar-story-hours"></div>
+      <div class="section-label">📱 冒険スタイル</div>
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="chart-title">📱 デバイス & OS</div>
+          <div class="donut-wrap">
+            <svg width="80" height="80" viewBox="0 0 80 80" id="donut-device">
+              <circle cx="40" cy="40" r="28" fill="none" stroke="#f0ede8" stroke-width="12"/>
+            </svg>
+            <div class="donut-legend" id="legend-device"></div>
+          </div>
+          <div class="bar-chart" id="bar-os"></div>
+        </div>
       </div>
     </div>
 
-    <!-- 学習時間帯（既存＋改良 左右並び） -->
+    <!-- 時間帯 -->
     <div class="section">
       <div class="section-label">🌙 冒険の時間帯</div>
       <div class="chart-card">
-        <div class="chart-title">⏰ いつコツコツしているか — 2つの見方</div>
-        <div class="badge-ranking-grid">
-          <div>
-            <div class="badge-col-title">📊 シンプル分布</div>
-            <div class="hour-chart" id="hour-chart"></div>
-          </div>
-          <div>
-            <div class="badge-col-title">🎨 朝型・夜型・深夜 色分け</div>
-            <div class="chart-legend">
-              <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--gold);"></div>朝型（5〜11時）</div>
-              <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--green);"></div>夜型（17〜22時）</div>
-              <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#88aadd;"></div>深夜・早朝</div>
-            </div>
-            <div class="hour-chart" id="hour-chart-v2"></div>
-          </div>
-        </div>
-        <div class="hour-time-label">0時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 6時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 18時 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 23時</div>
+        <div class="chart-title">⏰ 何時に冒険しているか（時間帯別アクセス数）</div>
+        <div class="hour-chart" id="hour-chart"></div>
+        <div style="font-size:.54rem;color:var(--muted);margin-top:8px;text-align:center;">🌸 ピーク時間帯はサクラ色で表示</div>
       </div>
     </div>
+
     <!-- 機能活用 -->
     <div class="section">
       <div class="section-label">⚙️ 仲間たちの使い方</div>
@@ -1068,43 +617,7 @@ body::before {
       <div class="section-label">🏅 人気バッジ TOP10</div>
       <div class="chart-card">
         <div class="chart-title">🌸 仲間たちが手にした勲章ランキング</div>
-        <div class="badge-ranking-grid">
-          <div>
-            <div class="badge-col-title">🅰️ ストーリー別ランキング</div>
-            <div class="badge-list" id="badge-ranking-a"></div>
-          </div>
-          <div>
-            <div class="badge-col-title">🅱️ バッジ合算ランキング</div>
-            <div class="badge-list" id="badge-ranking-b"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- レベル分布 -->
-    <div class="section">
-      <div class="section-label">🏅 冒険者レベル分布</div>
-      <div class="chart-card">
-        <div class="chart-title">⭐ レベル帯ごとの仲間の人数</div>
-        <div class="vbar-chart" id="vbar-level"></div>
-      </div>
-    </div>
-
-    <!-- デバイス -->
-    <div class="section">
-      <div class="section-label">📱 冒険スタイル</div>
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="chart-title">📱 デバイス & OS</div>
-          <div class="donut-wrap">
-            <svg width="80" height="80" viewBox="0 0 80 80" id="donut-device">
-              <circle cx="40" cy="40" r="28" fill="none" stroke="#f0ede8" stroke-width="12"/>
-            </svg>
-            <div class="donut-legend" id="legend-device"></div>
-          </div>
-          <div class="bar-chart" id="bar-os"></div>
-        </div>
+        <div class="badge-list" id="badge-ranking"></div>
       </div>
     </div>
 
@@ -1129,6 +642,7 @@ firebase.initializeApp({
   appId: "1:394043383608:web:433cc0d00b59ec71e86bcd"
 });
 const db = firebase.firestore();
+const MANUAL_AGGREGATE_URL = 'https://asia-northeast1-kotsusaku-app.cloudfunctions.net/runAggregateNow';
 
 // フィクション系ストーリーラベル（アプリ表示名と統一）
 const STORY_NAMES = {
@@ -1173,10 +687,45 @@ const BADGE_NAMES = {
   early:'🌅 早起き学習', night:'🌙 夜型学習',
 };
 
-function fmt(min){return Math.round(min/60).toLocaleString()+'時間';}
+function fmt(min){return min>=60?Math.round(min/60)+'h':min+'m';}
 function pct(n,t){return !t?'0%':Math.round(n/t*100)+'%';}
 function daysSince(iso){return !iso?9999:Math.floor((Date.now()-new Date(iso).getTime())/86400000);}
 function avg(arr){return !arr.length?0:Math.round(arr.reduce((s,v)=>s+v,0)/arr.length);}
+function setText(id, text){const el=document.getElementById(id); if(el) el.textContent=text;}
+function countTotal(map){return Object.values(map||{}).reduce((s,v)=>s+Number(v||0),0);}
+function labelCountMap(counts, labels){
+  return Object.entries(counts||{}).reduce((out,[key,val])=>{
+    out[labels[key]||key]=Number(val||0);
+    return out;
+  },{});
+}
+function entriesFromCounts(counts, labels){
+  return Object.entries(labelCountMap(counts, labels))
+    .sort((a,b)=>b[1]-a[1])
+    .map(([label,value])=>({label,value}));
+}
+function avgLevelFromCounts(levelCounts){
+  let total=0,sum=0;
+  Object.entries(levelCounts||{}).forEach(([level,count])=>{
+    const n=Number(count||0);
+    total+=n;
+    sum+=Number(level||1)*n;
+  });
+  return total?Math.round(sum/total):1;
+}
+function mapToHourArray(hourCounts){
+  const arr=new Array(24).fill(0);
+  Object.entries(hourCounts||{}).forEach(([hour,count])=>{
+    const h=Number(hour);
+    if(Number.isInteger(h) && h>=0 && h<24) arr[h]=Number(count||0);
+  });
+  return arr;
+}
+function timestampToDate(value){
+  if(value && typeof value.toDate==='function') return value.toDate();
+  if(typeof value==='string') return new Date(value);
+  return null;
+}
 
 // アイコン群を描画（上限付き）
 function renderCrowd(containerId, overflowId, icon, count, maxDisplay) {
@@ -1210,7 +759,7 @@ function renderSakura(containerId, overflowId, totalMin, maxDisplay) {
   el.innerHTML = html;
   if (ov) {
     ov.textContent = count > maxDisplay
-      ? `🌸 × ${count.toLocaleString()} 個（${Math.round(totalMin/60).toLocaleString()}時間の軌跡！）`
+      ? `🌸 × ${count.toLocaleString()} 個（${fmt(totalMin)} 分の軌跡！）`
       : count > 0 ? `🌸 × ${count} 個（10分 × ${count} 回の軌跡）` : '';
   }
 }
@@ -1262,795 +811,34 @@ function drawHourChart(data){
   }).join('');
 }
 
-
-// ── Phase1: ストーリー別 総学習時間ランキング ──
-function drawStoryHours(containerId, items) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  const max = Math.max(...items.map(i => i.value), 1);
-  el.innerHTML = items.map(item => {
-    const pct = Math.round(item.value / max * 100);
-    const hrs = Math.round(item.value / 60).toLocaleString();
-    const isLicense = ['📗','📒','🧮','⚖️','🏠','💰','🏛️','💼','🔍'].some(e => item.label.startsWith(e));
-    const fillColor = isLicense
-      ? 'background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));'
-      : 'background:linear-gradient(90deg,var(--green-dark),var(--green));';
-    return `<div class="storyhour-row">
-      <div class="storyhour-label">${item.label}</div>
-      <div class="storyhour-track"><div class="storyhour-fill" style="width:${pct}%;${fillColor}"></div></div>
-      <div class="storyhour-val">${hrs}時間</div>
-    </div>`;
-  }).join('');
-}
-
-// ── Phase1: 1日平均学習時間 分布（縦棒）──
-function drawAvgDailyDist(containerId, docs) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  const buckets = [
-    { label: '〜10分',  min: 0,   max: 10,  color: 'linear-gradient(to top,var(--green-dark),var(--green))', count: 0 },
-    { label: '10〜30分', min: 10,  max: 30,  color: 'linear-gradient(to top,var(--green-dark),var(--green))', count: 0 },
-    { label: '30〜60分', min: 30,  max: 60,  color: 'linear-gradient(to top,#b88a00,var(--gold))',  count: 0 },
-    { label: '60〜90分', min: 60,  max: 90,  color: 'linear-gradient(to top,var(--sakura-dark),var(--sakura))', count: 0 },
-    { label: '90分〜',  min: 90,  max: Infinity, color: 'linear-gradient(to top,var(--sakura-dark),var(--sakura))', count: 0 },
-  ];
-  docs.forEach(d => {
-    const v = d.avgDailyMinutes || 0;
-    const b = buckets.find(b => v >= b.min && v < b.max);
-    if (b) b.count++;
-  });
-  const maxCount = Math.max(...buckets.map(b => b.count), 1);
-  el.innerHTML = buckets.map(b => {
-    const h = Math.round(b.count / maxCount * 100);
-    const pct = docs.length > 0 ? Math.round(b.count / docs.length * 100) : 0;
-    return `<div class="vbar-col">
-      <div class="vbar-val">${pct}%</div>
-      <div class="vbar-bar" style="height:${h}px;background:${b.color};"></div>
-      <div class="vbar-label">${b.label}</div>
-    </div>`;
-  }).join('');
-}
-
-// ── Phase1: レベル分布（縦棒）──
-function drawLevelDist(containerId, docs) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  const buckets = [
-    { label: 'Lv.1〜5',   min: 1,  max: 5,   color: 'linear-gradient(to top,var(--green-dark),var(--green))',  count: 0 },
-    { label: 'Lv.6〜10',  min: 6,  max: 10,  color: 'linear-gradient(to top,var(--green-dark),var(--green))',  count: 0 },
-    { label: 'Lv.11〜20', min: 11, max: 20,  color: 'linear-gradient(to top,#b88a00,var(--gold))',   count: 0 },
-    { label: 'Lv.21〜50', min: 21, max: 50,  color: 'linear-gradient(to top,var(--sakura-dark),var(--sakura))', count: 0 },
-    { label: 'Lv.51〜',   min: 51, max: Infinity, color: 'linear-gradient(to top,#800000,#e05a5a)', count: 0 },
-  ];
-  docs.forEach(d => {
-    const lv = d.level || 1;
-    const b = buckets.find(b => lv >= b.min && lv <= b.max);
-    if (b) b.count++;
-  });
-  const maxCount = Math.max(...buckets.map(b => b.count), 1);
-  el.innerHTML = buckets.map(b => {
-    const h = Math.round(b.count / maxCount * 100);
-    const pct = docs.length > 0 ? Math.round(b.count / docs.length * 100) : 0;
-    return `<div class="vbar-col">
-      <div class="vbar-val">${pct}%</div>
-      <div class="vbar-bar" style="height:${h}px;background:${b.color};"></div>
-      <div class="vbar-label">${b.label}</div>
-    </div>`;
-  }).join('');
-}
-
-// ── Phase1: 時間帯グラフ 改良版（色分け）──
-function drawHourChartV2(containerId, data) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  const max = Math.max(...data, 1);
-  const peakIdx = data.indexOf(max);
-  el.innerHTML = Array.from({ length: 24 }, (_, h) => {
-    const v = data[h] || 0;
-    const ph = Math.round(v / max * 100);
-    let cls = '';
-    if      (h >= 5  && h <= 11) cls = 'morning';
-    else if (h >= 17 && h <= 22) cls = 'night';
-    else if (h >= 23 || h <= 4)  cls = 'latenight';
-    if (h === peakIdx && v > 0)  cls = (cls || 'night') + ' peak';
-    return `<div class="hour-col-wrap">
-      <div class="hour-bar-bg"><div class="hour-bar-fill ${cls}" style="height:${ph}%"></div></div>
-      <div class="hour-label">${h}</div>
-    </div>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════
-// ══════════════════════════════════════
-// Step3改善版：analytics_daily 推移グラフ
-// ══════════════════════════════════════
-
-// 折れ線グラフをSVGで描画（1点でも表示可能）
-function drawLineChart(wrapId, axisId, points, color, labelFn, valueFn) {
-  const wrap = document.getElementById(wrapId);
-  const axis = document.getElementById(axisId);
-  if (!wrap) return;
-  if (points.length === 0) {
-    wrap.innerHTML = '<div class="linechart-no-data">📦 データ蓄積中…</div>';
-    if (axis) axis.innerHTML = '';
-    return;
-  }
-  const W = 560, H = 100, PAD = 12;
-  const values = points.map(valueFn);
-  const minV = Math.min(...values);
-  const maxV = Math.max(...values);
-  const range = maxV - minV || 1;
-
-  const toX = i => points.length === 1
-    ? W / 2
-    : PAD + (i / (points.length - 1)) * (W - PAD * 2);
-  const toY = v => H - PAD - ((v - minV) / range) * (H - PAD * 2);
-
-  // グリッド線（3本）
-  const gridLines = [0.25, 0.5, 0.75].map(r => {
-    const y = PAD + r * (H - PAD * 2);
-    return '<line x1="' + PAD + '" y1="' + y + '" x2="' + (W-PAD) + '" y2="' + y + '" stroke="#f0ede8" stroke-width="1"/>';
-  }).join('');
-
-  // エリア・折れ線
-  let areaPath = '', polyline = '';
-  if (points.length === 1) {
-    const x = toX(0), y = toY(valueFn(points[0]));
-    areaPath = 'M' + (x-20) + ',' + H + ' L' + (x-20) + ',' + y + ' L' + (x+20) + ',' + y + ' L' + (x+20) + ',' + H + ' Z';
-    polyline = (x-20) + ',' + y + ' ' + (x+20) + ',' + y;
-  } else {
-    areaPath = 'M' + toX(0) + ',' + H + ' ' +
-      points.map((p,i) => 'L' + toX(i) + ',' + toY(valueFn(p))).join(' ') +
-      ' L' + toX(points.length-1) + ',' + H + ' Z';
-    polyline = points.map((p,i) => toX(i) + ',' + toY(valueFn(p))).join(' ');
-  }
-
-  // 最新値ラベル
-  const lastX = toX(points.length - 1);
-  const lastY = toY(valueFn(points[points.length - 1]));
-  const lastLabel = labelFn(points[points.length - 1]);
-  const labelX = Math.min(lastX + 5, W - 80);
-  const labelY = Math.max(lastY - 6, 12);
-
-  wrap.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">'
-    + '<defs><linearGradient id="grad-' + wrapId + '" x1="0" y1="0" x2="0" y2="1">'
-    + '<stop offset="0%" stop-color="' + color + '" stop-opacity="0.18"/>'
-    + '<stop offset="100%" stop-color="' + color + '" stop-opacity="0.02"/>'
-    + '</linearGradient></defs>'
-    + gridLines
-    + '<path d="' + areaPath + '" fill="url(#grad-' + wrapId + ')"/>'
-    + '<polyline points="' + polyline + '" fill="none" stroke="' + color + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>'
-    + '<circle cx="' + lastX + '" cy="' + lastY + '" r="3.5" fill="' + color + '"/>'
-    + '<text x="' + labelX + '" y="' + labelY + '" font-size="9" fill="' + color + '" font-weight="700">' + lastLabel + '</text>'
-    + '</svg>';
-
-  // X軸ラベル
-  if (axis) {
-    if (points.length === 1) {
-      axis.innerHTML = '<span>' + points[0].date.slice(5) + '</span>';
-    } else {
-      const step = Math.max(1, Math.floor(points.length / 6));
-      const labels = points.filter((_, i) => i % step === 0 || i === points.length - 1);
-      axis.innerHTML = labels.map(p => '<span>' + p.date.slice(5) + '</span>').join('');
-    }
-  }
-}
-
-// 差分棒グラフを描画（1点でも表示可能）
-function drawDiffBars(wrapId, axisId, points, valueFn) {
-  const wrap = document.getElementById(wrapId);
-  const axis = document.getElementById(axisId);
-  if (!wrap) return;
-  if (points.length < 2) {
-    wrap.innerHTML = '<div class="linechart-no-data">📦 2日分以上のデータが蓄積されると表示されます</div>';
-    if (axis) axis.innerHTML = '';
-    return;
-  }
-  const diffs = points.slice(1).map((p, i) => ({
-    date: p.date,
-    diff: Math.max(0, valueFn(p) - valueFn(points[i]))
-  }));
-  const maxDiff = Math.max(...diffs.map(d => d.diff), 1);
-  wrap.innerHTML = diffs.map(d => {
-    const h = Math.round(d.diff / maxDiff * 80);
-    const hrs = Math.round(d.diff / 60);
-    return '<div class="diffbar-col">'
-      + '<div class="diffbar-val">' + (hrs > 0 ? '+' + hrs + 'h' : '') + '</div>'
-      + '<div class="diffbar-bar" style="height:' + Math.max(h,2) + 'px;background:linear-gradient(to top,var(--green-dark),var(--green));"></div>'
-      + '<div class="diffbar-label">' + d.date.slice(5) + '</div>'
-      + '</div>';
-  }).join('');
-  if (axis) axis.innerHTML = '';
-}
-
-// ストーリー比率の積み上げ棒グラフ（1点でも表示可能）
-function drawStackBars(wrapId, axisId, points) {
-  const wrap = document.getElementById(wrapId);
-  const axis = document.getElementById(axisId);
-  if (!wrap) return;
-  if (points.length === 0) {
-    wrap.innerHTML = '<div class="linechart-no-data">📦 データ蓄積中…</div>';
-    if (axis) axis.innerHTML = '';
-    return;
-  }
-  const FICTION_IDS = ['gorilla','samurai','space','itachacha','spartan'];
-  wrap.innerHTML = points.map(p => {
-    const sc = p.storyCount || {};
-    const lc = p.licenseCount || {};
-    const mainN    = Object.entries(sc).filter(([k]) => FICTION_IDS.includes(k)).reduce((s,[,v]) => s+v, 0);
-    const licenseN = Object.entries(sc).filter(([k]) => !FICTION_IDS.includes(k)).reduce((s,[,v]) => s+v, 0)
-                   + Object.values(lc).reduce((s,v) => s+v, 0);
-    const total = mainN + licenseN || 1;
-    const mainH    = Math.round(mainN    / total * 100);
-    const licenseH = 100 - mainH;
-    return '<div class="stackbar-col">'
-      + '<div class="stackbar-bar" style="height:100px;">'
-      + '<div class="stackbar-seg" style="height:' + licenseH + '%;background:var(--sakura);"></div>'
-      + '<div class="stackbar-seg" style="height:' + mainH + '%;background:var(--green);"></div>'
-      + '</div>'
-      + '<div class="stackbar-label">' + p.date.slice(5) + '</div>'
-      + '</div>';
-  }).join('');
-  if (axis) axis.innerHTML = '';
-}
-
-// analytics_daily を読み込んでグラフを描画
-async function loadDailyData() {
-  if (!db) return;
-  try {
-    const snap = await db.collection('analytics_daily')
-      .orderBy('date', 'asc')
-      .limit(30)
-      .get();
-
-    const points = snap.docs.map(d => d.data()).filter(d => d.date);
-    const count = points.length;
-
-    // 収集中バナーの制御
-    const banner = document.getElementById('daily-collecting-banner');
-    const countEl = document.getElementById('daily-count');
-    if (countEl) countEl.textContent = count;
-    if (banner) banner.style.display = count === 0 ? 'block' : 'none';
-
-    if (count === 0) {
-      ['linechart-hours-wrap','linechart-users-wrap','diffbar-hours','stackbar-story'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = '<div class="linechart-no-data">📦 日次集計は一時停止中です。Cloud Functions集計へ移行後に表示されます</div>';
-      });
-      return;
-    }
-
-    // 総学習時間の推移（1点から表示）
-    drawLineChart(
-      'linechart-hours-wrap', 'linechart-hours-axis', points,
-      '#35b95b',
-      p => Math.round(p.totalStudyMin / 60).toLocaleString() + '時間',
-      p => p.totalStudyMin || 0
-    );
-
-    // 仲間の数の推移（1点から表示）
-    drawLineChart(
-      'linechart-users-wrap', 'linechart-users-axis', points,
-      '#f06a9d',
-      p => (p.analyticsCount || 0) + '人',
-      p => p.analyticsCount || 0
-    );
-
-    // 1日あたりの増加量（2日分から表示）
-    drawDiffBars(
-      'diffbar-hours', 'diffbar-hours-axis', points,
-      p => p.totalStudyMin || 0
-    );
-
-    // ストーリー比率推移（1点から表示）
-    drawStackBars('stackbar-story', 'stackbar-story-axis', points);
-
-  } catch(e) {
-    console.warn('daily data load error:', e);
-  }
-}
-
-// ══════════════════════════════════════
-// 再開率・継続の旅路 描画関数
-// ══════════════════════════════════════
-function drawReunion(totalRegistered, total, activeUsers, retained) {
-  const sleeping    = Math.max(totalRegistered - total, 0);
-  const reunionRate = totalRegistered > 0 ? Math.round(total / totalRegistered * 100) : 0;
-  const active7Rate = total > 0 ? Math.round(activeUsers / total * 100) : 0;
-  const retainedRate = total > 0 ? Math.round(retained / total * 100) : 0;
-
-  // 人数表記ヘルパー（割合%（人数人）形式）
-  function fmtVal(rate, count) { return rate + '%（' + count + '人）'; }
-  function fmtCount(count) { return count + '人'; }
-
-  // ── 案2：ゲージ ──
-  const gaugeArc = document.getElementById('gauge-arc');
-  if (gaugeArc) {
-    const total_arc = 220;
-    const filled = Math.round(reunionRate / 100 * total_arc);
-    gaugeArc.setAttribute('stroke-dasharray', filled + ' ' + total_arc);
-  }
-  const gaugePct = document.getElementById('gauge-pct');
-  if (gaugePct) gaugePct.textContent = reunionRate + '%';
-  const gaugeActive = document.getElementById('gauge-active');
-  if (gaugeActive) gaugeActive.textContent = fmtVal(reunionRate, total);
-  const gaugeSleeping = document.getElementById('gauge-sleeping');
-  if (gaugeSleeping) {
-    const sleepRate = totalRegistered > 0 ? Math.round(sleeping / totalRegistered * 100) : 0;
-    gaugeSleeping.textContent = fmtVal(sleepRate, sleeping);
-  }
-
-  // ── 案3：ドーナツ ──
-  const circ = 2 * Math.PI * 44;
-  const activeArc  = document.getElementById('donut-arc-active');
-  const sleepArc   = document.getElementById('donut-arc-sleeping');
-  if (activeArc && sleepArc) {
-    const activeDash  = Math.round(reunionRate / 100 * circ);
-    const sleepDash   = circ - activeDash;
-    activeArc.setAttribute('stroke-dasharray', activeDash + ' ' + (circ - activeDash));
-    sleepArc.setAttribute('stroke-dasharray', sleepDash + ' ' + (circ - sleepDash));
-    sleepArc.setAttribute('stroke-dashoffset', -(activeDash - 69));
-  }
-  const donutPct = document.getElementById('donut-pct');
-  if (donutPct) donutPct.textContent = reunionRate + '%';
-  const donutActive = document.getElementById('donut-active');
-  if (donutActive) donutActive.textContent = fmtVal(reunionRate, total);
-  const donutSleeping = document.getElementById('donut-sleeping');
-  if (donutSleeping) {
-    const sleepRate = totalRegistered > 0 ? Math.round(sleeping / totalRegistered * 100) : 0;
-    donutSleeping.textContent = fmtVal(sleepRate, sleeping);
-  }
-  const donutActive7 = document.getElementById('donut-active7');
-  if (donutActive7) donutActive7.textContent = fmtVal(active7Rate, activeUsers);
-  const donutTotal = document.getElementById('donut-total');
-  if (donutTotal) donutTotal.textContent = fmtCount(totalRegistered);
-
-  // ── 案1：ファネル ──
-  const funnelEl = document.getElementById('reunion-funnel');
-  if (funnelEl) {
-    const stages = [
-      { label: '登録者',       count: totalRegistered, base: totalRegistered, color: 'linear-gradient(90deg,var(--green-dark),var(--green))' },
-      { label: '学習記録あり', count: total,            base: totalRegistered, color: 'linear-gradient(90deg,var(--green-dark),var(--green))' },
-      { label: '今週アクティブ', count: activeUsers,   base: totalRegistered, color: 'linear-gradient(90deg,var(--gold-dark),var(--gold))' },
-    ];
-    funnelEl.innerHTML = stages.map(s => {
-      const pct  = s.base > 0 ? Math.round(s.count / s.base * 100) : 0;
-      const barW = s.base > 0 ? Math.round(s.count / s.base * 100) : 0;
-      return '<div class="reunion-funnel-row">'
-        + '<div class="reunion-funnel-label">' + s.label + '</div>'
-        + '<div class="reunion-funnel-track">'
-        + '<div class="reunion-funnel-fill" style="width:' + barW + '%;background:' + s.color + ';">'
-        + '<div class="reunion-funnel-fill-val">' + pct + '%（' + s.count + '人）</div>'
-        + '</div></div>'
-        + '</div>';
-    }).join('');
-  }
-
-  // ── 案4：フロー ──
-  const flowEl = document.getElementById('reunion-flow');
-  if (flowEl) {
-    const steps = [
-      { icon: '📥', name: 'STEP 1：登録',          val: fmtCount(totalRegistered),            pct: '100%',           barW: 100,          color: 'var(--green)',  bg: 'var(--green-light)' },
-      { icon: '📖', name: 'STEP 2：学習記録あり',   val: fmtVal(reunionRate, total),           pct: '登録者の ' + reunionRate + '%（コツコツ軌跡率）', barW: reunionRate, color: 'var(--green)',  bg: 'var(--green-light)' },
-      { icon: '🔥', name: 'STEP 3：今週アクティブ', val: fmtVal(active7Rate, activeUsers),     pct: '学習者の ' + active7Rate + '%',         barW: active7Rate,  color: 'var(--gold)',   bg: '#fffbf0' },
-
-    ];
-    flowEl.innerHTML = steps.map((s, i) =>
-      (i > 0 ? '<div class="reunion-flow-arrow">↓</div>' : '')
-      + '<div class="reunion-flow-step" style="background:' + s.bg + ';">'
-      + '<div class="reunion-flow-icon">' + s.icon + '</div>'
-      + '<div class="reunion-flow-info">'
-      + '<div class="reunion-flow-name">' + s.name + '</div>'
-      + '<div class="reunion-flow-val" style="color:' + s.color + ';">' + s.val + '</div>'
-      + '<div class="reunion-flow-pct">' + s.pct + '</div>'
-      + '<div class="reunion-flow-bar" style="width:' + s.barW + '%;background:' + s.color + ';"></div>'
-      + '</div></div>'
-    ).join('');
-  }
-}
-
-// ══════════════════════════════════════
-// 継続中の仲間たち：ファネル＋分布
-// ══════════════════════════════════════
-function drawKeizoku(docs) {
-  const total = docs.length;
-  const STAGES = [
-    { label: '全員',      min: 0  },
-    { label: '3日以上',   min: 3  },
-    { label: '5日以上',   min: 5  },
-    { label: '10日以上',  min: 10 },
-    { label: '14日以上',  min: 14 },
-    { label: '21日以上',  min: 21 },
-    { label: '30日以上',  min: 30 },
-  ];
-
-  // 各ステージの人数を集計
-  const counts = STAGES.map(s => ({
-    label: s.label,
-    min:   s.min,
-    count: docs.filter(d => (d.streakDays || 0) >= s.min).length,
-  }));
-
-  const maxCount = counts[0].count || 1;
-  const rankColors = ['#35b95b','#35b95b','#35b95b','#ffd94f','#ffd94f','#f97316','#e05a5a'];
-
-  // ファネル（左）
-  const funnelEl = document.getElementById('keizoku-funnel');
-  if (funnelEl) {
-    funnelEl.innerHTML = counts.map((s, i) => {
-      const pct = Math.round(s.count / maxCount * 100);
-      const ratePct = total > 0 ? Math.round(s.count / total * 100) : 0;
-      return '<div class="storyhour-row">'
-        + '<div class="storyhour-label">' + s.label + '</div>'
-        + '<div class="storyhour-track"><div class="storyhour-fill" style="width:' + pct + '%;background:' + rankColors[i] + ';"></div></div>'
-        + '<div class="storyhour-val">' + s.count + '人（' + ratePct + '%）</div>'
-        + '</div>';
-    }).join('');
-  }
-
-  // 分布（右）：各ステージの「ちょうどそのステージにいる人数」
-  const distEl = document.getElementById('keizoku-dist');
-  if (distEl) {
-    const distItems = counts.map((s, i) => {
-      const nextMin = counts[i + 1] ? counts[i + 1].min : Infinity;
-      const nextCount = counts[i + 1] ? counts[i + 1].count : 0;
-      const label = i === 0 ? '1日〜2日'
-        : i === counts.length - 1 ? s.label
-        : s.min + '日〜' + (nextMin - 1) + '日';
-      const stageCount = i === counts.length - 1 ? s.count : s.count - nextCount;
-      return { label, count: stageCount, color: rankColors[i] };
-    });
-
-    const maxDist = Math.max(...distItems.map(d => d.count), 1);
-    distEl.innerHTML = distItems.map(d => {
-      const pct = Math.round(d.count / maxDist * 100);
-      const ratePct = total > 0 ? Math.round(d.count / total * 100) : 0;
-      return '<div class="storyhour-row">'
-        + '<div class="storyhour-label">' + d.label + '</div>'
-        + '<div class="storyhour-track"><div class="storyhour-fill" style="width:' + pct + '%;background:' + d.color + ';"></div></div>'
-        + '<div class="storyhour-val">' + d.count + '人（' + ratePct + '%）</div>'
-        + '</div>';
-    }).join('');
-  }
-}
-
-// ══════════════════════════════════════
-// Step2：今日の集計を保存する
-// 一時停止中。ユーザー端末・管理画面からsummaryを上書きせず、
-// 今後Cloud Functionsなど管理側の自動集計へ移行する。
-// ══════════════════════════════════════
-async function saveDailySnapshot() {
-  const btn = document.getElementById('save-btn');
-  const resultEl = document.getElementById('save-result');
-  if (resultEl) {
-    resultEl.textContent = '⚠️ 集計保存は一時停止中です。summaryの再上書きを防ぐため、このボタンは使えません。';
-    resultEl.className = 'save-result err';
-  }
-  if (btn) {
-    btn.classList.add('disabled');
-    btn.textContent = '📦 集計保存は一時停止中';
-  }
-}
-
-// ══════════════════════════════════════
-// バッジランキング 左右2列表示
-// 左：ストーリー別（タイプA）
-// 右：バッジ合算（タイプB）
-// ══════════════════════════════════════
-
-// ストーリーIDからラベルを返す
-function getStoryLabel(storyId) {
-  const STORY_LABELS = {
-    gorilla:   '🦍 ゴリラ成長記',
-    samurai:   '⚔️ 受験剣士の道',
-    space:     '🚀 宇宙探検家の旅',
-    itachacha: '🥦 正体不明育成記',
-    spartan:   '🐉 鬼教官の特訓',
-  };
-  return STORY_LABELS[storyId] || null;
-}
-
-// バッジIDからストーリーIDを抽出（例: itachacha_morning → itachacha）
-function extractStoryFromBadgeId(id) {
-  const FICTION_IDS = ['gorilla','samurai','space','itachacha','spartan'];
-  for (const s of FICTION_IDS) {
-    if (id.startsWith(s + '_')) return s;
-  }
-  return null;
-}
-
-// バッジIDから純粋なバッジIDを抽出（例: itachacha_morning → morning）
-function extractBaseBadgeId(id) {
-  const storyId = extractStoryFromBadgeId(id);
-  if (storyId) return id.slice(storyId.length + 1);
-  return id;
-}
-
-// 早朝バッジのラベルマップ
-const ASA_BADGE_NAMES = {
-  asa_first:   '🌅 夜明けの一歩',
-  asa_cnt10:   '🌤️ 朝活10回！ニヤニヤ',
-  asa_4set:    '⭐ 4SET、クリア。',
-  asa_str7:    '🔥 7日連続、尊い。',
-  asa_cnt30:   '☀️ 朝活30回！まじか',
-  asa_str30:   '🌙 30日、もはや習慣',
-  asa_cnt50:   '📣 朝の伝道師（自称）',
-  asa_cnt100:  '🌟 公認!?アンバサダー',
-  asa_str100:  '🏆 公認!?crazy',
-  asa_perfect: '💯 完璧な一週間',
-};
-
-// バッジIDから表示名を取得（全パターン対応）
-function getBadgeDisplayName(id) {
-  // 早朝バッジ
-  if (ASA_BADGE_NAMES[id]) return ASA_BADGE_NAMES[id];
-  // ストーリー別バッジ（例: itachacha_morning）
-  const storyId = extractStoryFromBadgeId(id);
-  if (storyId) {
-    const baseId = extractBaseBadgeId(id);
-    return BADGE_NAMES[baseId] || baseId;
-  }
-  // 共通バッジ
-  return BADGE_NAMES[id] || id;
-}
-
-// タイプA：ストーリー別ランキングを描画
-function drawBadgeRankingA(badgeMap) {
-  const el = document.getElementById('badge-ranking-a');
-  if (!el) return;
-  const rankColors = ['#f5c842','#94a3b8','#f97316'];
-  const sorted = Object.entries(badgeMap).sort((a,b) => b[1]-a[1]).slice(0,10);
-  const max = sorted[0]?.[1] || 1;
-
-  el.innerHTML = sorted.map(([id, count], i) => {
-    const name      = getBadgeDisplayName(id);
-    const storyId   = extractStoryFromBadgeId(id);
-    const storyLabel = storyId ? getStoryLabel(storyId) : null;
-    const isAsa     = id.startsWith('asa_');
-    const subLabel  = isAsa ? '🌅 早朝自習室' : storyLabel ? storyLabel : '<span style="color:var(--muted);">共通バッジ</span>';
-    const pct       = Math.round(count / max * 100);
-
-    return '<div class="badge-row">'
-      + '<div class="badge-rank" style="color:' + (rankColors[i]||'#aaa') + '">' + (i+1) + '</div>'
-      + '<div class="badge-name-wrap">'
-      + '<div class="badge-name">' + name + '</div>'
-      + '<div class="badge-story-sub">' + subLabel + '</div>'
-      + '</div>'
-      + '<div class="badge-bar-wrap"><div class="bar-track"><div class="bar-fill green" style="width:' + pct + '%"></div></div></div>'
-      + '<div class="badge-count-val">' + count + '人</div>'
-      + '</div>';
-  }).join('');
-}
-
-// タイプB：バッジ合算ランキングを描画
-function drawBadgeRankingB(badgeMap) {
-  const el = document.getElementById('badge-ranking-b');
-  if (!el) return;
-  const rankColors = ['#f5c842','#94a3b8','#f97316'];
-
-  // 同じbaseBadgeIdで合算
-  const merged = {};
-  Object.entries(badgeMap).forEach(([id, count]) => {
-    const baseId = extractBaseBadgeId(id);
-    // 早朝バッジはそのまま（asa_firstなど）
-    const key = id.startsWith('asa_') ? id : baseId;
-    merged[key] = (merged[key] || 0) + count;
-  });
-
-  const sorted = Object.entries(merged).sort((a,b) => b[1]-a[1]).slice(0,10);
-  const max = sorted[0]?.[1] || 1;
-
-  el.innerHTML = sorted.map(([id, count], i) => {
-    const name = getBadgeDisplayName(id);
-    const pct  = Math.round(count / max * 100);
-    return '<div class="badge-row">'
-      + '<div class="badge-rank" style="color:' + (rankColors[i]||'#aaa') + '">' + (i+1) + '</div>'
-      + '<div class="badge-name">' + name + '</div>'
-      + '<div class="badge-bar-wrap"><div class="bar-track"><div class="bar-fill green" style="width:' + pct + '%"></div></div></div>'
-      + '<div class="badge-count-val">' + count + '人</div>'
-      + '</div>';
-  }).join('');
-}
-
-// 旧drawBadgeRankingは両方を呼ぶように変更
-function drawBadgeRanking(badgeMap) {
-  drawBadgeRankingA(badgeMap);
-  drawBadgeRankingB(badgeMap);
-}
-
-
-// ══════════════════════════════════════
-// 確認ポップアップ＋1日1回制限
-// ══════════════════════════════════════
-const LOAD_KEY = 'kotsusaku-last-load';   // 最終読み込み日時
-const SAVE_KEY = 'kotsusaku-last-save';   // 最終保存日時
-
-function getTodayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function getLastInfo(key) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    return JSON.parse(raw); // { date, time }
-  } catch(e) { return null; }
-}
-
-function saveLastInfo(key) {
-  const now = new Date();
-  localStorage.setItem(key, JSON.stringify({
-    date: now.toISOString().slice(0, 10),
-    time: now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
-  }));
-}
-
-function updateBtnStatus() {
-  // 更新ボタンの状態表示
-  const loadInfo = getLastInfo(LOAD_KEY);
-  const loadStatusEl = document.getElementById('load-last-updated');
-  if (loadStatusEl) {
-    if (loadInfo && loadInfo.date === getTodayStr()) {
-      loadStatusEl.textContent = '✅ 本日 ' + loadInfo.time + ' 更新済み';
-    } else {
-      loadStatusEl.textContent = '';
-    }
-  }
-
-  // 保存ボタンの状態表示
-  const saveStatusEl = document.getElementById('save-last-updated');
-  if (saveStatusEl) {
-    saveStatusEl.textContent = '⚠️ 一時停止中';
-  }
-}
-
-// モーダルを表示して確認を取る
-function showConfirmModal(type) {
-  if (type === 'save') {
-    saveDailySnapshot();
-    return;
-  }
-  const overlay = document.getElementById('confirm-modal');
-  const icon    = document.getElementById('modal-icon');
-  const title   = document.getElementById('modal-title');
-  const body    = document.getElementById('modal-body');
-  const warning = document.getElementById('modal-warning');
-  const lastEl  = document.getElementById('modal-last');
-  const okBtn   = document.getElementById('modal-btn-ok');
-
-  const isLoad = type === 'load';
-  const key    = isLoad ? LOAD_KEY : SAVE_KEY;
-  const info   = getLastInfo(key);
-  const usedToday = info && info.date === getTodayStr();
-
-  icon.textContent  = isLoad ? '📊' : '📦';
-  title.textContent = isLoad ? 'データを読み込みますか？' : '集計を保存しますか？';
-  body.innerHTML    = isLoad
-    ? 'analytics・usersコレクションを全件読み取ります。<br>（約500〜1,000件）<br>1日1回を推奨しています。'
-    : 'analytics全件を読み取って集計し、<br>analytics_dailyとsummaryを更新します。<br>1日1回を推奨しています。';
-
-  if (usedToday) {
-    warning.classList.remove('hidden');
-    warning.textContent = '⚠️ 本日 ' + info.time + ' にすでに' + (isLoad ? '更新' : '保存') + '済みです。再度実行すると追加の読み取りが発生します。';
-    okBtn.classList.add('danger');
-    okBtn.textContent = '⚠️ それでも' + (isLoad ? '読み込む' : '保存する');
-  } else {
-    warning.classList.add('hidden');
-    okBtn.classList.remove('danger');
-    okBtn.textContent = isLoad ? '✅ 読み込む' : '✅ 保存する';
-  }
-
-  lastEl.textContent = info
-    ? '前回：' + info.date + ' ' + info.time
-    : '前回：記録なし';
-
-  overlay.dataset.type = type;
-  overlay.classList.add('active');
-}
-
-function closeModal() {
-  document.getElementById('confirm-modal').classList.remove('active');
-}
-
-function execModal() {
-  const overlay = document.getElementById('confirm-modal');
-  const type = overlay.dataset.type;
-  closeModal();
-  if (type === 'load') {
-    saveLastInfo(LOAD_KEY);
-    updateBtnStatus();
-    loadData();
-  } else {
-    saveDailySnapshot();
-  }
-}
-
-// ESCキーでモーダルを閉じる
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-});
-
-// ══════════════════════════════════════
-// ダッシュボードキャッシュ機能
-// 前回読み込んだ表示数字をlocalStorageに保存・復元
-// ══════════════════════════════════════
-const DASHBOARD_CACHE_KEY = 'kotsusaku-dashboard-cache';
-
-// 表示中の数字をキャッシュに保存
-function saveDashboardCache(cacheData) {
-  try {
-    localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify({
-      savedAt: new Date().toISOString(),
-      data: cacheData,
-    }));
-  } catch(e) { console.warn('cache save error:', e); }
-}
-
-// キャッシュから数字を復元して表示
-function loadDashboardCache() {
-  try {
-    const raw = localStorage.getItem(DASHBOARD_CACHE_KEY);
-    if (!raw) return false;
-    const { savedAt, data } = JSON.parse(raw);
-    if (!data) return false;
-
-    // 各要素にキャッシュ値を反映
-    Object.entries(data).forEach(([id, val]) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
-    });
-
-    // キャッシュ日時をlast-updatedに表示
-    const lu = document.getElementById('last-updated');
-    if (lu) {
-      const d = new Date(savedAt);
-      lu.textContent = '前回更新: ' + d.toLocaleString('ja-JP') + '（キャッシュ）';
-    }
-
-    // 初期案内を非表示・ダッシュボードを表示
-    const guide = document.getElementById('initial-guide');
-    const dashboard = document.getElementById('dashboard');
-    if (guide) guide.style.display = 'none';
-    if (dashboard) dashboard.style.display = 'block';
-
-    return true;
-  } catch(e) {
-    console.warn('cache load error:', e);
-    return false;
-  }
-}
-
-// summaryから総学習時間をリアルタイムで取得してDBに表示
-async function loadTotalHoursFromSummary() {
-  if (!db) return;
-  try {
-    const snap = await db.collection('analytics_summary').doc('summary').get();
-    if (snap.exists) {
-      const d = snap.data();
-      const el = document.getElementById('kpi-total-hours');
-      if (el && d.totalStudyMin) {
-        el.textContent = Math.round(d.totalStudyMin / 60).toLocaleString() + '時間';
-      }
-    }
-  } catch(e) { console.warn('summary load error:', e); }
+function drawBadgeRanking(badgeMap){
+  const el=document.getElementById('badge-ranking'); if(!el) return;
+  const sorted=Object.entries(badgeMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const max=sorted[0]?.[1]||1;
+  const rankColors=['#f5c842','#94a3b8','#f97316'];
+  el.innerHTML=sorted.map(([id,count],i)=>`
+    <div class="badge-row">
+      <div class="badge-rank" style="color:${rankColors[i]||'#aaa'}">${i+1}</div>
+      <div class="badge-name">${BADGE_NAMES[id]||id}</div>
+      <div class="badge-bar-wrap"><div class="bar-track"><div class="bar-fill green" style="width:${Math.round(count/max*100)}%"></div></div></div>
+      <div class="badge-count-val">${count}人</div>
+    </div>`).join('');
 }
 
 async function loadData(){
   const btn=document.getElementById('refresh-btn');
-  btn.classList.add('loading'); btn.textContent='軌跡を集めています…';
-  document.getElementById('initial-guide').style.display='none';
+  btn.classList.add('loading'); btn.textContent='表示を更新しています…';
   document.getElementById('loading').style.display='flex';
   document.getElementById('dashboard').style.display='none';
   document.getElementById('error-area').innerHTML='';
 
   try {
-    const [analyticsSnap, usersSnap] = await Promise.all([
-      db.collection('analytics').get(),
-      db.collection('users').get()
-    ]);
-    const docs=analyticsSnap.docs.map(d=>d.data());
-    const total=docs.length;
-    const totalRegistered=usersSnap.size;
+    const snap = await db.collection('analytics_summary').doc('summary').get();
+    if(!snap.exists) throw new Error('summary がまだありません');
+
+    const summary=snap.data()||{};
+    const total=Number(summary.userCount || summary.analyticsCount || 0);
+    const totalRegistered=Number(summary.usersCount || total || 0);
     const sleeping=Math.max(totalRegistered-total,0);
     const reunionRate=totalRegistered>0?Math.round(total/totalRegistered*100):0;
 
@@ -2061,173 +849,66 @@ async function loadData(){
       return;
     }
 
-    const activeUsers=docs.filter(d=>daysSince(d.lastAccess)<=7).length;
-    const retained=docs.filter(d=>daysSince(d.firstAccess)>=30).length;
-    const pwaUsers=docs.filter(d=>d.isPWA).length;
-    const totalMins=docs.reduce((s,d)=>s+(d.totalStudyMin||0),0);
-    const avgDailyMins=avg(docs.map(d=>d.avgDailyMinutes||0));
+    const totalMins=Number(summary.totalStudyMin || 0);
+    const avgDailyMins=Number(summary.avgDailyMinutes || 0);
     const avgTotalMins=total>0?Math.round(totalMins/total):0;
-    const avgStreak=avg(docs.map(d=>d.streakDays||0));
+    const avgStreak=Number(summary.avgStreakDays || 0);
 
-    document.getElementById('kpi-total').textContent=totalRegistered+'人';
-    document.getElementById('kpi-active-now').textContent=total+'人';
-    document.getElementById('kpi-sleeping').textContent=sleeping+'人';
-    document.getElementById('kpi-reunion').textContent=reunionRate+'%';
-    document.getElementById('kpi-active').textContent=activeUsers+'人';
-    document.getElementById('kpi-retention').textContent=pct(retained,total);
-    document.getElementById('kpi-pwa').textContent=pct(pwaUsers,total);
-    document.getElementById('kpi-total-hours').textContent=fmt(totalMins);
-    document.getElementById('kpi-avg-daily').textContent=avgDailyMins+'分';
-    document.getElementById('kpi-avg-total').textContent=fmt(avgTotalMins);
-    document.getElementById('kpi-avg-streak').textContent=avgStreak+'日';
-    // 総学習時間はsummaryの復旧済み値を優先表示する。
-    await loadTotalHoursFromSummary();
+    setText('kpi-total', totalRegistered+'人');
+    setText('kpi-active-now', total+'人');
+    setText('kpi-sleeping', sleeping+'人');
+    setText('kpi-reunion', reunionRate+'%');
+    setText('kpi-active', '集計対象外');
+    setText('kpi-retention', '集計対象外');
+    setText('kpi-pwa', '集計対象外');
+    setText('kpi-total-hours', fmt(totalMins));
+    setText('kpi-avg-daily', avgDailyMins+'分');
+    setText('kpi-avg-total', fmt(avgTotalMins));
+    setText('kpi-avg-streak', avgStreak+'日');
 
-    // ゴリラ群衆（最大100個表示）
     renderCrowd('gorilla-crowd','gorilla-overflow','🦍',totalRegistered,100);
-    // 桜アイコン（最大200個表示）
     renderSakura('sakura-crowd','sakura-overflow',totalMins,200);
 
-    const swUsers=docs.filter(d=>d.usesStopwatch).length;
-    const myCrazyUsers=docs.filter(d=>d.hasMyCrazy10).length;
-    const crazy10Users=docs.filter(d=>d.joinsCrazy10).length;
-    const avgLevel=avg(docs.map(d=>d.level||1));
-    document.getElementById('feat-stopwatch').textContent=pct(swUsers,total);
-    document.getElementById('feat-mycrazy').textContent=pct(myCrazyUsers,total);
-    document.getElementById('feat-crazy10').textContent=pct(crazy10Users,total);
-    document.getElementById('feat-level').textContent='Lv.'+avgLevel;
+    const avgLevel=avgLevelFromCounts(summary.levelCounts || {});
+    setText('feat-stopwatch', '集計対象外');
+    setText('feat-mycrazy', '集計対象外');
+    setText('feat-crazy10', '集計対象外');
+    setText('feat-level', 'Lv.'+avgLevel);
 
-    // 📖 物語の道 / 🎓 資格の道
-    // ─ 判定ルール ─────────────────────────────────────────────
-    // ① storyMode がフィクション系ID → 物語の道
-    // ② storyMode が資格系storyId  → 資格の道（storyIdラベル＝アプリ表示名）
-    // ③ ①②いずれでもなく licenseCategory あり → 資格の道（旧グループ値フォールバック）
-    // ④ 上記いずれにも該当しない → 除外
-    // ──────────────────────────────────────────────────────────
-    const FICTION_IDS  = ['gorilla','samurai','space','itachacha','spartan'];
-    const LICENSE_IDS  = ['boki3','boki2','takken','sharoshi','zeirishi','fp2','koumuin','shindanshi','kaikeishi'];
-    const storyCount   = {};
-    const licenseCount = {};
+    drawBars('bar-story', entriesFromCounts(summary.storyCounts || {}, STORY_NAMES), 'sakura', total);
 
-    docs.forEach(d => {
-      const s  = d.storyMode || '';
-      const lc = d.licenseCategory || '';
-
-      if(FICTION_IDS.includes(s)){
-        // ① フィクション系
-        const label = STORY_NAMES[s] || s;
-        storyCount[label] = (storyCount[label] || 0) + 1;
-
-      } else if(LICENSE_IDS.includes(s)){
-        // ② 資格系storyId → アプリ表示名と1対1
-        const label = LICENSE_STORY_NAMES[s] || s;
-        licenseCount[label] = (licenseCount[label] || 0) + 1;
-
-      } else if(lc && LICENSE_CATEGORY_NAMES[lc]){
-        // ③ 旧バージョンのグループ値フォールバック
-        const label = LICENSE_CATEGORY_NAMES[lc];
-        licenseCount[label] = (licenseCount[label] || 0) + 1;
-      }
-      // ④ 該当なし → 除外
+    const licenseEntries = entriesFromCounts(summary.licenseCounts || {}, {
+      ...LICENSE_STORY_NAMES,
+      ...LICENSE_CATEGORY_NAMES,
     });
-
-    // ストーリー選択者の合計（分母をHP基準「選択者の中での比率」に統一）
-    const storyTotal = Object.values(storyCount).reduce((s,v)=>s+v,0)
-                     + Object.values(licenseCount).reduce((s,v)=>s+v,0);
-
-    drawBars('bar-story',
-      Object.entries(storyCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v})),
-      'sakura', storyTotal);
-
-    // 資格の道
-    const licenseEntries = Object.entries(licenseCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}));
     if(licenseEntries.length > 0){
-      drawBars('bar-license', licenseEntries, 'green', storyTotal);
+      drawBars('bar-license', licenseEntries, 'green', total);
     } else {
       document.getElementById('bar-license').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です（アプリ更新後に表示されます）</div>';
     }
 
-    const deviceCount={mobile:0,pc:0};
-    docs.forEach(d=>{if(d.deviceType==='mobile')deviceCount.mobile++;else deviceCount.pc++;});
-    drawDonut('donut-device',[{value:deviceCount.mobile,color:'#35b95b'},{value:deviceCount.pc,color:'#f06a9d'}]);
-    document.getElementById('legend-device').innerHTML=[
-      {label:'スマホ',value:deviceCount.mobile,color:'#35b95b'},
-      {label:'PC',value:deviceCount.pc,color:'#f06a9d'}
-    ].map(item=>`<div class="donut-item">
+    const deviceCount=summary.deviceCounts || {};
+    const deviceItems=[
+      {label:'スマホ',value:Number(deviceCount.mobile||0),color:'#4caf82'},
+      {label:'PC',value:Number(deviceCount.pc||deviceCount.desktop||0),color:'#f4a0c0'},
+      {label:'その他',value:Number(deviceCount.unknown||deviceCount.other||0),color:'#f5c842'},
+    ].filter(item=>item.value>0);
+    drawDonut('donut-device', deviceItems.length?deviceItems:[{value:1,color:'#e0d8d0'}]);
+    document.getElementById('legend-device').innerHTML=(deviceItems.length?deviceItems:[{label:'データなし',value:0,color:'#e0d8d0'}]).map(item=>`<div class="donut-item">
       <div class="donut-dot" style="background:${item.color}"></div>
       <div class="donut-item-label">${item.label}</div>
-      <div class="donut-item-val">${pct(item.value,total)}<span style="color:var(--muted);font-size:.52rem;font-weight:400;">（${item.value}人）</span></div>
+      <div class="donut-item-val">${item.value?`${pct(item.value,countTotal(deviceCount))}<span style="color:var(--muted);font-size:.52rem;font-weight:400;">（${item.value}人）</span>`:'-'}</div>
     </div>`).join('');
 
-    const osCount={};
-    docs.forEach(d=>{const o=d.os||'other';osCount[o]=(osCount[o]||0)+1;});
-    drawBars('bar-os',Object.entries(osCount).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:OS_NAMES[k]||k,value:v})),'green',total);
+    drawBars('bar-os', entriesFromCounts(summary.osCounts || {}, OS_NAMES), 'green', total);
+    drawHourChart(mapToHourArray(summary.accessHourCounts || {}));
+    drawBadgeRanking(summary.badgeCounts || {});
 
-    const hourData=new Array(24).fill(0);
-    docs.forEach(d=>{if(typeof d.accessHour==='number')hourData[d.accessHour]++;});
-    drawHourChart(hourData);
-
-    const badgeMap={};
-    docs.forEach(d=>{if(Array.isArray(d.badgeList))d.badgeList.forEach(id=>{badgeMap[id]=(badgeMap[id]||0)+1;});});
-    drawBadgeRanking(badgeMap);
-
-
-    // 再開率・継続の旅路
-    drawReunion(totalRegistered, total, activeUsers, retained);
-
-    // 継続中の仲間たち
-    drawKeizoku(docs);
-
-    // ── Phase1 グラフ ──
-    // ストーリー別 総学習時間ランキング
-    const storyHourMap = {};
-    docs.forEach(d => {
-      const s  = d.storyMode || '';
-      const lc = d.licenseCategory || '';
-      const min = d.totalStudyMin || 0;
-      if (FICTION_IDS.includes(s)) {
-        const label = STORY_NAMES[s] || s;
-        storyHourMap[label] = (storyHourMap[label] || 0) + min;
-      } else if (LICENSE_IDS.includes(s)) {
-        const label = LICENSE_STORY_NAMES[s] || s;
-        storyHourMap[label] = (storyHourMap[label] || 0) + min;
-      } else if (lc && LICENSE_CATEGORY_NAMES[lc]) {
-        const label = LICENSE_CATEGORY_NAMES[lc];
-        storyHourMap[label] = (storyHourMap[label] || 0) + min;
-      }
-    });
-    drawStoryHours('bar-story-hours',
-      Object.entries(storyHourMap).sort((a,b) => b[1]-a[1]).map(([k,v]) => ({label:k, value:v}))
-    );
-
-    // 1日平均学習時間 分布
-    drawAvgDailyDist('vbar-avg-daily', docs);
-
-    // レベル分布
-    drawLevelDist('vbar-level', docs);
-
-    // 時間帯グラフ改良版
-    const hourData2 = new Array(24).fill(0);
-    docs.forEach(d => { if (typeof d.accessHour === 'number') hourData2[d.accessHour]++; });
-    drawHourChartV2('hour-chart-v2', hourData2);
-    // Phase2: 推移グラフ読み込み
-    loadDailyData();
-
-    document.getElementById('last-updated').textContent='最終更新: '+new Date().toLocaleString('ja-JP');
-
-    // 表示数字をキャッシュに保存
-    const cacheIds = [
-      'kpi-total','kpi-active-now','kpi-sleeping','kpi-reunion',
-      'kpi-total-hours','kpi-avg-total','kpi-avg-streak',
-      'kpi-active','kpi-retention','kpi-pwa',
-      'last-updated'
-    ];
-    const cacheData = {};
-    cacheIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) cacheData[id] = el.textContent;
-    });
-    saveDashboardCache(cacheData);
+    const updatedAt = timestampToDate(summary.updatedAt);
+    const updatedText = updatedAt
+      ? updatedAt.toLocaleString('ja-JP')
+      : new Date().toLocaleString('ja-JP');
+    document.getElementById('last-updated').textContent='集計更新: '+updatedText+' ／ 表示更新: '+new Date().toLocaleString('ja-JP');
     document.getElementById('loading').style.display='none';
     document.getElementById('dashboard').style.display='block';
 
@@ -2237,15 +918,44 @@ async function loadData(){
     document.getElementById('dashboard').style.display='block';
     console.error(e);
   }
-  btn.classList.remove('loading');btn.textContent='🔄 記録を更新する';
+  btn.classList.remove('loading');btn.textContent='🔄 表示を更新する';
 }
 
-// 自動読み込みを廃止：ボタン押下時のみ読み込む
-updateBtnStatus();
-// キャッシュから前回のデータを復元
-loadDashboardCache();
-// summaryから総学習時間だけ読み込む（1件のみ・コスト最小）
-loadTotalHoursFromSummary();
+async function runManualAggregate(){
+  const btn=document.getElementById('manual-aggregate-btn');
+  const status=document.getElementById('manual-aggregate-status');
+  btn.classList.add('loading');
+  btn.textContent='再集計しています…';
+  status.className='manual-status';
+  status.textContent='サーバー側の集計係に再集計をお願いしています。数十秒かかることがあります。';
+
+  try {
+    const res = await fetch(MANUAL_AGGREGATE_URL, { method:'POST' });
+    const data = await res.json().catch(()=>({}));
+
+    if(res.status === 429){
+      const waitMin = Math.ceil((data.waitSeconds || 600) / 60);
+      status.className='manual-status warn';
+      status.textContent=`さっき再集計したばかりです。約${waitMin}分後にもう一度試せます。`;
+      return;
+    }
+
+    if(!res.ok || !data.ok) throw new Error(data.error || '再集計に失敗しました');
+
+    status.className='manual-status ok';
+    status.textContent='再集計が完了しました。最新の集計を読み込みます。';
+    await loadData();
+  } catch(e) {
+    status.className='manual-status warn';
+    status.textContent='再集計に失敗しました。時間をおいてもう一度試してください。';
+    console.error(e);
+  } finally {
+    btn.classList.remove('loading');
+    btn.textContent='⚡ 今すぐ再集計';
+  }
+}
+
+loadData();
 </script>
 </body>
 </html>
