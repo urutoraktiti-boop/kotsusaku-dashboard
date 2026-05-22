@@ -162,6 +162,25 @@ body::before {
 .admin-card{background:white;border:2px dashed var(--sakura);border-radius:var(--radius);padding:18px 18px;text-align:center;box-shadow:var(--shadow);}
 .admin-title{font-size:.72rem;font-weight:900;color:var(--sakura-dark);margin-bottom:8px;}
 .admin-copy{font-size:.62rem;line-height:1.8;color:var(--muted);margin-bottom:12px;}
+.activity-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:10px;}
+.activity-card{background:white;border:2px solid var(--green-light);border-radius:var(--radius-sm);padding:18px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.activity-card.sakura{border-color:var(--sakura-light);}
+.activity-card.gold{border-color:#fde8a0;}
+.activity-label{font-size:.58rem;font-weight:900;color:var(--muted);letter-spacing:.06em;margin-bottom:6px;}
+.activity-num{font-family:'Kaisei Tokumin',serif;font-size:2rem;font-weight:700;line-height:1;color:var(--green-dark);margin-bottom:7px;}
+.activity-card.sakura .activity-num{color:var(--sakura-dark);}
+.activity-card.gold .activity-num{color:var(--gold-dark);}
+.activity-copy{font-size:.56rem;line-height:1.55;color:var(--muted);min-height:2.8em;}
+.activity-bar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;margin-top:12px;}
+.activity-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green-dark),var(--green));width:0%;transition:width .7s ease;}
+.activity-card.sakura .activity-fill{background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));}
+.activity-card.gold .activity-fill{background:linear-gradient(90deg,var(--gold-dark),var(--gold));}
+.activity-pct{font-size:.58rem;font-weight:900;color:var(--muted);margin-top:6px;}
+.activity-arrow{align-self:center;font-size:1.2rem;color:var(--muted);font-weight:900;}
+@media(max-width:760px){
+  .activity-flow{grid-template-columns:1fr;gap:8px;}
+  .activity-arrow{transform:rotate(90deg);justify-self:center;}
+}
 
 /* セクション */
 .section{margin-bottom:36px;}
@@ -456,28 +475,37 @@ body::before {
     <div class="section">
       <div class="section-label">🌱 冒険の仲間たち</div>
 
-      <!-- 冒険をはじめた仲間（users） -->
-      <div class="nakama-card">
-        <div class="nakama-title">🌱 冒険をはじめた仲間</div>
-        <div class="nakama-num" id="kpi-total">-</div>
-        <div class="nakama-copy">コツサクで冒険をはじめた仲間の総数です。</div>
-        <div class="icon-crowd" id="gorilla-crowd"></div>
-        <div class="crowd-overflow" id="gorilla-overflow"></div>
+      <div class="activity-flow">
+        <div class="activity-card">
+          <div class="activity-label">🌱 冒険をはじめた仲間</div>
+          <div class="activity-num" id="kpi-total">-</div>
+          <div class="activity-copy">これまでに学習記録を残してくれた仲間</div>
+          <div class="activity-bar"><div class="activity-fill" id="activity-fill-total"></div></div>
+          <div class="activity-pct" id="activity-pct-total">100%</div>
+        </div>
+        <div class="activity-arrow">→</div>
+        <div class="activity-card sakura">
+          <div class="activity-label">🔥 今週も冒険中</div>
+          <div class="activity-num" id="kpi-active-week">-</div>
+          <div class="activity-copy">直近7日以内にアプリを開いた仲間</div>
+          <div class="activity-bar"><div class="activity-fill" id="activity-fill-week"></div></div>
+          <div class="activity-pct" id="activity-pct-week">-</div>
+        </div>
+        <div class="activity-arrow">→</div>
+        <div class="activity-card gold">
+          <div class="activity-label">⚡ 最近も冒険中</div>
+          <div class="activity-num" id="kpi-active-recent">-</div>
+          <div class="activity-copy">直近3日以内にアプリを開いた仲間</div>
+          <div class="activity-bar"><div class="activity-fill" id="activity-fill-recent"></div></div>
+          <div class="activity-pct" id="activity-pct-recent">-</div>
+        </div>
       </div>
 
-      <!-- 今も冒険中の仲間（analytics） -->
-      <div class="nakama-card" style="border-color:var(--sakura-light);margin-top:12px;">
-        <div class="nakama-title">🥦 今も冒険中の仲間</div>
-        <div class="nakama-num" id="kpi-active-now" style="color:var(--sakura-dark);">-</div>
-        <div class="nakama-copy">最近アプリを開いてくれた仲間たち。今日も1マスを刻んでいます。</div>
-        <div style="display:flex;align-items:center;gap:16px;margin-top:10px;flex-wrap:wrap;">
-          <div style="font-size:.65rem;color:var(--muted);">
-            😴 久しぶりの仲間：<strong id="kpi-sleeping" style="color:var(--text);">-</strong>
-          </div>
-          <div style="font-size:.65rem;color:var(--muted);">
-            🤝 再会率：<strong id="kpi-reunion" style="color:var(--green-dark);">-</strong>
-          </div>
-        </div>
+      <div class="nakama-card" style="margin-top:12px;">
+        <div class="nakama-title">🦍 仲間の広がり</div>
+        <div class="nakama-copy">全体の仲間をアイコンでざっくり表示しています。</div>
+        <div class="icon-crowd" id="gorilla-crowd"></div>
+        <div class="crowd-overflow" id="gorilla-overflow"></div>
       </div>
 
       <div class="kpi-grid">
@@ -702,6 +730,7 @@ const BADGE_NAMES = {
 
 function fmt(min){return min>=60?Math.round(min/60)+'h':min+'m';}
 function pct(n,t){return !t?'0%':Math.round(n/t*100)+'%';}
+function pctCapped(n,t){return !t?'0%':Math.min(100,Math.round(n/t*100))+'%';}
 function daysSince(iso){return !iso?9999:Math.floor((Date.now()-new Date(iso).getTime())/86400000);}
 function avg(arr){return !arr.length?0:Math.round(arr.reduce((s,v)=>s+v,0)/arr.length);}
 function setText(id, text){const el=document.getElementById(id); if(el) el.textContent=text;}
@@ -738,6 +767,13 @@ function timestampToDate(value){
   if(value && typeof value.toDate==='function') return value.toDate();
   if(typeof value==='string') return new Date(value);
   return null;
+}
+function setActivityMetric(kind, count, total){
+  const pctValue = total ? Math.min(100, Math.round(count / total * 100)) : 0;
+  setText(`kpi-active-${kind}`, count + '人');
+  setText(`activity-pct-${kind}`, pctValue + '%');
+  const fill = document.getElementById(`activity-fill-${kind}`);
+  if(fill) requestAnimationFrame(()=>{ fill.style.width = pctValue + '%'; });
 }
 
 // アイコン群を描画（上限付き）
@@ -851,11 +887,10 @@ async function loadData(){
 
     const summary=snap.data()||{};
     const total=Number(summary.userCount || summary.analyticsCount || 0);
-    const totalRegistered=Number(summary.usersCount || total || 0);
-    const sleeping=Math.max(totalRegistered-total,0);
-    const reunionRate=totalRegistered>0?Math.round(total/totalRegistered*100):0;
+    const activeUsers3d=Number(summary.activeUsers3d || 0);
+    const activeUsers7d=Number(summary.activeUsers7d || 0);
 
-    if(!total && !totalRegistered){
+    if(!total){
       document.getElementById('error-area').innerHTML='<div class="error-msg">🥦 まだ軌跡がありません。アプリを開いてから再度確認してください。</div>';
       document.getElementById('loading').style.display='none';
       document.getElementById('dashboard').style.display='block';
@@ -867,25 +902,27 @@ async function loadData(){
     const avgTotalMins=total>0?Math.round(totalMins/total):0;
     const avgStreak=Number(summary.avgStreakDays || 0);
 
-    setText('kpi-total', totalRegistered+'人');
-    setText('kpi-active-now', total+'人');
-    setText('kpi-sleeping', sleeping+'人');
-    setText('kpi-reunion', reunionRate+'%');
-    setText('kpi-active', '集計対象外');
-    setText('kpi-retention', '集計対象外');
-    setText('kpi-pwa', '集計対象外');
+    setText('kpi-total', total+'人');
+    setText('activity-pct-total', '100%');
+    const totalFill = document.getElementById('activity-fill-total');
+    if(totalFill) requestAnimationFrame(()=>{ totalFill.style.width = '100%'; });
+    setActivityMetric('week', activeUsers7d, total);
+    setActivityMetric('recent', activeUsers3d, total);
+    setText('kpi-active', activeUsers7d+'人');
+    setText('kpi-retention', pctCapped(Number(summary.retainedUsers30d || 0), total));
+    setText('kpi-pwa', pctCapped(Number(summary.pwaUsers || 0), total));
     setText('kpi-total-hours', fmt(totalMins));
     setText('kpi-avg-daily', avgDailyMins+'分');
     setText('kpi-avg-total', fmt(avgTotalMins));
     setText('kpi-avg-streak', avgStreak+'日');
 
-    renderCrowd('gorilla-crowd','gorilla-overflow','🦍',totalRegistered,100);
+    renderCrowd('gorilla-crowd','gorilla-overflow','🦍',total,100);
     renderSakura('sakura-crowd','sakura-overflow',totalMins,200);
 
     const avgLevel=avgLevelFromCounts(summary.levelCounts || {});
-    setText('feat-stopwatch', '集計対象外');
-    setText('feat-mycrazy', '集計対象外');
-    setText('feat-crazy10', '集計対象外');
+    setText('feat-stopwatch', pctCapped(Number(summary.stopwatchUsers || 0), total));
+    setText('feat-mycrazy', pctCapped(Number(summary.myCrazy10Users || 0), total));
+    setText('feat-crazy10', pctCapped(Number(summary.crazy10Users || 0), total));
     setText('feat-level', 'Lv.'+avgLevel);
 
     drawBars('bar-story', entriesFromCounts(summary.storyCounts || {}, STORY_NAMES), 'sakura', total);
