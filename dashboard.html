@@ -360,6 +360,34 @@ body::before {
 .bar-fill.gold{background:linear-gradient(90deg,var(--gold-dark),var(--gold));}
 .bar-count{font-size:.62rem;font-weight:700;color:var(--text);text-align:right;font-family:'Kaisei Tokumin',serif;}
 
+.road-summary{
+  background:white;
+  border:2px solid rgba(0,0,0,.05);
+  border-radius:var(--radius);
+  padding:18px 20px;
+  box-shadow:var(--shadow);
+  margin-bottom:12px;
+}
+.road-summary-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px;}
+.road-kicker{font-size:.56rem;font-weight:900;color:var(--muted);letter-spacing:.12em;margin-bottom:3px;}
+.road-title{font-size:.85rem;font-weight:900;color:var(--text);}
+.road-total{font-family:'Kaisei Tokumin',serif;font-size:1.25rem;font-weight:700;color:var(--green-dark);white-space:nowrap;}
+.road-stack{display:flex;height:34px;background:var(--bg);border-radius:99px;overflow:hidden;border:2px solid rgba(0,0,0,.04);}
+.road-fill{min-width:0;height:100%;display:flex;align-items:center;padding:0 12px;font-size:.68rem;font-weight:900;color:white;white-space:nowrap;transition:width .7s ease;}
+.road-fill.story{justify-content:flex-start;background:linear-gradient(90deg,var(--green-dark),var(--green));}
+.road-fill.license{justify-content:flex-end;background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));}
+.road-fill.is-small span{display:none;}
+.road-legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:10px;font-size:.62rem;font-weight:700;color:var(--muted);}
+.road-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;}
+.road-dot.story{background:var(--green);}
+.road-dot.license{background:var(--sakura);}
+@media(max-width:580px){
+  .road-summary-head{display:block;}
+  .road-total{margin-top:6px;font-size:1rem;}
+  .road-stack{height:30px;}
+  .road-fill{font-size:.58rem;padding:0 8px;}
+}
+
 /* ドーナツ */
 .donut-wrap{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
 .donut-legend{display:flex;flex-direction:column;gap:8px;flex:1;}
@@ -567,6 +595,23 @@ body::before {
     <!-- 物語・資格 -->
     <div class="section">
       <div class="section-label">📖 選んだ道</div>
+      <div class="road-summary">
+        <div class="road-summary-head">
+          <div>
+            <div class="road-kicker">選択中の仲間</div>
+            <div class="road-title">物語の道と資格の道</div>
+          </div>
+          <div class="road-total" id="road-total">-</div>
+        </div>
+        <div class="road-stack" aria-label="物語と資格の割合">
+          <div class="road-fill story" id="road-story-fill" style="width:0%;"><span id="road-story-pct">-</span></div>
+          <div class="road-fill license" id="road-license-fill" style="width:0%;"><span id="road-license-pct">-</span></div>
+        </div>
+        <div class="road-legend">
+          <span><i class="road-dot story"></i>物語ストーリー <strong id="road-story-count">-</strong></span>
+          <span><i class="road-dot license"></i>資格ストーリー <strong id="road-license-count">-</strong></span>
+        </div>
+      </div>
       <div class="two-col">
         <div class="chart-card">
           <div class="chart-title">🥦 選んだ物語の道</div>
@@ -782,6 +827,26 @@ function setActivityMetric(kind, count, total){
   const fill = document.getElementById(`activity-fill-${kind}`);
   if(fill) requestAnimationFrame(()=>{ fill.style.width = pctValue + '%'; });
 }
+function setRoadSummary(storyTotal, licenseTotal){
+  const selectedTotal = storyTotal + licenseTotal;
+  const storyPct = selectedTotal ? Math.round(storyTotal / selectedTotal * 100) : 0;
+  const licensePct = selectedTotal ? 100 - storyPct : 0;
+  setText('road-total', selectedTotal ? selectedTotal + '人' : '-');
+  setText('road-story-count', storyTotal + '人');
+  setText('road-license-count', licenseTotal + '人');
+  setText('road-story-pct', storyPct + '%');
+  setText('road-license-pct', licensePct + '%');
+  const storyFill = document.getElementById('road-story-fill');
+  const licenseFill = document.getElementById('road-license-fill');
+  if(storyFill){
+    storyFill.classList.toggle('is-small', storyPct < 12);
+    requestAnimationFrame(()=>{ storyFill.style.width = storyPct + '%'; });
+  }
+  if(licenseFill){
+    licenseFill.classList.toggle('is-small', licensePct < 12);
+    requestAnimationFrame(()=>{ licenseFill.style.width = licensePct + '%'; });
+  }
+}
 
 // アイコン群を描画（上限付き）
 function renderCrowd(containerId, overflowId, icon, count, maxDisplay) {
@@ -954,6 +1019,7 @@ async function loadData(){
     } else {
       document.getElementById('bar-license').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です（アプリ更新後に表示されます）</div>';
     }
+    setRoadSummary(storyTotal, licenseTotal);
 
     const deviceCount=summary.deviceCounts || {};
     const deviceItems=[
