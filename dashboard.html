@@ -401,8 +401,18 @@ body::before {
 .hour-col-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;}
 .hour-bar-bg{flex:1;width:100%;background:var(--bg);border-radius:4px 4px 0 0;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
 .hour-bar-fill{border-radius:4px 4px 0 0;transition:height .6s ease;background:linear-gradient(to top,var(--green-dark),var(--green));opacity:.45;}
-.hour-bar-fill.peak{opacity:1;background:linear-gradient(to top,var(--sakura-dark),var(--sakura));}
+.hour-bar-fill.morning{opacity:.9;background:linear-gradient(to top,var(--gold-dark),var(--gold));}
+.hour-bar-fill.daytime{opacity:.8;background:linear-gradient(to top,var(--green-dark),var(--green));}
+.hour-bar-fill.night{opacity:.9;background:linear-gradient(to top,var(--sakura-dark),var(--sakura));}
+.hour-bar-fill.latenight{opacity:.7;background:linear-gradient(to top,#4466aa,#88aadd);}
+.hour-bar-fill.peak{opacity:1;box-shadow:0 0 0 2px rgba(255,255,255,.8) inset;}
 .hour-label{font-size:.4rem;color:var(--muted);font-weight:700;}
+.hour-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-top:14px;}
+.hour-chip{background:var(--bg);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;border:1.5px solid rgba(0,0,0,.04);}
+.hour-chip strong{display:block;font-family:'Kaisei Tokumin',serif;font-size:1rem;line-height:1;color:var(--text);margin-bottom:4px;}
+.hour-chip span{font-size:.52rem;font-weight:700;color:var(--muted);}
+.hour-chip.peak{background:var(--sakura-light);border-color:var(--sakura);}
+.hour-chip.peak strong{color:var(--sakura-dark);}
 
 /* 機能カード */
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
@@ -647,7 +657,13 @@ body::before {
       <div class="chart-card">
         <div class="chart-title">⏰ 何時に冒険しているか（時間帯別アクセス数）</div>
         <div class="hour-chart" id="hour-chart"></div>
-        <div style="font-size:.54rem;color:var(--muted);margin-top:8px;text-align:center;">🌸 ピーク時間帯はサクラ色で表示</div>
+        <div class="hour-summary">
+          <div class="hour-chip peak"><strong id="hour-peak">-</strong><span>ピーク</span></div>
+          <div class="hour-chip"><strong id="hour-morning">-</strong><span>朝 5-11時</span></div>
+          <div class="hour-chip"><strong id="hour-daytime">-</strong><span>昼 12-16時</span></div>
+          <div class="hour-chip"><strong id="hour-night">-</strong><span>夜 17-22時</span></div>
+          <div class="hour-chip"><strong id="hour-late">-</strong><span>深夜 23-4時</span></div>
+        </div>
       </div>
     </div>
 
@@ -926,10 +942,33 @@ function drawHourChart(data){
   const max=Math.max(...data,1),peakIdx=data.indexOf(max);
   el.innerHTML=Array.from({length:24},(_,h)=>{
     const v=data[h]||0,ph=Math.round(v/max*100),isPeak=h===peakIdx&&v>0;
+    let cls = '';
+    if(h>=5 && h<=11) cls='morning';
+    else if(h>=12 && h<=16) cls='daytime';
+    else if(h>=17 && h<=22) cls='night';
+    else cls='latenight';
     return `<div class="hour-col-wrap">
-      <div class="hour-bar-bg"><div class="hour-bar-fill${isPeak?' peak':''}" style="height:${ph}%"></div></div>
+      <div class="hour-bar-bg"><div class="hour-bar-fill ${cls}${isPeak?' peak':''}" style="height:${ph}%"></div></div>
       <div class="hour-label">${h}</div></div>`;
   }).join('');
+  setHourSummary(data, peakIdx, max);
+}
+
+function sumHours(data, start, end){
+  let total = 0;
+  for(let h=start; h<=end; h++) total += Number(data[h] || 0);
+  return total;
+}
+function setHourSummary(data, peakIdx, peakCount){
+  const late = Number(data[23]||0) + sumHours(data,0,4);
+  const morning = sumHours(data,5,11);
+  const daytime = sumHours(data,12,16);
+  const night = sumHours(data,17,22);
+  setText('hour-peak', peakCount > 0 ? peakIdx + '時' : '-');
+  setText('hour-morning', morning + '人');
+  setText('hour-daytime', daytime + '人');
+  setText('hour-night', night + '人');
+  setText('hour-late', late + '人');
 }
 
 function drawBadgeRanking(badgeMap){
