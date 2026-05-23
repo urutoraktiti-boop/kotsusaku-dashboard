@@ -443,7 +443,9 @@ body::before {
 }
 .badge-row:hover{background:var(--green-light);border-color:var(--green);}
 .badge-rank{font-size:.6rem;font-weight:900;min-width:18px;text-align:center;font-family:'Kaisei Tokumin',serif;}
-.badge-name{flex:1;font-size:.7rem;color:var(--text);}
+.badge-name-wrap{flex:1;min-width:0;}
+.badge-name{font-size:.7rem;color:var(--text);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.badge-story-sub{font-size:.5rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .badge-bar-wrap{width:64px;}
 .badge-count-val{font-size:.65rem;font-weight:700;color:var(--green-dark);font-family:'Kaisei Tokumin',serif;min-width:34px;text-align:right;}
 
@@ -788,6 +790,18 @@ const BADGE_NAMES = {
   days10:'📅 10日学習', days30:'📆 30日学習', days100:'🗓 100日学習',
   early:'🌅 早起き学習', night:'🌙 夜型学習',
 };
+const ASA_BADGE_NAMES = {
+  asa_first:'🌅 夜明けの一歩',
+  asa_cnt10:'🌤️ 朝活10回',
+  asa_4set:'⭐ 4SETクリア',
+  asa_str7:'🔥 朝活7日連続',
+  asa_cnt30:'☀️ 朝活30回',
+  asa_str30:'🌙 朝活30日継続',
+  asa_cnt50:'📣 朝の伝道師',
+  asa_cnt100:'🌟 朝活100回',
+  asa_str100:'🏆 朝活100日継続',
+  asa_perfect:'💯 完璧な一週間',
+};
 
 function fmt(min){return min>=60?Math.round(min/60)+'h':min+'m';}
 function pct(n,t){return !t?'0%':Math.round(n/t*100)+'%';}
@@ -806,6 +820,27 @@ function entriesFromCounts(counts, labels){
   return Object.entries(labelCountMap(counts, labels))
     .sort((a,b)=>b[1]-a[1])
     .map(([label,value])=>({label,value}));
+}
+function storyLabelFromBadgeId(id){
+  for(const storyId of Object.keys(STORY_NAMES)){
+    if(id.startsWith(storyId + '_')) return STORY_NAMES[storyId];
+  }
+  return null;
+}
+function baseBadgeId(id){
+  for(const storyId of Object.keys(STORY_NAMES)){
+    if(id.startsWith(storyId + '_')) return id.slice(storyId.length + 1);
+  }
+  return id;
+}
+function badgeDisplayName(id){
+  if(ASA_BADGE_NAMES[id]) return ASA_BADGE_NAMES[id];
+  const baseId = baseBadgeId(id);
+  return BADGE_NAMES[baseId] || BADGE_NAMES[id] || id;
+}
+function badgeSubLabel(id){
+  if(id.startsWith('asa_')) return '🌅 早朝自習室';
+  return storyLabelFromBadgeId(id) || '共通バッジ';
 }
 function pickCounts(counts, allowedLabels){
   const allowed = new Set(Object.keys(allowedLabels));
@@ -979,7 +1014,10 @@ function drawBadgeRanking(badgeMap){
   el.innerHTML=sorted.map(([id,count],i)=>`
     <div class="badge-row">
       <div class="badge-rank" style="color:${rankColors[i]||'#aaa'}">${i+1}</div>
-      <div class="badge-name">${BADGE_NAMES[id]||id}</div>
+      <div class="badge-name-wrap">
+        <div class="badge-name">${badgeDisplayName(id)}</div>
+        <div class="badge-story-sub">${badgeSubLabel(id)}</div>
+      </div>
       <div class="badge-bar-wrap"><div class="bar-track"><div class="bar-fill green" style="width:${Math.round(count/max*100)}%"></div></div></div>
       <div class="badge-count-val">${count}人</div>
     </div>`).join('');
