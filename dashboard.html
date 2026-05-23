@@ -177,10 +177,21 @@ body::before {
 .activity-card.gold .activity-fill{background:linear-gradient(90deg,var(--gold-dark),var(--gold));}
 .activity-pct{font-size:.58rem;font-weight:900;color:var(--muted);margin-top:6px;}
 .activity-arrow{align-self:center;font-size:1.2rem;color:var(--muted);font-weight:900;}
+.journey-card{background:white;border:2px solid rgba(0,0,0,.05);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-top:12px;}
+.journey-title{font-size:.72rem;font-weight:900;color:var(--text);margin-bottom:12px;}
+.journey-list{display:flex;flex-direction:column;gap:9px;}
+.journey-row{display:grid;grid-template-columns:118px 1fr 76px;align-items:center;gap:10px;}
+.journey-label{font-size:.6rem;font-weight:900;color:var(--muted);white-space:nowrap;}
+.journey-track{height:12px;background:var(--bg);border-radius:99px;overflow:hidden;}
+.journey-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--green-dark),var(--green));transition:width .7s ease;}
+.journey-fill.sakura{background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));}
+.journey-fill.gold{background:linear-gradient(90deg,var(--gold-dark),var(--gold));}
+.journey-value{font-size:.62rem;font-weight:900;color:var(--text);text-align:right;font-family:'Kaisei Tokumin',serif;}
 @media(max-width:760px){
   .activity-flow{grid-template-columns:1fr;gap:8px;}
   .activity-arrow{transform:rotate(90deg);justify-self:center;}
 }
+@media(max-width:580px){.journey-row{grid-template-columns:88px 1fr 56px;gap:8px;}.journey-label,.journey-value{font-size:.54rem;}}
 
 /* セクション */
 .section{margin-bottom:36px;}
@@ -575,6 +586,32 @@ body::before {
           <div class="kpi-copy">ホーム画面に追加している仲間</div>
         </div>
       </div>
+
+      <div class="journey-card">
+        <div class="journey-title">コツコツ継続の旅路</div>
+        <div class="journey-list">
+          <div class="journey-row">
+            <div class="journey-label">はじめた</div>
+            <div class="journey-track"><div class="journey-fill" id="journey-total"></div></div>
+            <div class="journey-value" id="journey-total-val">-</div>
+          </div>
+          <div class="journey-row">
+            <div class="journey-label">今週も冒険</div>
+            <div class="journey-track"><div class="journey-fill sakura" id="journey-week"></div></div>
+            <div class="journey-value" id="journey-week-val">-</div>
+          </div>
+          <div class="journey-row">
+            <div class="journey-label">最近も冒険</div>
+            <div class="journey-track"><div class="journey-fill gold" id="journey-recent"></div></div>
+            <div class="journey-value" id="journey-recent-val">-</div>
+          </div>
+          <div class="journey-row">
+            <div class="journey-label">30日継続</div>
+            <div class="journey-track"><div class="journey-fill" id="journey-retained"></div></div>
+            <div class="journey-value" id="journey-retained-val">-</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 学習時間 -->
@@ -915,6 +952,12 @@ function setRoadSummary(storyTotal, licenseTotal){
     requestAnimationFrame(()=>{ licenseFill.style.width = licensePct + '%'; });
   }
 }
+function setJourneyMetric(kind, count, total){
+  const pctValue = total ? Math.min(100, Math.round(count / total * 100)) : 0;
+  setText(`journey-${kind}-val`, pctValue + '%');
+  const fill = document.getElementById(`journey-${kind}`);
+  if(fill) requestAnimationFrame(()=>{ fill.style.width = pctValue + '%'; });
+}
 
 // アイコン群を描画（上限付き）
 function renderCrowd(containerId, overflowId, icon, count, maxDisplay) {
@@ -1101,6 +1144,10 @@ async function loadData(){
     if(totalFill) requestAnimationFrame(()=>{ totalFill.style.width = '100%'; });
     setActivityMetric('week', activeUsers7d, total);
     setActivityMetric('recent', activeUsers3d, total);
+    setJourneyMetric('total', total, total);
+    setJourneyMetric('week', activeUsers7d, total);
+    setJourneyMetric('recent', activeUsers3d, total);
+    setJourneyMetric('retained', Number(summary.retainedUsers30d || 0), total);
     setText('kpi-active', activeUsers7d+'人');
     setText('kpi-retention', pctCapped(Number(summary.retainedUsers30d || 0), total));
     setText('kpi-pwa', pctCapped(Number(summary.pwaUsers || 0), total));
