@@ -431,6 +431,13 @@ body::before {
 .feature-name{font-size:.58rem;font-weight:700;color:var(--muted);}
 .feature-copy{font-size:.52rem;color:var(--muted);margin-top:3px;line-height:1.5;}
 
+.vbar-chart{height:132px;display:flex;align-items:flex-end;gap:12px;padding-top:8px;}
+.vbar-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:5px;}
+.vbar-val{font-size:.58rem;font-weight:900;color:var(--muted);font-family:'Kaisei Tokumin',serif;min-height:1em;}
+.vbar-bar{width:100%;max-width:44px;min-height:3px;border-radius:8px 8px 2px 2px;transition:height .7s ease;}
+.vbar-label{font-size:.5rem;font-weight:700;color:var(--muted);white-space:nowrap;}
+.level-note{font-size:.54rem;color:var(--muted);line-height:1.7;text-align:center;margin-top:10px;}
+
 /* バッジランキング */
 .badge-list{display:flex;flex-direction:column;gap:7px;}
 .badge-row{
@@ -697,6 +704,16 @@ body::before {
           <div class="feature-name">平均レベル</div>
           <div class="feature-copy">仲間の平均冒険レベル</div>
         </div>
+      </div>
+    </div>
+
+    <!-- レベル分布 -->
+    <div class="section">
+      <div class="section-label">🏅 冒険者レベル分布</div>
+      <div class="chart-card">
+        <div class="chart-title">⭐ どのレベル帯の仲間が多いか</div>
+        <div class="vbar-chart" id="vbar-level"></div>
+        <div class="level-note">平均だけでは見えにくい、仲間たちの成長具合です。</div>
       </div>
     </div>
 
@@ -1006,6 +1023,33 @@ function setHourSummary(data, peakIdx, peakCount){
   setText('hour-late', late + '人');
 }
 
+function drawLevelDist(levelCounts){
+  const el=document.getElementById('vbar-level'); if(!el) return;
+  const buckets=[
+    {label:'Lv.1-5',min:1,max:5,color:'linear-gradient(to top,var(--green-dark),var(--green))',count:0},
+    {label:'Lv.6-10',min:6,max:10,color:'linear-gradient(to top,var(--green-dark),var(--green))',count:0},
+    {label:'Lv.11-20',min:11,max:20,color:'linear-gradient(to top,var(--gold-dark),var(--gold))',count:0},
+    {label:'Lv.21-50',min:21,max:50,color:'linear-gradient(to top,var(--sakura-dark),var(--sakura))',count:0},
+    {label:'Lv.51-',min:51,max:Infinity,color:'linear-gradient(to top,#803050,#e05a86)',count:0},
+  ];
+  Object.entries(levelCounts||{}).forEach(([level,count])=>{
+    const lv=Number(level||1);
+    const bucket=buckets.find(b=>lv>=b.min && lv<=b.max);
+    if(bucket) bucket.count += Number(count||0);
+  });
+  const total=countTotal(levelCounts||{});
+  const max=Math.max(...buckets.map(b=>b.count),1);
+  el.innerHTML=buckets.map(b=>{
+    const height=Math.round(b.count/max*100);
+    const rate=total?Math.round(b.count/total*100):0;
+    return `<div class="vbar-col">
+      <div class="vbar-val">${rate}%</div>
+      <div class="vbar-bar" style="height:${Math.max(height, b.count ? 4 : 2)}px;background:${b.color};"></div>
+      <div class="vbar-label">${b.label}</div>
+    </div>`;
+  }).join('');
+}
+
 function drawBadgeRanking(badgeMap){
   const el=document.getElementById('badge-ranking'); if(!el) return;
   const sorted=Object.entries(badgeMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -1073,6 +1117,7 @@ async function loadData(){
     setText('feat-mycrazy', pctCapped(Number(summary.myCrazy10Users || 0), total));
     setText('feat-crazy10', pctCapped(Number(summary.crazy10Users || 0), total));
     setText('feat-level', 'Lv.'+avgLevel);
+    drawLevelDist(summary.levelCounts || {});
 
     const storyCounts = pickCounts(summary.storyCounts || {}, STORY_NAMES);
     const storyEntries = entriesFromCounts(storyCounts, STORY_NAMES);
