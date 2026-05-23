@@ -746,6 +746,13 @@ function entriesFromCounts(counts, labels){
     .sort((a,b)=>b[1]-a[1])
     .map(([label,value])=>({label,value}));
 }
+function pickCounts(counts, allowedLabels){
+  const allowed = new Set(Object.keys(allowedLabels));
+  return Object.entries(counts||{}).reduce((out,[key,val])=>{
+    if(allowed.has(key)) out[key]=Number(val||0);
+    return out;
+  },{});
+}
 function avgLevelFromCounts(levelCounts){
   let total=0,sum=0;
   Object.entries(levelCounts||{}).forEach(([level,count])=>{
@@ -925,14 +932,25 @@ async function loadData(){
     setText('feat-crazy10', pctCapped(Number(summary.crazy10Users || 0), total));
     setText('feat-level', 'Lv.'+avgLevel);
 
-    drawBars('bar-story', entriesFromCounts(summary.storyCounts || {}, STORY_NAMES), 'sakura', total);
+    const storyCounts = pickCounts(summary.storyCounts || {}, STORY_NAMES);
+    const storyEntries = entriesFromCounts(storyCounts, STORY_NAMES);
+    const storyTotal = countTotal(storyCounts);
+    if(storyEntries.length > 0){
+      drawBars('bar-story', storyEntries, 'sakura', storyTotal);
+    } else {
+      document.getElementById('bar-story').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です</div>';
+    }
 
-    const licenseEntries = entriesFromCounts(summary.licenseCounts || {}, {
+    const licenseCounts = countTotal(summary.licenseCounts || {}) > 0
+      ? summary.licenseCounts || {}
+      : pickCounts(summary.storyCounts || {}, LICENSE_STORY_NAMES);
+    const licenseEntries = entriesFromCounts(licenseCounts, {
       ...LICENSE_STORY_NAMES,
       ...LICENSE_CATEGORY_NAMES,
     });
+    const licenseTotal = countTotal(licenseCounts);
     if(licenseEntries.length > 0){
-      drawBars('bar-license', licenseEntries, 'green', total);
+      drawBars('bar-license', licenseEntries, 'green', licenseTotal);
     } else {
       document.getElementById('bar-license').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です（アプリ更新後に表示されます）</div>';
     }
