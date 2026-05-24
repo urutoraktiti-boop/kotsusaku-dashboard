@@ -661,11 +661,11 @@ body::before {
       <div class="two-col" style="margin-top:12px;">
         <div class="chart-card">
           <div class="chart-title">📅 1日の平均学習時間分布</div>
-          <div class="vbar-chart" id="vbar-avg-daily"></div>
+          <div class="bar-chart" id="bar-avg-daily"></div>
         </div>
         <div class="chart-card">
           <div class="chart-title">📚 累計学習時間分布</div>
-          <div class="vbar-chart" id="vbar-total-study"></div>
+          <div class="bar-chart" id="bar-total-study"></div>
         </div>
       </div>
     </div>
@@ -1168,7 +1168,7 @@ function drawLevelDist(levelCounts){
   }).join('');
 }
 
-function drawBucketDist(containerId, counts, labels){
+function drawBucketBars(containerId, counts, labels, colorClass){
   const el=document.getElementById(containerId); if(!el) return;
   const entries=Object.keys(labels).map((key)=>({key,label:labels[key],count:Number((counts||{})[key]||0)}));
   const total=entries.reduce((sum,item)=>sum+item.count,0);
@@ -1177,18 +1177,13 @@ function drawBucketDist(containerId, counts, labels){
     return;
   }
   const max=Math.max(...entries.map(item=>item.count),1);
-  el.innerHTML=entries.map((item,index)=>{
-    const height=Math.round(item.count/max*100);
+  el.innerHTML=entries.map((item)=>{
+    const width=Math.round(item.count/max*100);
     const rate=Math.round(item.count/total*100);
-    const color=index<2
-      ? 'linear-gradient(to top,var(--green-dark),var(--green))'
-      : index===2
-        ? 'linear-gradient(to top,var(--gold-dark),var(--gold))'
-        : 'linear-gradient(to top,var(--sakura-dark),var(--sakura))';
-    return `<div class="vbar-col">
-      <div class="vbar-val">${rate}%</div>
-      <div class="vbar-bar" style="height:${Math.max(height, item.count ? 4 : 2)}px;background:${color};"></div>
-      <div class="vbar-label">${item.label}</div>
+    return `<div class="bar-row">
+      <div class="bar-label">${item.label}</div>
+      <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${Math.max(width, item.count ? 3 : 0)}%"></div></div>
+      <div class="bar-count">${rate}%<span style="color:var(--muted);font-size:.52rem;font-weight:400;">（${item.count}人）</span></div>
     </div>`;
   }).join('');
 }
@@ -1255,8 +1250,8 @@ async function loadData(){
     setText('kpi-avg-daily', avgDailyMins+'分');
     setText('kpi-avg-total', fmt(avgTotalMins));
     setText('kpi-avg-streak', avgStreak+'日');
-    drawBucketDist('vbar-avg-daily', summary.avgDailyMinuteCounts || {}, AVG_DAILY_BUCKET_LABELS);
-    drawBucketDist('vbar-total-study', summary.totalStudyHourCounts || {}, TOTAL_STUDY_BUCKET_LABELS);
+    drawBucketBars('bar-avg-daily', summary.avgDailyMinuteCounts || {}, AVG_DAILY_BUCKET_LABELS, 'sakura');
+    drawBucketBars('bar-total-study', summary.totalStudyHourCounts || {}, TOTAL_STUDY_BUCKET_LABELS, 'green');
 
     renderCrowd('gorilla-crowd','gorilla-overflow','🦍',total,100);
     renderSakura('sakura-crowd','sakura-overflow',totalMins,200);
