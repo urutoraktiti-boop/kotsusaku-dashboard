@@ -657,6 +657,17 @@ body::before {
           <div class="kpi-copy">仲間の平均コツコツ継続日数</div>
         </div>
       </div>
+
+      <div class="two-col" style="margin-top:12px;">
+        <div class="chart-card">
+          <div class="chart-title">📅 1日の平均学習時間分布</div>
+          <div class="vbar-chart" id="vbar-avg-daily"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">📚 累計学習時間分布</div>
+          <div class="vbar-chart" id="vbar-total-study"></div>
+        </div>
+      </div>
     </div>
 
     <!-- 物語・資格 -->
@@ -877,6 +888,20 @@ const LICENSE_CATEGORY_NAMES = {
   unanswered:     '－ 未回答',
 };
 const OS_NAMES = {ios:'iOS',android:'Android',windows:'Windows',mac:'Mac',other:'その他'};
+const AVG_DAILY_BUCKET_LABELS = {
+  '0-10':'0-10分',
+  '10-30':'10-30分',
+  '30-60':'30-60分',
+  '60-90':'60-90分',
+  '90-':'90分-',
+};
+const TOTAL_STUDY_BUCKET_LABELS = {
+  '0-5':'0-5h',
+  '5-20':'5-20h',
+  '20-50':'20-50h',
+  '50-100':'50-100h',
+  '100-':'100h-',
+};
 const BADGE_NAMES = {
   first:'🌱 はじめの一歩', h1:'⏰ 1時間突破', h5:'📖 5時間突破',
   h10:'✨ 10時間突破', h30:'🌟 30時間突破', h50:'🎓 50時間突破',
@@ -1143,6 +1168,31 @@ function drawLevelDist(levelCounts){
   }).join('');
 }
 
+function drawBucketDist(containerId, counts, labels){
+  const el=document.getElementById(containerId); if(!el) return;
+  const entries=Object.keys(labels).map((key)=>({key,label:labels[key],count:Number((counts||{})[key]||0)}));
+  const total=entries.reduce((sum,item)=>sum+item.count,0);
+  if(!total){
+    el.innerHTML='<div class="level-note">次回のサーバー再集計後に表示されます。</div>';
+    return;
+  }
+  const max=Math.max(...entries.map(item=>item.count),1);
+  el.innerHTML=entries.map((item,index)=>{
+    const height=Math.round(item.count/max*100);
+    const rate=Math.round(item.count/total*100);
+    const color=index<2
+      ? 'linear-gradient(to top,var(--green-dark),var(--green))'
+      : index===2
+        ? 'linear-gradient(to top,var(--gold-dark),var(--gold))'
+        : 'linear-gradient(to top,var(--sakura-dark),var(--sakura))';
+    return `<div class="vbar-col">
+      <div class="vbar-val">${rate}%</div>
+      <div class="vbar-bar" style="height:${Math.max(height, item.count ? 4 : 2)}px;background:${color};"></div>
+      <div class="vbar-label">${item.label}</div>
+    </div>`;
+  }).join('');
+}
+
 function drawBadgeRanking(badgeMap){
   const el=document.getElementById('badge-ranking'); if(!el) return;
   const sorted=Object.entries(badgeMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
@@ -1205,6 +1255,8 @@ async function loadData(){
     setText('kpi-avg-daily', avgDailyMins+'分');
     setText('kpi-avg-total', fmt(avgTotalMins));
     setText('kpi-avg-streak', avgStreak+'日');
+    drawBucketDist('vbar-avg-daily', summary.avgDailyMinuteCounts || {}, AVG_DAILY_BUCKET_LABELS);
+    drawBucketDist('vbar-total-study', summary.totalStudyHourCounts || {}, TOTAL_STUDY_BUCKET_LABELS);
 
     renderCrowd('gorilla-crowd','gorilla-overflow','🦍',total,100);
     renderSakura('sakura-crowd','sakura-overflow',totalMins,200);
