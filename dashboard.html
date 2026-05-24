@@ -449,6 +449,17 @@ body::before {
 .vbar-label{font-size:.5rem;font-weight:700;color:var(--muted);white-space:nowrap;}
 .level-note{font-size:.54rem;color:var(--muted);line-height:1.7;text-align:center;margin-top:10px;}
 
+.summary-card{background:white;border:2px solid var(--green-light);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.summary-card::before{content:'🌸';position:absolute;right:18px;top:12px;font-size:3rem;opacity:.08;}
+.summary-title{font-size:.82rem;font-weight:900;color:var(--text);margin-bottom:12px;}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+.summary-item{background:var(--bg);border-radius:var(--radius-sm);padding:12px 10px;text-align:center;}
+.summary-value{font-family:'Kaisei Tokumin',serif;font-size:1.35rem;font-weight:700;color:var(--green-dark);line-height:1;margin-bottom:5px;}
+.summary-item.sakura .summary-value{color:var(--sakura-dark);}
+.summary-item.gold .summary-value{color:var(--gold-dark);}
+.summary-label{font-size:.55rem;font-weight:900;color:var(--muted);line-height:1.4;}
+.summary-line{font-size:.62rem;color:var(--muted);line-height:1.8;margin-top:12px;text-align:center;}
+
 /* バッジランキング */
 .badge-list{display:flex;flex-direction:column;gap:7px;}
 .badge-row{
@@ -766,6 +777,33 @@ body::before {
       </div>
     </div>
 
+    <!-- まとめ -->
+    <div class="section">
+      <div class="section-label">🌸 今日のまとめ</div>
+      <div class="summary-card">
+        <div class="summary-title">いまのコツサク全体像</div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-value" id="summary-users">-</div>
+            <div class="summary-label">冒険をはじめた仲間</div>
+          </div>
+          <div class="summary-item sakura">
+            <div class="summary-value" id="summary-hours">-</div>
+            <div class="summary-label">総学習時間</div>
+          </div>
+          <div class="summary-item gold">
+            <div class="summary-value" id="summary-active">-</div>
+            <div class="summary-label">今週も冒険中</div>
+          </div>
+          <div class="summary-item sakura">
+            <div class="summary-value" id="summary-license">-</div>
+            <div class="summary-label">資格ストーリー</div>
+          </div>
+        </div>
+        <div class="summary-line" id="summary-line">今日もどこかで、1マスが刻まれています。</div>
+      </div>
+    </div>
+
     <!-- 管理者用 -->
     <div class="section">
       <div class="section-label">⚠️ 管理者用・緊急操作</div>
@@ -960,6 +998,15 @@ function setJourneyMetric(kind, count, total){
   setText(`journey-${kind}-val`, pctValue + '%');
   const fill = document.getElementById(`journey-${kind}`);
   if(fill) requestAnimationFrame(()=>{ fill.style.width = pctValue + '%'; });
+}
+function setDashboardSummary(total, totalMins, activeUsers7d, storyTotal, licenseTotal){
+  const selectedTotal = storyTotal + licenseTotal;
+  const licensePct = selectedTotal ? Math.round(licenseTotal / selectedTotal * 100) : 0;
+  setText('summary-users', total + '人');
+  setText('summary-hours', fmt(totalMins));
+  setText('summary-active', pctCapped(activeUsers7d, total));
+  setText('summary-license', licensePct + '%');
+  setText('summary-line', '物語も資格も、今日の10分が少しずつ積み上がっています。');
 }
 
 // アイコン群を描画（上限付き）
@@ -1192,6 +1239,7 @@ async function loadData(){
       document.getElementById('bar-license').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です（アプリ更新後に表示されます）</div>';
     }
     setRoadSummary(storyTotal, licenseTotal);
+    setDashboardSummary(total, totalMins, activeUsers7d, storyTotal, licenseTotal);
 
     const deviceCount=summary.deviceCounts || {};
     const deviceItems=[
