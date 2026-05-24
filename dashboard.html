@@ -1272,13 +1272,8 @@ async function loadData(){
       document.getElementById('bar-story').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です</div>';
     }
 
-    const licenseCounts = countTotal(summary.licenseCounts || {}) > 0
-      ? summary.licenseCounts || {}
-      : pickCounts(summary.storyCounts || {}, LICENSE_STORY_NAMES);
-    const licenseEntries = entriesFromCounts(licenseCounts, {
-      ...LICENSE_STORY_NAMES,
-      ...LICENSE_CATEGORY_NAMES,
-    });
+    const licenseCounts = pickCounts(summary.storyCounts || {}, LICENSE_STORY_NAMES);
+    const licenseEntries = entriesFromCounts(licenseCounts, LICENSE_STORY_NAMES);
     const licenseTotal = countTotal(licenseCounts);
     if(licenseEntries.length > 0){
       drawBars('bar-license', licenseEntries, 'green', licenseTotal);
