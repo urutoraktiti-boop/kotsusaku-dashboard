@@ -491,6 +491,24 @@ body::before {
 .spinner{width:22px;height:22px;border:2.5px solid var(--green-light);border-top-color:var(--green-dark);border-radius:50%;animation:spin .7s linear infinite;}
 
 .error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
+
+/* ===== 推移グラフ ===== */
+.trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+@media(max-width:580px){.trend-grid{grid-template-columns:1fr;}}
+.trend-current-row{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;}
+.trend-current-val{font-family:'Kaisei Tokumin',serif;font-size:1.3rem;font-weight:700;color:var(--sakura-dark);}
+.trend-current-val.green{color:var(--green-dark);}
+.trend-current-val.gold{color:var(--gold-dark);}
+.trend-current-label{font-size:.52rem;color:var(--muted);}
+.trend-bars{display:flex;align-items:flex-end;gap:3px;height:72px;overflow-x:auto;padding-bottom:2px;}
+.trend-col{flex:0 0 auto;min-width:28px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px;}
+.trend-bar{width:20px;min-height:2px;border-radius:3px 3px 1px 1px;}
+.trend-bar.sakura{background:linear-gradient(to top,var(--sakura-dark),var(--sakura));}
+.trend-bar.green{background:linear-gradient(to top,var(--green-dark),var(--green));}
+.trend-bar.gold{background:linear-gradient(to top,var(--gold-dark),var(--gold));}
+.trend-time{font-size:.38rem;font-weight:700;color:var(--muted);text-align:center;white-space:nowrap;}
+.trend-empty{font-size:.6rem;color:var(--muted);text-align:center;padding:20px 0;line-height:1.9;}
+.trend-footnote{font-size:.52rem;color:var(--muted);margin-top:8px;text-align:center;line-height:1.7;}
 </style>
 </head>
 <body>
@@ -812,6 +830,41 @@ body::before {
           </div>
         </div>
         <div class="summary-line" id="summary-line">今日もどこかで、1マスが刻まれています。</div>
+      </div>
+    </div>
+
+    <!-- 推移グラフ -->
+    <div class="section">
+      <div class="section-label">📈 時間別推移グラフ</div>
+
+      <div class="chart-card" style="margin-bottom:12px;">
+        <div class="chart-title">⏱ 総学習時間の推移</div>
+        <div class="trend-current-row" id="trend-hours-cur"></div>
+        <div class="trend-bars" id="trend-hours"></div>
+        <div class="trend-footnote">ダッシュボードを開くたびに記録が蓄積されます（最大48時間分）</div>
+      </div>
+
+      <div class="trend-grid">
+        <div class="chart-card">
+          <div class="chart-title">🌱 冒険をはじめた仲間（総数）</div>
+          <div class="trend-current-row" id="trend-users-cur"></div>
+          <div class="trend-bars" id="trend-users"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">🔥 今週も冒険中</div>
+          <div class="trend-current-row" id="trend-active7d-cur"></div>
+          <div class="trend-bars" id="trend-active7d"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">⚡ 最近も冒険中（3日以内）</div>
+          <div class="trend-current-row" id="trend-active3d-cur"></div>
+          <div class="trend-bars" id="trend-active3d"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">📱 PWAインストール数</div>
+          <div class="trend-current-row" id="trend-pwa-cur"></div>
+          <div class="trend-bars" id="trend-pwa"></div>
+        </div>
       </div>
     </div>
 
@@ -1205,6 +1258,76 @@ function drawBadgeRanking(badgeMap){
     </div>`).join('');
 }
 
+// ===== 推移スナップショット（localStorage） =====
+const TREND_KEY = 'kotsusaku_trend_v1';
+const TREND_MAX = 48;
+
+function getTrendSnapshots() {
+  try { return JSON.parse(localStorage.getItem(TREND_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function saveTrendSnapshot(summary, updatedAt) {
+  if (!updatedAt) return;
+  const tsKey = updatedAt.toISOString().slice(0, 13); // YYYY-MM-DDTHH
+  const snaps = getTrendSnapshots();
+  if (snaps.some(s => s.tsKey === tsKey)) return;
+  const total = Number(summary.userCount || summary.analyticsCount || 0);
+  snaps.push({
+    tsKey,
+    ts: updatedAt.toISOString(),
+    totalStudyMin: Number(summary.totalStudyMin || 0),
+    userCount: total,
+    activeUsers7d: Number(summary.activeUsers7d || 0),
+    activeUsers3d: Number(summary.activeUsers3d || 0),
+    pwaUsers: Number(summary.pwaUsers || 0),
+  });
+  const trimmed = snaps.sort((a, b) => a.ts.localeCompare(b.ts)).slice(-TREND_MAX);
+  try { localStorage.setItem(TREND_KEY, JSON.stringify(trimmed)); } catch(e) {}
+}
+
+function trendTimeLabel(isoStr) {
+  const d = new Date(isoStr);
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  return isToday
+    ? d.getHours() + '時'
+    : (d.getMonth() + 1) + '/' + d.getDate() + '\n' + d.getHours() + '時';
+}
+
+function drawTrendBars(barsId, curId, snaps, key, colorClass, fmt) {
+  const barsEl = document.getElementById(barsId);
+  const curEl  = document.getElementById(curId);
+  if (!barsEl) return;
+  if (snaps.length === 0) {
+    barsEl.innerHTML = '<div class="trend-empty">ダッシュボードを複数回開くと<br>データが蓄積されていきます 🌸</div>';
+    return;
+  }
+  const recent = snaps.slice(-24);
+  const values = recent.map(s => Number(s[key] || 0));
+  const maxVal = Math.max(...values, 1);
+  const latest = values[values.length - 1];
+  if (curEl) {
+    curEl.innerHTML = `<span class="trend-current-val ${colorClass}">${fmt(latest)}</span><span class="trend-current-label">現在値</span>`;
+  }
+  barsEl.innerHTML = recent.map(snap => {
+    const val = Number(snap[key] || 0);
+    const h = Math.max(Math.round(val / maxVal * 60), val > 0 ? 3 : 1);
+    return `<div class="trend-col">
+      <div class="trend-bar ${colorClass}" style="height:${h}px;" title="${fmt(val)}"></div>
+      <div class="trend-time">${trendTimeLabel(snap.ts)}</div>
+    </div>`;
+  }).join('');
+}
+
+function drawAllTrendCharts() {
+  const snaps = getTrendSnapshots();
+  drawTrendBars('trend-hours',    'trend-hours-cur',    snaps, 'totalStudyMin', 'sakura', v => Math.round(v / 60).toLocaleString() + 'h');
+  drawTrendBars('trend-users',    'trend-users-cur',    snaps, 'userCount',     'green',  v => v.toLocaleString() + '人');
+  drawTrendBars('trend-active7d', 'trend-active7d-cur', snaps, 'activeUsers7d', 'sakura', v => v.toLocaleString() + '人');
+  drawTrendBars('trend-active3d', 'trend-active3d-cur', snaps, 'activeUsers3d', 'gold',   v => v.toLocaleString() + '人');
+  drawTrendBars('trend-pwa',      'trend-pwa-cur',      snaps, 'pwaUsers',      'green',  v => v.toLocaleString() + '人');
+}
+
 async function loadData(){
   const btn=document.getElementById('refresh-btn');
   btn.classList.add('loading'); btn.textContent='表示を更新しています…';
@@ -1301,6 +1424,8 @@ async function loadData(){
     drawBadgeRanking(summary.badgeCounts || {});
 
     const updatedAt = timestampToDate(summary.updatedAt);
+    saveTrendSnapshot(summary, updatedAt);
+    drawAllTrendCharts();
     const updatedText = updatedAt
       ? updatedAt.toLocaleString('ja-JP')
       : new Date().toLocaleString('ja-JP');
