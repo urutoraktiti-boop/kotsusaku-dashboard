@@ -8,675 +8,1432 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Kaisei+Tokumin:wght@400;700&display=swap" rel="stylesheet">
 <style>
+/* ===== RESET & ROOT ===== */
 :root {
-  --green: #4caf82;
-  --green-dark: #2d7a57;
-  --green-light: #d4f5e2;
-  --sakura: #f4a0c0;
-  --sakura-dark: #c04070;
-  --sakura-light: #fde8f0;
-  --gold: #f5c842;
-  --gold-dark: #b88a00;
-  --cream: #fffdf7;
-  --bg: #f8f4ef;
-  --text: #2c2c2c;
-  --muted: #9a9080;
-  --white: #ffffff;
-  --shadow: 0 4px 20px rgba(0,0,0,0.08);
-  --shadow-pop: 4px 4px 0px rgba(0,0,0,0.12);
-  --radius: 24px;
-  --radius-sm: 14px;
+  --green: #10b981;
+  --green-dark: #059669;
+  --green-glow: rgba(16,185,129,0.35);
+  --green-glass: rgba(16,185,129,0.12);
+  --sakura: #f472b6;
+  --sakura-dark: #db2777;
+  --sakura-glow: rgba(244,114,182,0.35);
+  --sakura-glass: rgba(244,114,182,0.1);
+  --gold: #f59e0b;
+  --gold-dark: #d97706;
+  --gold-glow: rgba(245,158,11,0.35);
+  --gold-glass: rgba(245,158,11,0.1);
+  --blue: #6366f1;
+  --blue-dark: #4f46e5;
+  --blue-glow: rgba(99,102,241,0.35);
+
+  /* Dark hero palette */
+  --hero-bg-start: #0f172a;
+  --hero-bg-end: #1e1b4b;
+  --hero-mid: #18124a;
+
+  /* Card backgrounds */
+  --card-bg: rgba(255,255,255,0.92);
+  --card-border: rgba(255,255,255,0.6);
+  --card-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 20px 48px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08);
+
+  /* Page bg */
+  --page-bg: #f0f4ff;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+
+  --radius: 20px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
   font-family: 'Zen Maru Gothic', sans-serif;
-  background: var(--bg);
+  background: var(--page-bg);
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* 背景キャラクター装飾 */
-.bg-deco {
+/* Subtle grid pattern on page bg */
+body::before {
+  content: '';
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(99,102,241,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(16,185,129,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 40%, rgba(244,114,182,0.05) 0%, transparent 40%);
   pointer-events: none;
   z-index: 0;
-  overflow: hidden;
-}
-.bg-char {
-  position: absolute;
-  font-size: 4rem;
-  opacity: .04;
-  animation: bgFloat 8s ease-in-out infinite;
-  user-select: none;
-}
-.bg-char:nth-child(1){top:5%;left:3%;animation-delay:0s;font-size:5rem;}
-.bg-char:nth-child(2){top:15%;right:4%;animation-delay:1.5s;font-size:3.5rem;}
-.bg-char:nth-child(3){top:35%;left:8%;animation-delay:3s;font-size:6rem;}
-.bg-char:nth-child(4){top:55%;right:6%;animation-delay:.8s;font-size:4rem;}
-.bg-char:nth-child(5){top:70%;left:2%;animation-delay:2.2s;font-size:5rem;}
-.bg-char:nth-child(6){top:80%;right:3%;animation-delay:4s;font-size:3rem;}
-.bg-char:nth-child(7){top:45%;left:45%;animation-delay:1s;font-size:7rem;}
-@keyframes bgFloat {
-  0%,100%{transform:translateY(0) rotate(-3deg);}
-  50%{transform:translateY(-12px) rotate(3deg);}
 }
 
-/* グラデーション背景 */
-body::before {
-  content:'';
-  position:fixed;
-  top:0;left:0;right:0;bottom:0;
-  background:
-    radial-gradient(ellipse at 15% 15%, rgba(212,245,226,.55) 0%, transparent 45%),
-    radial-gradient(ellipse at 85% 10%, rgba(253,232,240,.5) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 85%, rgba(212,245,226,.4) 0%, transparent 50%),
-    radial-gradient(ellipse at 90% 70%, rgba(253,232,240,.4) 0%, transparent 40%);
-  z-index:0;
-  pointer-events:none;
-}
-
+/* ===== LAYOUT ===== */
 .page-wrap {
   position: relative;
   z-index: 1;
-  max-width: 1000px;
+  max-width: 1040px;
   margin: 0 auto;
   padding: 0 20px 80px;
 }
 
-/* ヘッダー */
-.header {
-  text-align: center;
-  padding: 48px 20px 28px;
+/* ===== HERO HEADER ===== */
+.hero-header {
+  background: linear-gradient(135deg, var(--hero-bg-start) 0%, var(--hero-mid) 50%, var(--hero-bg-end) 100%);
+  border-radius: 0 0 32px 32px;
+  margin: 0 -20px 40px;
+  padding: 48px 40px 52px;
+  position: relative;
+  overflow: hidden;
 }
-.header-badge {
+
+/* Animated glow orbs in header */
+.hero-header::before {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%);
+  top: -100px; left: -80px;
+  border-radius: 50%;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.hero-header::after {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(16,185,129,0.14) 0%, transparent 70%);
+  bottom: -80px; right: -60px;
+  border-radius: 50%;
+  animation: orbFloat 10s ease-in-out infinite reverse;
+}
+@keyframes orbFloat {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(20px,-20px) scale(1.05); }
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: white;
-  border: 2px solid var(--sakura);
+  gap: 7px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 99px;
-  padding: 5px 18px;
-  font-size: .65rem;
+  padding: 6px 18px;
+  font-size: 0.62rem;
   font-weight: 900;
-  color: var(--sakura-dark);
-  letter-spacing: .08em;
-  margin-bottom: 16px;
-  box-shadow: 3px 3px 0 var(--sakura-light);
-}
-.header-title {
-  font-family: 'Kaisei Tokumin', serif;
-  font-size: clamp(1.5rem, 4vw, 2.2rem);
-  font-weight: 700;
-  line-height: 1.4;
-  margin-bottom: 10px;
-}
-.header-title em { font-style: normal; color: var(--green-dark); }
-.header-title span { color: var(--sakura-dark); }
-.header-sub {
-  font-size: .78rem;
-  color: var(--muted);
-  line-height: 1.9;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   margin-bottom: 20px;
+  backdrop-filter: blur(10px);
 }
-.float-chars {
-  display: flex;
-  justify-content: center;
+
+/* Pulsing green dot */
+.pulse-dot {
+  width: 7px; height: 7px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 var(--green-glow);
+  animation: pulse 2s ease-in-out infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+  50%  { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+
+.hero-title {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.3;
+  margin-bottom: 10px;
+  text-shadow: 0 0 40px rgba(99,102,241,0.4);
+}
+.hero-title em {
+  font-style: normal;
+  color: #6ee7b7;
+  text-shadow: 0 0 20px rgba(16,185,129,0.5);
+}
+.hero-title span {
+  color: #f9a8d4;
+  text-shadow: 0 0 20px rgba(244,114,182,0.5);
+}
+
+.hero-sub {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.9;
+  margin-bottom: 36px;
+}
+
+/* Hero stat row */
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  margin: 6px 0 22px;
-  font-size: 1.8rem;
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 32px;
 }
-.float-char { animation: floatChar 3s ease-in-out infinite; display: inline-block; }
-.float-char:nth-child(2){animation-delay:.6s;}
-.float-char:nth-child(3){animation-delay:1.2s;}
-.float-char:nth-child(4){animation-delay:1.8s;}
-@keyframes floatChar {
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-7px);}
+.hero-stat {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 18px 12px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
 }
+.hero-stat:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
+.hero-stat-val {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.hero-stat-val.green { color: #6ee7b7; text-shadow: 0 0 20px rgba(16,185,129,0.5); }
+.hero-stat-val.sakura { color: #fbcfe8; text-shadow: 0 0 20px rgba(244,114,182,0.5); }
+.hero-stat-val.gold { color: #fde68a; text-shadow: 0 0 20px rgba(245,158,11,0.5); }
+.hero-stat-label {
+  font-size: 0.58rem;
+  font-weight: 900;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Dashboard action buttons */
+.dashboard-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .refresh-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: white;
-  border: 2px solid #e0d8d0;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: 99px;
-  padding: 10px 24px;
-  font-size: .72rem;
+  padding: 10px 22px;
+  font-size: 0.72rem;
   font-weight: 900;
   font-family: inherit;
-  color: var(--muted);
+  color: rgba(255,255,255,0.75);
   cursor: pointer;
-  transition: all .2s;
-  box-shadow: 3px 3px 0 #e0d8d0;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
 }
-.refresh-btn:hover{border-color:var(--green);color:var(--green-dark);box-shadow:3px 3px 0 var(--green-light);transform:translate(-1px,-1px);}
-.refresh-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 #e0d8d0;}
-.refresh-btn.loading{opacity:.5;pointer-events:none;}
-.dashboard-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
-.manual-btn{border-color:var(--sakura);color:var(--sakura-dark);box-shadow:3px 3px 0 var(--sakura-light);}
-.manual-status{margin-top:10px;font-size:.68rem;font-weight:700;color:var(--muted);min-height:1.2em;}
-.manual-status.ok{color:var(--green-dark);}
-.manual-status.warn{color:var(--sakura-dark);}
-.admin-card{background:white;border:2px dashed var(--sakura);border-radius:var(--radius);padding:18px 18px;text-align:center;box-shadow:var(--shadow);}
-.admin-title{font-size:.72rem;font-weight:900;color:var(--sakura-dark);margin-bottom:8px;}
-.admin-copy{font-size:.62rem;line-height:1.8;color:var(--muted);margin-bottom:12px;}
-.activity-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:10px;}
-.activity-card{background:white;border:2px solid var(--green-light);border-radius:var(--radius-sm);padding:18px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
-.activity-card.sakura{border-color:var(--sakura-light);}
-.activity-card.gold{border-color:#fde8a0;}
-.activity-label{font-size:.58rem;font-weight:900;color:var(--muted);letter-spacing:.06em;margin-bottom:6px;}
-.activity-num{font-family:'Kaisei Tokumin',serif;font-size:2rem;font-weight:700;line-height:1;color:var(--green-dark);margin-bottom:7px;}
-.activity-card.sakura .activity-num{color:var(--sakura-dark);}
-.activity-card.gold .activity-num{color:var(--gold-dark);}
-.activity-copy{font-size:.56rem;line-height:1.55;color:var(--muted);min-height:2.8em;}
-.activity-bar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden;margin-top:12px;}
-.activity-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green-dark),var(--green));width:0%;transition:width .7s ease;}
-.activity-card.sakura .activity-fill{background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));}
-.activity-card.gold .activity-fill{background:linear-gradient(90deg,var(--gold-dark),var(--gold));}
-.activity-pct{font-size:.58rem;font-weight:900;color:var(--muted);margin-top:6px;}
-.activity-arrow{align-self:center;font-size:1.2rem;color:var(--muted);font-weight:900;}
-.journey-card{background:white;border:2px solid rgba(0,0,0,.05);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-top:12px;}
-.journey-title{font-size:.72rem;font-weight:900;color:var(--text);margin-bottom:12px;}
-.journey-list{display:flex;flex-direction:column;gap:9px;}
-.journey-row{display:grid;grid-template-columns:118px 1fr 76px;align-items:center;gap:10px;}
-.journey-label{font-size:.6rem;font-weight:900;color:var(--muted);white-space:nowrap;}
-.journey-track{height:12px;background:var(--bg);border-radius:99px;overflow:hidden;}
-.journey-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--green-dark),var(--green));transition:width .7s ease;}
-.journey-fill.sakura{background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));}
-.journey-fill.gold{background:linear-gradient(90deg,var(--gold-dark),var(--gold));}
-.journey-value{font-size:.62rem;font-weight:900;color:var(--text);text-align:right;font-family:'Kaisei Tokumin',serif;}
-@media(max-width:760px){
-  .activity-flow{grid-template-columns:1fr;gap:8px;}
-  .activity-arrow{transform:rotate(90deg);justify-self:center;}
+.refresh-btn:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.3);
+  color: #fff;
+  transform: translateY(-1px);
 }
-@media(max-width:580px){.journey-row{grid-template-columns:88px 1fr 56px;gap:8px;}.journey-label,.journey-value{font-size:.54rem;}}
+.refresh-btn:active { transform: translateY(0); }
+.refresh-btn.loading { opacity: 0.5; pointer-events: none; }
+.manual-btn { border-color: rgba(244,114,182,0.4); color: #f9a8d4; }
+.manual-btn:hover { background: rgba(244,114,182,0.12); border-color: rgba(244,114,182,0.5); }
 
-/* セクション */
-.section{margin-bottom:36px;}
+@media(max-width: 600px) {
+  .hero-header { padding: 36px 20px 44px; margin: 0 -20px 28px; }
+  .hero-stats { grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .hero-stat { padding: 14px 8px; }
+}
+
+/* ===== SECTION HEADERS ===== */
+.section { margin-bottom: 40px; }
 .section-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: .62rem;
+  gap: 10px;
+  font-size: 0.6rem;
   font-weight: 900;
-  letter-spacing: .12em;
-  color: var(--muted);
-  margin-bottom: 14px;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
 }
-.section-label::after{content:'';flex:1;height:1.5px;background:rgba(0,0,0,.07);}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(100,116,139,0.25) 0%, transparent 100%);
+}
+.section-icon {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.section-icon.green { background: var(--green-glass); }
+.section-icon.sakura { background: var(--sakura-glass); }
+.section-icon.gold { background: var(--gold-glass); }
 
-/* ===== 仲間カード（メイン） ===== */
-.nakama-card {
-  background: white;
+/* ===== GLASS CARD BASE ===== */
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--radius);
-  padding: 28px 24px 24px;
-  box-shadow: var(--shadow);
-  border: 2px solid var(--green-light);
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.glass-card:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* ===== FUNNEL / ACTIVITY FLOW ===== */
+.funnel-section {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 10px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+@media(max-width: 700px) {
+  .funnel-section { grid-template-columns: 1fr; }
+  .funnel-arrow { transform: rotate(90deg); }
+}
+
+.funnel-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 22px 20px 18px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.funnel-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--green-dark), var(--green));
+}
+.funnel-card.sakura::before { background: linear-gradient(90deg, var(--sakura-dark), var(--sakura)); }
+.funnel-card.gold::before   { background: linear-gradient(90deg, var(--gold-dark), var(--gold)); }
+.funnel-card:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
+
+.funnel-label {
+  font-size: 0.56rem;
+  font-weight: 900;
+  color: var(--text-subtle);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.funnel-num {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--green-dark);
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.funnel-card.sakura .funnel-num { color: var(--sakura-dark); }
+.funnel-card.gold   .funnel-num { color: var(--gold-dark); }
+
+.funnel-copy {
+  font-size: 0.56rem;
+  color: var(--text-subtle);
+  line-height: 1.6;
+  margin-bottom: 14px;
+  min-height: 2.5em;
+}
+
+.funnel-bar-track {
+  height: 6px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.activity-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--green-dark), var(--green));
+  width: 0%;
+  transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.funnel-card.sakura .activity-fill { background: linear-gradient(90deg, var(--sakura-dark), var(--sakura)); }
+.funnel-card.gold   .activity-fill { background: linear-gradient(90deg, var(--gold-dark), var(--gold)); }
+
+.funnel-pct-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  background: var(--green-glass);
+  color: var(--green-dark);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 0.6rem;
+  font-weight: 900;
+}
+.funnel-card.sakura .funnel-pct-badge { background: var(--sakura-glass); color: var(--sakura-dark); }
+.funnel-card.gold   .funnel-pct-badge { background: var(--gold-glass); color: var(--gold-dark); }
+
+.funnel-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-subtle);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 24px;
+}
+
+/* ===== KPI CARDS ===== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.kpi-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 22px 18px 18px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  text-align: left;
+}
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* Colored left accent bar */
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 20px; bottom: 20px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--green);
+}
+.kpi-card.sakura::before { background: var(--sakura); }
+.kpi-card.gold::before   { background: var(--gold); }
+.kpi-card.blue::before   { background: var(--blue); }
+
+.kpi-emoji {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.kpi-val {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--green-dark);
+}
+.kpi-card.sakura .kpi-val { color: var(--sakura-dark); }
+.kpi-card.gold   .kpi-val { color: var(--gold-dark); }
+.kpi-card.blue   .kpi-val { color: var(--blue-dark); }
+
+.kpi-lab {
+  font-size: 0.56rem;
+  font-weight: 900;
+  color: var(--text-subtle);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.kpi-copy {
+  font-size: 0.54rem;
+  color: var(--text-subtle);
+  line-height: 1.5;
+}
+
+/* Trend badge inside KPI */
+.kpi-trend {
+  position: absolute;
+  top: 16px; right: 14px;
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 99px;
+}
+.kpi-trend.up   { background: rgba(16,185,129,0.12); color: var(--green-dark); }
+.kpi-trend.down { background: rgba(239,68,68,0.1);  color: #dc2626; }
+
+/* ===== NAKAMA / CROWD CARD ===== */
+.nakama-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
   margin-bottom: 14px;
   position: relative;
   overflow: hidden;
 }
-.nakama-card::before {
-  content: '🦍';
-  position: absolute;
-  right: 20px;
-  top: 16px;
-  font-size: 3rem;
-  opacity: .08;
+.nakama-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 .nakama-title {
-  font-size: .6rem;
+  font-size: 0.6rem;
   font-weight: 900;
-  color: var(--muted);
-  letter-spacing: .1em;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   margin-bottom: 4px;
 }
 .nakama-num {
   font-family: 'Kaisei Tokumin', serif;
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 700;
   color: var(--green-dark);
   line-height: 1;
-  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 .nakama-copy {
-  font-size: .65rem;
-  color: var(--muted);
-  margin-bottom: 16px;
+  font-size: 0.64rem;
+  color: var(--text-subtle);
+  line-height: 1.7;
 }
 
-/* ゴリラ・ブロッコリーアイコン群 */
+/* Gorilla/icon crowd */
 .icon-crowd {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
-  max-height: 120px;
+  max-height: 130px;
   overflow: hidden;
   line-height: 1.3;
 }
 .icon-crowd span {
   font-size: 1.1rem;
   display: inline-block;
-  animation: popIn .3s ease backwards;
+  animation: popIn 0.3s ease backwards;
 }
 @keyframes popIn {
-  from{transform:scale(0);opacity:0;}
-  to{transform:scale(1);opacity:1;}
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
 }
 .crowd-overflow {
-  font-size: .6rem;
-  color: var(--muted);
+  font-size: 0.6rem;
+  color: var(--text-subtle);
   font-weight: 700;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
-/* ===== 学習時間カード ===== */
+/* Sakura crowd */
+.sakura-crowd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  max-height: 90px;
+  overflow: hidden;
+  line-height: 1.3;
+}
+.sakura-crowd span {
+  font-size: 0.9rem;
+  display: inline-block;
+  animation: popIn 0.2s ease backwards;
+}
+
+/* ===== TIME CARD ===== */
 .time-card {
-  background: white;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 24px;
-  box-shadow: var(--shadow);
-  border: 2px solid var(--sakura-light);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
   margin-bottom: 14px;
   position: relative;
   overflow: hidden;
 }
 .time-card::before {
-  content: '🌸';
+  content: '';
   position: absolute;
-  right: 20px;
-  top: 16px;
-  font-size: 3rem;
-  opacity: .08;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--sakura-dark), var(--sakura));
 }
 .time-title {
-  font-size: .6rem;
+  font-size: 0.6rem;
   font-weight: 900;
-  color: var(--muted);
-  letter-spacing: .1em;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   margin-bottom: 4px;
 }
 .time-num {
   font-family: 'Kaisei Tokumin', serif;
-  font-size: 2.4rem;
+  font-size: 3rem;
   font-weight: 700;
   color: var(--sakura-dark);
   line-height: 1;
-  margin-bottom: 10px;
-}
-.sakura-crowd {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  max-height: 80px;
-  overflow: hidden;
-  line-height: 1.3;
-}
-.sakura-crowd span {
-  font-size: .9rem;
-  display: inline-block;
-  animation: popIn .2s ease backwards;
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
-/* ===== KPIグリッド ===== */
-.kpi-grid {
+/* ===== JOURNEY PROGRESS BARS ===== */
+.journey-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 22px 22px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  margin-top: 12px;
+}
+.journey-title {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.journey-list { display: flex; flex-direction: column; gap: 14px; }
+.journey-row { display: grid; grid-template-columns: 120px 1fr 80px; align-items: center; gap: 12px; }
+.journey-label { font-size: 0.62rem; font-weight: 900; color: var(--text-muted); white-space: nowrap; }
+.journey-track {
+  height: 20px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.journey-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--green-dark), var(--green));
+  transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+/* Shimmer animation on journey bars */
+.journey-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.journey-fill.sakura { background: linear-gradient(90deg, var(--sakura-dark), var(--sakura)); }
+.journey-fill.gold   { background: linear-gradient(90deg, var(--gold-dark), var(--gold)); }
+.journey-value {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--text);
+  text-align: right;
+  font-family: 'Kaisei Tokumin', serif;
+}
+@media(max-width: 580px) {
+  .journey-row { grid-template-columns: 80px 1fr 60px; gap: 8px; }
+  .journey-label, .journey-value { font-size: 0.54rem; }
+}
+
+/* ===== RING / RADIAL PROGRESS ===== */
+.ring-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
 }
-.kpi-card {
-  background: white;
-  border-radius: var(--radius-sm);
-  padding: 18px 16px;
-  box-shadow: var(--shadow-pop);
-  border: 2px solid transparent;
-  transition: all .2s;
+.ring-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 20px 14px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
   text-align: center;
+  transition: all 0.3s;
+}
+.ring-card:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
+.ring-svg-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
   position: relative;
 }
-.kpi-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(0,0,0,.1);}
-.kpi-card.green{border-color:var(--green-light);box-shadow:4px 4px 0 var(--green-light);}
-.kpi-card.sakura{border-color:var(--sakura-light);box-shadow:4px 4px 0 var(--sakura-light);}
-.kpi-card.gold{border-color:#fde8a0;box-shadow:4px 4px 0 #fde8a0;}
-.kpi-emoji{font-size:1.6rem;margin-bottom:8px;display:block;}
-.kpi-val{font-family:'Kaisei Tokumin',serif;font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:4px;}
-.kpi-card.green .kpi-val{color:var(--green-dark);}
-.kpi-card.sakura .kpi-val{color:var(--sakura-dark);}
-.kpi-card.gold .kpi-val{color:var(--gold-dark);}
-.kpi-lab{font-size:.56rem;font-weight:700;color:var(--muted);letter-spacing:.05em;}
-.kpi-copy{font-size:.54rem;color:var(--muted);margin-top:4px;line-height:1.5;}
+.ring-svg {
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+.ring-track { fill: none; stroke: rgba(0,0,0,0.06); }
+.ring-fill {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dasharray 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ring-label-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.ring-val {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ring-card-label {
+  font-size: 0.56rem;
+  font-weight: 900;
+  color: var(--text-subtle);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.ring-card-copy { font-size: 0.52rem; color: var(--text-subtle); line-height: 1.5; }
 
-/* ===== チャートカード ===== */
+/* ===== CHART CARDS ===== */
 .chart-card {
-  background: white;
+  background: var(--card-bg);
   border-radius: var(--radius);
   padding: 22px;
-  box-shadow: var(--shadow);
-  border: 2px solid rgba(0,0,0,.05);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(12px);
 }
-.chart-title{font-size:.65rem;font-weight:900;color:var(--muted);letter-spacing:.06em;margin-bottom:14px;}
-
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:580px){.two-col{grid-template-columns:1fr;}}
-
-.bar-chart{display:flex;flex-direction:column;gap:10px;}
-.bar-row{display:grid;grid-template-columns:88px 1fr 72px;align-items:center;gap:8px;}
-.bar-label{font-size:.6rem;color:var(--text);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bar-track{background:var(--bg);border-radius:99px;height:10px;overflow:hidden;}
-.bar-fill{height:100%;border-radius:99px;transition:width .7s cubic-bezier(.4,0,.2,1);}
-.bar-fill.green{background:linear-gradient(90deg,var(--green-dark),var(--green));}
-.bar-fill.sakura{background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));}
-.bar-fill.gold{background:linear-gradient(90deg,var(--gold-dark),var(--gold));}
-.bar-count{font-size:.62rem;font-weight:700;color:var(--text);text-align:right;font-family:'Kaisei Tokumin',serif;}
-
-.road-summary{
-  background:white;
-  border:2px solid rgba(0,0,0,.05);
-  border-radius:var(--radius);
-  padding:18px 20px;
-  box-shadow:var(--shadow);
-  margin-bottom:12px;
-}
-.road-summary-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px;}
-.road-kicker{font-size:.56rem;font-weight:900;color:var(--muted);letter-spacing:.12em;margin-bottom:3px;}
-.road-title{font-size:.85rem;font-weight:900;color:var(--text);}
-.road-total{font-family:'Kaisei Tokumin',serif;font-size:1.25rem;font-weight:700;color:var(--green-dark);white-space:nowrap;}
-.road-stack{display:flex;height:34px;background:var(--bg);border-radius:99px;overflow:hidden;border:2px solid rgba(0,0,0,.04);}
-.road-fill{min-width:0;height:100%;display:flex;align-items:center;padding:0 12px;font-size:.68rem;font-weight:900;color:white;white-space:nowrap;transition:width .7s ease;}
-.road-fill.story{justify-content:flex-start;background:linear-gradient(90deg,var(--green-dark),var(--green));}
-.road-fill.license{justify-content:flex-end;background:linear-gradient(90deg,var(--sakura-dark),var(--sakura));}
-.road-fill.is-small span{display:none;}
-.road-legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:10px;font-size:.62rem;font-weight:700;color:var(--muted);}
-.road-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;}
-.road-dot.story{background:var(--green);}
-.road-dot.license{background:var(--sakura);}
-@media(max-width:580px){
-  .road-summary-head{display:block;}
-  .road-total{margin-top:6px;font-size:1rem;}
-  .road-stack{height:30px;}
-  .road-fill{font-size:.58rem;padding:0 8px;}
+.chart-title {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-/* ドーナツ */
-.donut-wrap{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
-.donut-legend{display:flex;flex-direction:column;gap:8px;flex:1;}
-.donut-item{display:flex;align-items:center;gap:7px;font-size:.65rem;}
-.donut-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-.donut-item-label{color:var(--muted);flex:1;}
-.donut-item-val{font-weight:700;color:var(--text);font-family:'Kaisei Tokumin',serif;}
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width: 580px) { .two-col { grid-template-columns: 1fr; } }
 
-/* 時間帯 */
-.hour-chart{display:flex;align-items:flex-end;gap:2px;height:72px;}
-.hour-col-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;}
-.hour-bar-bg{flex:1;width:100%;background:var(--bg);border-radius:4px 4px 0 0;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
-.hour-bar-fill{border-radius:4px 4px 0 0;transition:height .6s ease;background:linear-gradient(to top,var(--green-dark),var(--green));opacity:.45;}
-.hour-bar-fill.morning{opacity:.9;background:linear-gradient(to top,var(--gold-dark),var(--gold));}
-.hour-bar-fill.daytime{opacity:.8;background:linear-gradient(to top,var(--green-dark),var(--green));}
-.hour-bar-fill.night{opacity:.9;background:linear-gradient(to top,var(--sakura-dark),var(--sakura));}
-.hour-bar-fill.latenight{opacity:.7;background:linear-gradient(to top,#4466aa,#88aadd);}
-.hour-bar-fill.peak{opacity:1;box-shadow:0 0 0 2px rgba(255,255,255,.8) inset;}
-.hour-label{font-size:.4rem;color:var(--muted);font-weight:700;}
-.hour-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-top:14px;}
-.hour-chip{background:var(--bg);border-radius:var(--radius-sm);padding:10px 8px;text-align:center;border:1.5px solid rgba(0,0,0,.04);}
-.hour-chip strong{display:block;font-family:'Kaisei Tokumin',serif;font-size:1rem;line-height:1;color:var(--text);margin-bottom:4px;}
-.hour-chip span{font-size:.52rem;font-weight:700;color:var(--muted);}
-.hour-chip.peak{background:var(--sakura-light);border-color:var(--sakura);}
-.hour-chip.peak strong{color:var(--sakura-dark);}
-
-/* 機能カード */
-.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
-.feature-card{
-  background:white;
-  border-radius:var(--radius-sm);
-  padding:18px 14px;
-  text-align:center;
-  box-shadow:var(--shadow-pop);
-  border:2px solid rgba(0,0,0,.05);
-  transition:all .2s;
+/* ===== HORIZONTAL BAR CHARTS ===== */
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: 96px 1fr 80px; align-items: center; gap: 10px; }
+.bar-label {
+  font-size: 0.6rem;
+  color: var(--text);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.feature-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 rgba(0,0,0,.09);}
-.feature-emoji{font-size:1.8rem;margin-bottom:8px;}
-.feature-pct{font-family:'Kaisei Tokumin',serif;font-size:1.5rem;font-weight:700;color:var(--green-dark);margin-bottom:3px;}
-.feature-name{font-size:.58rem;font-weight:700;color:var(--muted);}
-.feature-copy{font-size:.52rem;color:var(--muted);margin-top:3px;line-height:1.5;}
-
-.vbar-chart{height:132px;display:flex;align-items:flex-end;gap:12px;padding-top:8px;}
-.vbar-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:5px;}
-.vbar-val{font-size:.58rem;font-weight:900;color:var(--muted);font-family:'Kaisei Tokumin',serif;min-height:1em;}
-.vbar-bar{width:100%;max-width:44px;min-height:3px;border-radius:8px 8px 2px 2px;transition:height .7s ease;}
-.vbar-label{font-size:.5rem;font-weight:700;color:var(--muted);white-space:nowrap;}
-.level-note{font-size:.54rem;color:var(--muted);line-height:1.7;text-align:center;margin-top:10px;}
-
-.summary-card{background:white;border:2px solid var(--green-light);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
-.summary-card::before{content:'🌸';position:absolute;right:18px;top:12px;font-size:3rem;opacity:.08;}
-.summary-title{font-size:.82rem;font-weight:900;color:var(--text);margin-bottom:12px;}
-.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
-.summary-item{background:var(--bg);border-radius:var(--radius-sm);padding:12px 10px;text-align:center;}
-.summary-value{font-family:'Kaisei Tokumin',serif;font-size:1.35rem;font-weight:700;color:var(--green-dark);line-height:1;margin-bottom:5px;}
-.summary-item.sakura .summary-value{color:var(--sakura-dark);}
-.summary-item.gold .summary-value{color:var(--gold-dark);}
-.summary-label{font-size:.55rem;font-weight:900;color:var(--muted);line-height:1.4;}
-.summary-line{font-size:.62rem;color:var(--muted);line-height:1.8;margin-top:12px;text-align:center;}
-
-/* バッジランキング */
-.badge-list{display:flex;flex-direction:column;gap:7px;}
-.badge-row{
-  display:flex;align-items:center;gap:9px;
-  padding:9px 13px;
-  background:var(--bg);
-  border-radius:var(--radius-sm);
-  transition:all .15s;
-  border:1.5px solid transparent;
+.bar-track {
+  background: rgba(0,0,0,0.05);
+  border-radius: 99px;
+  height: 12px;
+  overflow: hidden;
+  position: relative;
 }
-.badge-row:hover{background:var(--green-light);border-color:var(--green);}
-.badge-rank{font-size:.6rem;font-weight:900;min-width:18px;text-align:center;font-family:'Kaisei Tokumin',serif;}
-.badge-name-wrap{flex:1;min-width:0;}
-.badge-name{font-size:.7rem;color:var(--text);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.badge-story-sub{font-size:.5rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.badge-bar-wrap{width:64px;}
-.badge-count-val{font-size:.65rem;font-weight:700;color:var(--green-dark);font-family:'Kaisei Tokumin',serif;min-width:34px;text-align:right;}
+.bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+}
+.bar-fill.green  { background: linear-gradient(90deg, var(--green-dark), var(--green)); }
+.bar-fill.sakura { background: linear-gradient(90deg, var(--sakura-dark), var(--sakura)); }
+.bar-fill.gold   { background: linear-gradient(90deg, var(--gold-dark), var(--gold)); }
+.bar-count {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: right;
+  font-family: 'Kaisei Tokumin', serif;
+}
 
-/* フッター */
-.footer{text-align:center;padding-top:40px;}
-.footer-chars{font-size:1.4rem;letter-spacing:.15em;margin-bottom:8px;}
-.footer-text{font-size:.6rem;color:var(--muted);}
+/* ===== ROAD SUMMARY ===== */
+.road-summary {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  margin-bottom: 12px;
+}
+.road-summary-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.road-kicker { font-size: 0.56rem; font-weight: 900; color: var(--text-subtle); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 3px; }
+.road-title  { font-size: 0.9rem; font-weight: 900; color: var(--text); }
+.road-total  { font-family: 'Kaisei Tokumin', serif; font-size: 2rem; font-weight: 700; color: var(--green-dark); white-space: nowrap; }
 
-/* ローディング */
-.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:14px;}
-.loading-chars{font-size:2.4rem;animation:floatChar 1.5s ease-in-out infinite;}
-.loading-text{font-size:.78rem;color:var(--muted);}
-@keyframes spin{to{transform:rotate(360deg);}}
-.spinner{width:22px;height:22px;border:2.5px solid var(--green-light);border-top-color:var(--green-dark);border-radius:50%;animation:spin .7s linear infinite;}
+.road-stack {
+  display: flex;
+  height: 40px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.road-fill {
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: white;
+  white-space: nowrap;
+  transition: width 1s ease;
+}
+.road-fill.story   { justify-content: flex-start; background: linear-gradient(90deg, var(--green-dark), var(--green)); }
+.road-fill.license { justify-content: flex-end; background: linear-gradient(90deg, var(--sakura-dark), var(--sakura)); }
+.road-fill.is-small span { display: none; }
 
-.error-msg{background:#fff5f5;border:2px solid #fca5a5;border-radius:var(--radius-sm);padding:16px;color:#dc2626;font-size:.75rem;margin-top:20px;text-align:center;}
+.road-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-top: 12px;
+  font-size: 0.63rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  align-items: center;
+}
+.road-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+.road-dot.story   { background: var(--green); box-shadow: 0 0 6px var(--green-glow); }
+.road-dot.license { background: var(--sakura); box-shadow: 0 0 6px var(--sakura-glow); }
 
-/* ===== 推移グラフ ===== */
-.trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
-@media(max-width:580px){.trend-grid{grid-template-columns:1fr;}}
-.trend-current-row{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;}
-.trend-current-val{font-family:'Kaisei Tokumin',serif;font-size:1.3rem;font-weight:700;color:var(--sakura-dark);}
-.trend-current-val.green{color:var(--green-dark);}
-.trend-current-val.gold{color:var(--gold-dark);}
-.trend-current-label{font-size:.52rem;color:var(--muted);}
-.trend-bars{display:flex;align-items:flex-end;gap:3px;height:72px;overflow-x:auto;padding-bottom:2px;}
-.trend-col{flex:0 0 auto;min-width:28px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:3px;}
-.trend-bar{width:20px;min-height:2px;border-radius:3px 3px 1px 1px;}
-.trend-bar.sakura{background:linear-gradient(to top,var(--sakura-dark),var(--sakura));}
-.trend-bar.green{background:linear-gradient(to top,var(--green-dark),var(--green));}
-.trend-bar.gold{background:linear-gradient(to top,var(--gold-dark),var(--gold));}
-.trend-time{font-size:.38rem;font-weight:700;color:var(--muted);text-align:center;white-space:nowrap;}
-.trend-empty{font-size:.6rem;color:var(--muted);text-align:center;padding:20px 0;line-height:1.9;}
-.trend-footnote{font-size:.52rem;color:var(--muted);margin-top:8px;text-align:center;line-height:1.7;}
+/* ===== DONUT ===== */
+.donut-wrap { display: flex; align-items: center; gap: 18px; margin-bottom: 8px; }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.donut-item { display: flex; align-items: center; gap: 7px; font-size: 0.65rem; }
+.donut-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.donut-item-label { color: var(--text-muted); flex: 1; }
+.donut-item-val { font-weight: 700; color: var(--text); font-family: 'Kaisei Tokumin', serif; }
+
+/* ===== HOUR CHART ===== */
+.hour-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 100px;
+}
+.hour-col-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+}
+.hour-bar-bg {
+  flex: 1;
+  width: 100%;
+  background: rgba(0,0,0,0.05);
+  border-radius: 5px 5px 0 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+.hour-bar-fill {
+  border-radius: 5px 5px 0 0;
+  transition: height 0.6s ease;
+  background: linear-gradient(to top, #4f46e5, #818cf8);
+  opacity: 0.35;
+}
+.hour-bar-fill.morning   { opacity: 0.9; background: linear-gradient(to top, var(--gold-dark), var(--gold)); }
+.hour-bar-fill.daytime   { opacity: 0.8; background: linear-gradient(to top, var(--green-dark), var(--green)); }
+.hour-bar-fill.night     { opacity: 0.9; background: linear-gradient(to top, var(--sakura-dark), var(--sakura)); }
+.hour-bar-fill.latenight { opacity: 0.7; background: linear-gradient(to top, #4466aa, #88aadd); }
+.hour-bar-fill.peak {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px rgba(245,158,11,0.6));
+}
+/* Tooltip */
+.hour-bar-bg:hover .hour-tooltip { display: block; }
+.hour-tooltip {
+  display: none;
+  position: absolute;
+  top: -28px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: white;
+  font-size: 0.48rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+.hour-label { font-size: 0.4rem; color: var(--text-subtle); font-weight: 700; }
+
+.hour-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; margin-top: 16px; }
+.hour-chip {
+  background: rgba(0,0,0,0.04);
+  border-radius: var(--radius-sm);
+  padding: 10px 8px;
+  text-align: center;
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: all 0.2s;
+}
+.hour-chip:hover { transform: translateY(-1px); }
+.hour-chip strong {
+  display: block;
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.hour-chip span { font-size: 0.52rem; font-weight: 700; color: var(--text-subtle); }
+.hour-chip.peak { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3); }
+.hour-chip.peak strong { color: var(--gold-dark); }
+
+/* ===== FEATURE GRID ===== */
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.feature-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card:hover { transform: translateY(-4px); box-shadow: var(--card-shadow-hover); }
+.feature-emoji { font-size: 1.8rem; margin-bottom: 10px; display: block; }
+.feature-pct {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.feature-name  { font-size: 0.58rem; font-weight: 900; color: var(--text-muted); letter-spacing: 0.06em; }
+.feature-copy  { font-size: 0.52rem; color: var(--text-subtle); margin-top: 3px; line-height: 1.5; }
+
+/* ===== VERTICAL BAR CHART (LEVEL) ===== */
+.vbar-chart {
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+  padding-bottom: 4px;
+}
+.vbar-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 6px;
+}
+.vbar-val {
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  font-family: 'Kaisei Tokumin', serif;
+  min-height: 1.1em;
+  text-align: center;
+}
+.vbar-bar {
+  width: 100%;
+  max-width: 48px;
+  min-height: 4px;
+  border-radius: 8px 8px 3px 3px;
+  transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+.vbar-bar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 40%;
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px 8px 0 0;
+}
+.vbar-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: var(--text-subtle);
+  white-space: nowrap;
+  text-align: center;
+}
+.level-note { font-size: 0.54rem; color: var(--text-subtle); line-height: 1.7; text-align: center; margin-top: 12px; }
+
+/* ===== BADGE RANKING ===== */
+.badge-list { display: flex; flex-direction: column; gap: 6px; }
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.025);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.badge-row:hover { background: var(--green-glass); border-color: rgba(16,185,129,0.2); transform: translateX(3px); }
+.badge-rank {
+  font-size: 0.62rem;
+  font-weight: 900;
+  min-width: 22px;
+  text-align: center;
+  font-family: 'Kaisei Tokumin', serif;
+}
+.badge-name-wrap { flex: 1; min-width: 0; }
+.badge-name { font-size: 0.7rem; color: var(--text); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-story-sub { font-size: 0.5rem; color: var(--text-subtle); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-bar-wrap { width: 72px; }
+.badge-count-val { font-size: 0.68rem; font-weight: 700; color: var(--green-dark); font-family: 'Kaisei Tokumin', serif; min-width: 38px; text-align: right; }
+
+/* ===== SUMMARY CARD ===== */
+.summary-card {
+  background: linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(244,114,182,0.06) 100%);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+.summary-card::before {
+  content: '🌸';
+  position: absolute;
+  right: 20px; top: 16px;
+  font-size: 3rem;
+  opacity: 0.06;
+}
+.summary-title { font-size: 0.85rem; font-weight: 900; color: var(--text); margin-bottom: 16px; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.summary-item {
+  background: rgba(255,255,255,0.7);
+  border-radius: var(--radius-sm);
+  padding: 14px 12px;
+  text-align: center;
+  border: 1px solid rgba(0,0,0,0.04);
+  backdrop-filter: blur(8px);
+}
+.summary-value {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  line-height: 1;
+  margin-bottom: 5px;
+  font-variant-numeric: tabular-nums;
+}
+.summary-item.sakura .summary-value { color: var(--sakura-dark); }
+.summary-item.gold   .summary-value { color: var(--gold-dark); }
+.summary-label { font-size: 0.55rem; font-weight: 900; color: var(--text-subtle); line-height: 1.4; letter-spacing: 0.06em; }
+.summary-line { font-size: 0.64rem; color: var(--text-muted); line-height: 1.8; margin-top: 14px; text-align: center; }
+
+/* ===== TREND CHARTS ===== */
+.trend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+@media(max-width: 580px) { .trend-grid { grid-template-columns: 1fr; } }
+
+.trend-current-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.trend-current-val {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--sakura-dark);
+  font-variant-numeric: tabular-nums;
+}
+.trend-current-val.green { color: var(--green-dark); }
+.trend-current-val.gold  { color: var(--gold-dark); }
+.trend-current-label { font-size: 0.52rem; color: var(--text-subtle); }
+
+.trend-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 80px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.trend-col {
+  flex: 0 0 auto;
+  min-width: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 3px;
+}
+.trend-bar {
+  width: 22px;
+  min-height: 2px;
+  border-radius: 4px 4px 2px 2px;
+}
+.trend-bar.sakura { background: linear-gradient(to top, var(--sakura-dark), var(--sakura)); }
+.trend-bar.green  { background: linear-gradient(to top, var(--green-dark), var(--green)); }
+.trend-bar.gold   { background: linear-gradient(to top, var(--gold-dark), var(--gold)); }
+.trend-time { font-size: 0.38rem; font-weight: 700; color: var(--text-subtle); text-align: center; white-space: nowrap; }
+.trend-empty { font-size: 0.6rem; color: var(--text-subtle); text-align: center; padding: 20px 0; line-height: 1.9; }
+.trend-footnote { font-size: 0.52rem; color: var(--text-subtle); margin-top: 10px; text-align: center; line-height: 1.7; }
+
+/* ===== ADMIN CARD ===== */
+.admin-card {
+  background: rgba(255,255,255,0.8);
+  border: 1.5px dashed rgba(244,114,182,0.4);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(8px);
+}
+.admin-title { font-size: 0.72rem; font-weight: 900; color: var(--sakura-dark); margin-bottom: 8px; }
+.admin-copy { font-size: 0.62rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 14px; }
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(244,114,182,0.08);
+  border: 1.5px solid rgba(244,114,182,0.35);
+  border-radius: 99px;
+  padding: 10px 22px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  font-family: inherit;
+  color: var(--sakura-dark);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-btn:hover { background: rgba(244,114,182,0.14); transform: translateY(-1px); }
+.admin-btn.loading { opacity: 0.5; pointer-events: none; }
+.manual-status { margin-top: 10px; font-size: 0.68rem; font-weight: 700; color: var(--text-muted); min-height: 1.2em; }
+.manual-status.ok   { color: var(--green-dark); }
+.manual-status.warn { color: var(--sakura-dark); }
+
+/* ===== FOOTER ===== */
+.footer { text-align: center; padding-top: 48px; }
+.footer-chars { font-size: 1.5rem; letter-spacing: 0.15em; margin-bottom: 10px; }
+.footer-text { font-size: 0.6rem; color: var(--text-subtle); }
+
+/* ===== LOADING ===== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+  gap: 16px;
+}
+/* Skeleton shimmer */
+.skeleton-row { display: flex; gap: 12px; margin-bottom: 12px; }
+.skel {
+  background: linear-gradient(90deg, rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.05) 75%);
+  background-size: 200% 100%;
+  animation: skelAnim 1.5s ease-in-out infinite;
+  border-radius: 10px;
+}
+@keyframes skelAnim {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.loading-chars { font-size: 2.8rem; animation: floatChar 1.5s ease-in-out infinite; }
+.loading-text { font-size: 0.78rem; color: var(--text-muted); }
+@keyframes floatChar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.spinner {
+  width: 26px; height: 26px;
+  border: 3px solid rgba(16,185,129,0.2);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-msg {
+  background: rgba(220,38,38,0.06);
+  border: 1px solid rgba(220,38,38,0.25);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  color: #dc2626;
+  font-size: 0.75rem;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* ===== COUNT-UP NUMBER HIGHLIGHT ===== */
+.counting { opacity: 0.7; }
 </style>
 </head>
 <body>
 
-<!-- 背景キャラ装飾 -->
-<div class="bg-deco">
-  <div class="bg-char">🦍</div>
-  <div class="bg-char">🥦</div>
-  <div class="bg-char">🦍</div>
-  <div class="bg-char">🥦</div>
-  <div class="bg-char">🌸</div>
-  <div class="bg-char">🦍</div>
-  <div class="bg-char">🥦</div>
-</div>
-
 <div class="page-wrap">
 
-  <!-- ヘッダー -->
-  <div class="header">
-    <div class="header-badge">🌸 コツサク 軌跡の記録帳</div>
-    <h1 class="header-title">
-      <em>コツコツ</em>の軌跡が、<br>
-      <span>サクサク</span>開花していく。
-    </h1>
-    <p class="header-sub">
-      仲間たちの冒険の記録です。<br>
-      今日もどこかで、1マスが刻まれています。
-    </p>
-    <div class="float-chars">
-      <span class="float-char">🥦</span>
-      <span class="float-char">🥦</span>
-      <span class="float-char">🦍</span>
-      <span class="float-char">🦍</span>
+  <!-- ===== HERO HEADER ===== -->
+  <div class="hero-header">
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        コツサク 軌跡の記録帳 · LIVE
+      </div>
+      <h1 class="hero-title">
+        <em>コツコツ</em>の軌跡が、<br>
+        <span>サクサク</span>開花していく。
+      </h1>
+      <p class="hero-sub">
+        仲間たちの冒険の記録です。<br>
+        今日もどこかで、1マスが刻まれています。
+      </p>
+
+      <!-- Hero Stats -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-val green" id="hero-total">—</div>
+          <div class="hero-stat-label">仲間の総数</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val sakura" id="hero-active">—</div>
+          <div class="hero-stat-label">今週アクティブ</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val gold" id="hero-hours">—</div>
+          <div class="hero-stat-label">累計学習時間</div>
+        </div>
+      </div>
+
+      <div class="dashboard-actions">
+        <button class="refresh-btn" id="refresh-btn" onclick="loadData()">
+          🔄 表示を更新する
+        </button>
+        <button class="refresh-btn manual-btn" id="manual-aggregate-btn" onclick="runManualAggregate()">
+          ⚡ 今すぐサーバー再集計
+        </button>
+      </div>
     </div>
-    <button class="refresh-btn" id="refresh-btn" onclick="loadData()">
-      🔄 画面だけ更新する
-    </button>
   </div>
 
-  <!-- ローディング -->
+  <!-- ===== LOADING STATE ===== -->
   <div id="loading" class="loading-state">
     <div class="loading-chars">🥦</div>
     <div class="spinner"></div>
     <div class="loading-text">仲間たちの軌跡を集めています…</div>
   </div>
 
-  <!-- ダッシュボード -->
+  <!-- ===== MAIN DASHBOARD ===== -->
   <div id="dashboard" style="display:none;">
 
-    <!-- 仲間の数 -->
+    <!-- 1. ACTIVITY FUNNEL -->
     <div class="section">
-      <div class="section-label">🌱 冒険の仲間たち</div>
+      <div class="section-label">
+        <span class="section-icon green">🌱</span>
+        冒険の仲間たち
+      </div>
 
-      <div class="activity-flow">
-        <div class="activity-card">
-          <div class="activity-label">🌱 冒険をはじめた仲間</div>
-          <div class="activity-num" id="kpi-total">-</div>
-          <div class="activity-copy">これまでに学習記録を残してくれた仲間</div>
-          <div class="activity-bar"><div class="activity-fill" id="activity-fill-total"></div></div>
-          <div class="activity-pct" id="activity-pct-total">100%</div>
+      <!-- Funnel flow -->
+      <div class="funnel-section">
+        <div class="funnel-card">
+          <div class="funnel-label">🌱 冒険をはじめた仲間</div>
+          <div class="funnel-num" id="kpi-total">—</div>
+          <div class="funnel-copy">これまでに学習記録を残してくれた仲間の総数</div>
+          <div class="funnel-bar-track"><div class="activity-fill" id="activity-fill-total"></div></div>
+          <div class="funnel-pct-badge" id="activity-pct-total">100%</div>
         </div>
-        <div class="activity-arrow">→</div>
-        <div class="activity-card sakura">
-          <div class="activity-label">🔥 今週も冒険中</div>
-          <div class="activity-num" id="kpi-active-week">-</div>
-          <div class="activity-copy">直近7日以内にアプリを開いた仲間</div>
-          <div class="activity-bar"><div class="activity-fill" id="activity-fill-week"></div></div>
-          <div class="activity-pct" id="activity-pct-week">-</div>
+
+        <div class="funnel-arrow">→</div>
+
+        <div class="funnel-card sakura">
+          <div class="funnel-label">🔥 今週も冒険中</div>
+          <div class="funnel-num" id="kpi-active-week">—</div>
+          <div class="funnel-copy">直近7日以内にアプリを開いた仲間</div>
+          <div class="funnel-bar-track"><div class="activity-fill" id="activity-fill-week"></div></div>
+          <div class="funnel-pct-badge" id="activity-pct-week">—</div>
         </div>
-        <div class="activity-arrow">→</div>
-        <div class="activity-card gold">
-          <div class="activity-label">⚡ 最近も冒険中</div>
-          <div class="activity-num" id="kpi-active-recent">-</div>
-          <div class="activity-copy">直近3日以内にアプリを開いた仲間</div>
-          <div class="activity-bar"><div class="activity-fill" id="activity-fill-recent"></div></div>
-          <div class="activity-pct" id="activity-pct-recent">-</div>
+
+        <div class="funnel-arrow">→</div>
+
+        <div class="funnel-card gold">
+          <div class="funnel-label">⚡ 最近も冒険中</div>
+          <div class="funnel-num" id="kpi-active-recent">—</div>
+          <div class="funnel-copy">直近3日以内にアプリを開いた仲間</div>
+          <div class="funnel-bar-track"><div class="activity-fill" id="activity-fill-recent"></div></div>
+          <div class="funnel-pct-badge" id="activity-pct-recent">—</div>
         </div>
       </div>
 
-      <div class="nakama-card" style="margin-top:12px;">
-        <div class="nakama-title">🦍 仲間の広がり</div>
-        <div class="nakama-copy">全体の仲間をアイコンでざっくり表示しています。</div>
+      <!-- Crowd visual -->
+      <div class="nakama-card">
+        <div class="nakama-header">
+          <div>
+            <div class="nakama-title">🦍 仲間の広がり</div>
+            <div class="nakama-copy">全体の仲間をアイコンでざっくり表示しています。</div>
+          </div>
+        </div>
         <div class="icon-crowd" id="gorilla-crowd"></div>
         <div class="crowd-overflow" id="gorilla-overflow"></div>
       </div>
 
-      <div class="kpi-grid">
+      <!-- KPI cards row -->
+      <div class="kpi-grid" style="margin-bottom:12px;">
         <div class="kpi-card sakura">
           <span class="kpi-emoji">🔥</span>
-          <div class="kpi-val" id="kpi-active">-</div>
+          <div class="kpi-val" id="kpi-active">—</div>
           <div class="kpi-lab">今週の冒険者</div>
           <div class="kpi-copy">直近7日以内にアクセスした仲間</div>
         </div>
         <div class="kpi-card gold">
           <span class="kpi-emoji">🌸</span>
-          <div class="kpi-val" id="kpi-retention">-</div>
+          <div class="kpi-val" id="kpi-retention">—</div>
           <div class="kpi-lab">継続中の仲間</div>
           <div class="kpi-copy">30日以上コツコツ続けている割合</div>
         </div>
-        <div class="kpi-card green">
+        <div class="kpi-card">
           <span class="kpi-emoji">📱</span>
-          <div class="kpi-val" id="kpi-pwa">-</div>
+          <div class="kpi-val" id="kpi-pwa">—</div>
           <div class="kpi-lab">PWAインストール率</div>
           <div class="kpi-copy">ホーム画面に追加している仲間</div>
         </div>
       </div>
 
+      <!-- Journey progress -->
       <div class="journey-card">
-        <div class="journey-title">コツコツ継続の旅路</div>
+        <div class="journey-title">
+          <span>📊</span> コツコツ継続の旅路
+        </div>
         <div class="journey-list">
           <div class="journey-row">
             <div class="journey-label">はじめた</div>
             <div class="journey-track"><div class="journey-fill" id="journey-total"></div></div>
-            <div class="journey-value" id="journey-total-val">-</div>
+            <div class="journey-value" id="journey-total-val">—</div>
           </div>
           <div class="journey-row">
             <div class="journey-label">今週も冒険</div>
             <div class="journey-track"><div class="journey-fill sakura" id="journey-week"></div></div>
-            <div class="journey-value" id="journey-week-val">-</div>
+            <div class="journey-value" id="journey-week-val">—</div>
           </div>
           <div class="journey-row">
             <div class="journey-label">最近も冒険</div>
             <div class="journey-track"><div class="journey-fill gold" id="journey-recent"></div></div>
-            <div class="journey-value" id="journey-recent-val">-</div>
+            <div class="journey-value" id="journey-recent-val">—</div>
           </div>
           <div class="journey-row">
             <div class="journey-label">30日継続</div>
             <div class="journey-track"><div class="journey-fill" id="journey-retained"></div></div>
-            <div class="journey-value" id="journey-retained-val">-</div>
+            <div class="journey-value" id="journey-retained-val">—</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 学習時間 -->
+    <!-- 2. STUDY TIME -->
     <div class="section">
-      <div class="section-label">⏱ みんなの軌跡</div>
+      <div class="section-label">
+        <span class="section-icon sakura">⏱</span>
+        みんなの軌跡
+      </div>
 
       <div class="time-card">
         <div class="time-title">みんなの総学習時間</div>
-        <div class="time-num" id="kpi-total-hours">-</div>
-        <div class="nakama-copy" style="margin-bottom:12px;">仲間全員の10分が積み重なった軌跡。🌸1個 ＝ 10分です。</div>
+        <div class="time-num" id="kpi-total-hours">—</div>
+        <div style="font-size:0.64rem;color:var(--text-subtle);margin-bottom:14px;line-height:1.7;">仲間全員の10分が積み重なった軌跡。🌸1個 ＝ 10分です。</div>
         <div class="sakura-crowd" id="sakura-crowd"></div>
         <div class="crowd-overflow" id="sakura-overflow"></div>
       </div>
 
-      <div class="kpi-grid">
+      <div class="kpi-grid" style="margin-bottom:12px;">
         <div class="kpi-card sakura">
           <span class="kpi-emoji">📅</span>
-          <div class="kpi-val" id="kpi-avg-daily">-</div>
+          <div class="kpi-val" id="kpi-avg-daily">—</div>
           <div class="kpi-lab">1日の平均学習時間</div>
           <div class="kpi-copy">仲間の1日の平均コツコツ時間</div>
         </div>
         <div class="kpi-card gold">
           <span class="kpi-emoji">📚</span>
-          <div class="kpi-val" id="kpi-avg-total">-</div>
+          <div class="kpi-val" id="kpi-avg-total">—</div>
           <div class="kpi-lab">1人あたりの平均累計</div>
           <div class="kpi-copy">1人が積み上げた平均時間</div>
         </div>
-        <div class="kpi-card green">
+        <div class="kpi-card">
           <span class="kpi-emoji">🔥</span>
-          <div class="kpi-val" id="kpi-avg-streak">-</div>
+          <div class="kpi-val" id="kpi-avg-streak">—</div>
           <div class="kpi-lab">平均連続学習日数</div>
           <div class="kpi-copy">仲間の平均コツコツ継続日数</div>
         </div>
       </div>
 
-      <div class="two-col" style="margin-top:12px;">
+      <div class="two-col">
         <div class="chart-card">
           <div class="chart-title">📅 1日の平均学習時間分布</div>
           <div class="bar-chart" id="bar-avg-daily"></div>
@@ -688,24 +1445,27 @@ body::before {
       </div>
     </div>
 
-    <!-- 物語・資格 -->
+    <!-- 3. STORY PATHS -->
     <div class="section">
-      <div class="section-label">📖 選んだ道</div>
+      <div class="section-label">
+        <span class="section-icon green">📖</span>
+        選んだ道
+      </div>
       <div class="road-summary">
         <div class="road-summary-head">
           <div>
             <div class="road-kicker">選択中の仲間</div>
             <div class="road-title">物語の道と資格の道</div>
           </div>
-          <div class="road-total" id="road-total">-</div>
+          <div class="road-total" id="road-total">—</div>
         </div>
         <div class="road-stack" aria-label="物語と資格の割合">
-          <div class="road-fill story" id="road-story-fill" style="width:0%;"><span id="road-story-pct">-</span></div>
-          <div class="road-fill license" id="road-license-fill" style="width:0%;"><span id="road-license-pct">-</span></div>
+          <div class="road-fill story" id="road-story-fill" style="width:0%;"><span id="road-story-pct">—</span></div>
+          <div class="road-fill license" id="road-license-fill" style="width:0%;"><span id="road-license-pct">—</span></div>
         </div>
         <div class="road-legend">
-          <span><i class="road-dot story"></i>物語ストーリー <strong id="road-story-count">-</strong></span>
-          <span><i class="road-dot license"></i>資格ストーリー <strong id="road-license-count">-</strong></span>
+          <span><i class="road-dot story"></i>物語ストーリー <strong id="road-story-count">—</strong></span>
+          <span><i class="road-dot license"></i>資格ストーリー <strong id="road-license-count">—</strong></span>
         </div>
       </div>
       <div class="two-col">
@@ -720,15 +1480,18 @@ body::before {
       </div>
     </div>
 
-    <!-- デバイス -->
+    <!-- 4. DEVICE / OS -->
     <div class="section">
-      <div class="section-label">📱 冒険スタイル</div>
+      <div class="section-label">
+        <span class="section-icon gold">📱</span>
+        冒険スタイル
+      </div>
       <div class="two-col">
         <div class="chart-card">
           <div class="chart-title">📱 デバイス</div>
           <div class="donut-wrap">
-            <svg width="80" height="80" viewBox="0 0 80 80" id="donut-device">
-              <circle cx="40" cy="40" r="28" fill="none" stroke="#f0ede8" stroke-width="12"/>
+            <svg width="88" height="88" viewBox="0 0 80 80" id="donut-device">
+              <circle cx="40" cy="40" r="28" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="12"/>
             </svg>
             <div class="donut-legend" id="legend-device"></div>
           </div>
@@ -740,56 +1503,65 @@ body::before {
       </div>
     </div>
 
-    <!-- 時間帯 -->
+    <!-- 5. HOUR CHART -->
     <div class="section">
-      <div class="section-label">🌙 冒険の時間帯</div>
+      <div class="section-label">
+        <span class="section-icon sakura">🌙</span>
+        冒険の時間帯
+      </div>
       <div class="chart-card">
         <div class="chart-title">⏰ 何時に冒険しているか（時間帯別アクセス数）</div>
         <div class="hour-chart" id="hour-chart"></div>
         <div class="hour-summary">
-          <div class="hour-chip peak"><strong id="hour-peak">-</strong><span>ピーク</span></div>
-          <div class="hour-chip"><strong id="hour-morning">-</strong><span>朝 5-11時</span></div>
-          <div class="hour-chip"><strong id="hour-daytime">-</strong><span>昼 12-16時</span></div>
-          <div class="hour-chip"><strong id="hour-night">-</strong><span>夜 17-22時</span></div>
-          <div class="hour-chip"><strong id="hour-late">-</strong><span>深夜 23-4時</span></div>
+          <div class="hour-chip peak"><strong id="hour-peak">—</strong><span>ピーク</span></div>
+          <div class="hour-chip"><strong id="hour-morning">—</strong><span>朝 5-11時</span></div>
+          <div class="hour-chip"><strong id="hour-daytime">—</strong><span>昼 12-16時</span></div>
+          <div class="hour-chip"><strong id="hour-night">—</strong><span>夜 17-22時</span></div>
+          <div class="hour-chip"><strong id="hour-late">—</strong><span>深夜 23-4時</span></div>
         </div>
       </div>
     </div>
 
-    <!-- 機能活用 -->
+    <!-- 6. FEATURE USAGE -->
     <div class="section">
-      <div class="section-label">⚙️ 仲間たちの使い方</div>
+      <div class="section-label">
+        <span class="section-icon green">⚙️</span>
+        仲間たちの使い方
+      </div>
       <div class="feature-grid">
         <div class="feature-card">
           <div class="feature-emoji">⏱</div>
-          <div class="feature-pct" id="feat-stopwatch">-</div>
+          <div class="feature-pct" id="feat-stopwatch">—</div>
           <div class="feature-name">ストップウォッチ</div>
           <div class="feature-copy">使って学習している仲間の割合</div>
         </div>
         <div class="feature-card">
           <div class="feature-emoji">🎯</div>
-          <div class="feature-pct" id="feat-mycrazy">-</div>
+          <div class="feature-pct" id="feat-mycrazy">—</div>
           <div class="feature-name">マイCrazy10設定</div>
           <div class="feature-copy">自分だけの特訓枠を作った仲間</div>
         </div>
         <div class="feature-card">
           <div class="feature-emoji">🔥</div>
-          <div class="feature-pct" id="feat-crazy10">-</div>
+          <div class="feature-pct" id="feat-crazy10">—</div>
           <div class="feature-name">Crazy10参加</div>
           <div class="feature-copy">特別イベントに参加している仲間</div>
         </div>
         <div class="feature-card">
           <div class="feature-emoji">⭐</div>
-          <div class="feature-pct" id="feat-level">-</div>
+          <div class="feature-pct" id="feat-level">—</div>
           <div class="feature-name">平均レベル</div>
           <div class="feature-copy">仲間の平均冒険レベル</div>
         </div>
       </div>
     </div>
 
-    <!-- レベル分布 -->
+    <!-- 7. LEVEL DISTRIBUTION -->
     <div class="section">
-      <div class="section-label">🏅 冒険者レベル分布</div>
+      <div class="section-label">
+        <span class="section-icon gold">🏅</span>
+        冒険者レベル分布
+      </div>
       <div class="chart-card">
         <div class="chart-title">⭐ どのレベル帯の仲間が多いか</div>
         <div class="vbar-chart" id="vbar-level"></div>
@@ -797,35 +1569,41 @@ body::before {
       </div>
     </div>
 
-    <!-- バッジランキング -->
+    <!-- 8. BADGE RANKING -->
     <div class="section">
-      <div class="section-label">🏅 人気バッジ TOP10</div>
+      <div class="section-label">
+        <span class="section-icon gold">🏅</span>
+        人気バッジ TOP10
+      </div>
       <div class="chart-card">
         <div class="chart-title">🌸 仲間たちが手にした勲章ランキング</div>
         <div class="badge-list" id="badge-ranking"></div>
       </div>
     </div>
 
-    <!-- まとめ -->
+    <!-- 9. SUMMARY -->
     <div class="section">
-      <div class="section-label">🌸 今日のまとめ</div>
+      <div class="section-label">
+        <span class="section-icon sakura">🌸</span>
+        今日のまとめ
+      </div>
       <div class="summary-card">
         <div class="summary-title">いまのコツサク全体像</div>
         <div class="summary-grid">
           <div class="summary-item">
-            <div class="summary-value" id="summary-users">-</div>
+            <div class="summary-value" id="summary-users">—</div>
             <div class="summary-label">冒険をはじめた仲間</div>
           </div>
           <div class="summary-item sakura">
-            <div class="summary-value" id="summary-hours">-</div>
+            <div class="summary-value" id="summary-hours">—</div>
             <div class="summary-label">総学習時間</div>
           </div>
           <div class="summary-item gold">
-            <div class="summary-value" id="summary-active">-</div>
+            <div class="summary-value" id="summary-active">—</div>
             <div class="summary-label">今週も冒険中</div>
           </div>
           <div class="summary-item sakura">
-            <div class="summary-value" id="summary-license">-</div>
+            <div class="summary-value" id="summary-license">—</div>
             <div class="summary-label">資格ストーリー</div>
           </div>
         </div>
@@ -833,9 +1611,12 @@ body::before {
       </div>
     </div>
 
-    <!-- 推移グラフ -->
+    <!-- 10. TREND CHARTS -->
     <div class="section">
-      <div class="section-label">📈 時間別推移グラフ</div>
+      <div class="section-label">
+        <span class="section-icon green">📈</span>
+        時間別推移グラフ
+      </div>
 
       <div class="chart-card" style="margin-bottom:12px;">
         <div class="chart-title">⏱ 総学習時間の推移</div>
@@ -868,23 +1649,26 @@ body::before {
       </div>
     </div>
 
-    <!-- 管理者用 -->
+    <!-- 11. ADMIN -->
     <div class="section">
-      <div class="section-label">⚠️ 管理者用・緊急操作</div>
+      <div class="section-label">
+        <span class="section-icon sakura">⚠️</span>
+        管理者用・緊急操作
+      </div>
       <div class="admin-card">
         <div class="admin-title">今すぐサーバー再集計</div>
         <div class="admin-copy">
           通常は毎時0分に自動更新されます。<br>
           このボタンは、表示値を急いで合わせたい時だけ使います。
         </div>
-        <button class="refresh-btn manual-btn" id="manual-aggregate-btn" onclick="runManualAggregate()">
+        <button class="admin-btn" onclick="runManualAggregate()">
           ⚡ 管理者用：今すぐサーバー再集計
         </button>
         <div class="manual-status" id="manual-aggregate-status"></div>
       </div>
     </div>
 
-    <!-- フッター -->
+    <!-- FOOTER -->
     <div class="footer">
       <div class="footer-chars">🥦🥦🦍🦍🌸</div>
       <div class="footer-text" id="last-updated"></div>
@@ -892,10 +1676,13 @@ body::before {
     </div>
     <div id="error-area"></div>
 
-  </div>
-</div>
+  </div><!-- /#dashboard -->
+</div><!-- /.page-wrap -->
 
 <script>
+/* ===================================================
+   FIREBASE INIT
+=================================================== */
 firebase.initializeApp({
   apiKey: "AIzaSyCx3hjG_55Voipdjnn25szsMZiGPC0Hv8Y",
   authDomain: "kotsusaku-app.firebaseapp.com",
@@ -907,7 +1694,9 @@ firebase.initializeApp({
 const db = firebase.firestore();
 const MANUAL_AGGREGATE_URL = 'https://asia-northeast1-kotsusaku-app.cloudfunctions.net/runAggregateNow';
 
-// フィクション系ストーリーラベル（アプリ表示名と統一）
+/* ===================================================
+   LABEL MAPS
+=================================================== */
 const STORY_NAMES = {
   gorilla:   '🦍 ゴリラ成長記',
   samurai:   '⚔️ 受験剣士の道',
@@ -915,8 +1704,6 @@ const STORY_NAMES = {
   itachacha: '🥦 正体不明育成記',
   spartan:   '🐉 鬼教官の特訓',
 };
-
-// 資格系ラベル：storyId → 表示名（アプリ設定画面と1対1で対応）
 const LICENSE_STORY_NAMES = {
   boki3:      '📗 簿記3級',
   boki2:      '📒 簿記2級',
@@ -928,8 +1715,6 @@ const LICENSE_STORY_NAMES = {
   shindanshi: '💼 中小企業診断士',
   kaikeishi:  '🔍 公認会計士',
 };
-
-// 旧バージョンのgrouped licenseCategory フォールバック用
 const LICENSE_CATEGORY_NAMES = {
   tax_accountant: '🧮 税理士・簿記系',
   real_estate:    '🏠 宅建',
@@ -942,18 +1727,12 @@ const LICENSE_CATEGORY_NAMES = {
 };
 const OS_NAMES = {ios:'iOS',android:'Android',windows:'Windows',mac:'Mac',other:'その他'};
 const AVG_DAILY_BUCKET_LABELS = {
-  '0-10':'0-10分',
-  '10-30':'10-30分',
-  '30-60':'30-60分',
-  '60-90':'60-90分',
-  '90-':'90分-',
+  '0-10':'0-10分', '10-30':'10-30分', '30-60':'30-60分',
+  '60-90':'60-90分', '90-':'90分-',
 };
 const TOTAL_STUDY_BUCKET_LABELS = {
-  '0-5':'0-5h',
-  '5-20':'5-20h',
-  '20-50':'20-50h',
-  '50-100':'50-100h',
-  '100-':'100h-',
+  '0-5':'0-5h', '5-20':'5-20h', '20-50':'20-50h',
+  '50-100':'50-100h', '100-':'100h-',
 };
 const BADGE_NAMES = {
   first:'🌱 はじめの一歩', h1:'⏰ 1時間突破', h5:'📖 5時間突破',
@@ -964,18 +1743,16 @@ const BADGE_NAMES = {
   early:'🌅 早起き学習', night:'🌙 夜型学習',
 };
 const ASA_BADGE_NAMES = {
-  asa_first:'🌅 夜明けの一歩',
-  asa_cnt10:'🌤️ 朝活10回',
-  asa_4set:'⭐ 4SETクリア',
-  asa_str7:'🔥 朝活7日連続',
-  asa_cnt30:'☀️ 朝活30回',
-  asa_str30:'🌙 朝活30日継続',
-  asa_cnt50:'📣 朝の伝道師',
-  asa_cnt100:'🌟 朝活100回',
-  asa_str100:'🏆 朝活100日継続',
-  asa_perfect:'💯 完璧な一週間',
+  asa_first:'🌅 夜明けの一歩', asa_cnt10:'🌤️ 朝活10回',
+  asa_4set:'⭐ 4SETクリア', asa_str7:'🔥 朝活7日連続',
+  asa_cnt30:'☀️ 朝活30回', asa_str30:'🌙 朝活30日継続',
+  asa_cnt50:'📣 朝の伝道師', asa_cnt100:'🌟 朝活100回',
+  asa_str100:'🏆 朝活100日継続', asa_perfect:'💯 完璧な一週間',
 };
 
+/* ===================================================
+   UTILITY FUNCTIONS
+=================================================== */
 function fmt(min){return min>=60?Math.round(min/60)+'h':min+'m';}
 function pct(n,t){return !t?'0%':Math.round(n/t*100)+'%';}
 function pctCapped(n,t){return !t?'0%':Math.min(100,Math.round(n/t*100))+'%';}
@@ -1087,7 +1864,54 @@ function setDashboardSummary(total, totalMins, activeUsers7d, storyTotal, licens
   setText('summary-line', '物語も資格も、今日の10分が少しずつ積み上がっています。');
 }
 
-// アイコン群を描画（上限付き）
+/* ===================================================
+   COUNT-UP ANIMATION
+=================================================== */
+function easeOutExpo(t) {
+  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+}
+
+function countUp(el, endVal, suffix, duration) {
+  if (!el) return;
+  duration = duration || 900;
+  const startTime = performance.now();
+  const isFloat = String(endVal).includes('.');
+  el.classList.add('counting');
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOutExpo(progress);
+    const current = isFloat
+      ? (endVal * eased).toFixed(1)
+      : Math.round(endVal * eased);
+    el.textContent = current + (suffix || '');
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      el.textContent = endVal + (suffix || '');
+      el.classList.remove('counting');
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function countUpText(id, text) {
+  // For already-formatted strings like "1,234人", parse and animate
+  const el = document.getElementById(id);
+  if (!el) return;
+  const match = text.match(/^([\d,]+)(.*)$/);
+  if (match) {
+    const num = parseInt(match[1].replace(/,/g, ''), 10);
+    const suffix = match[2] || '';
+    countUp(el, num, suffix, 900);
+  } else {
+    el.textContent = text;
+  }
+}
+
+/* ===================================================
+   RENDER CROWD
+=================================================== */
 function renderCrowd(containerId, overflowId, icon, count, maxDisplay) {
   const el = document.getElementById(containerId);
   const ov = document.getElementById(overflowId);
@@ -1104,7 +1928,6 @@ function renderCrowd(containerId, overflowId, icon, count, maxDisplay) {
   }
 }
 
-// 桜アイコン（10分＝1個）上限付き
 function renderSakura(containerId, overflowId, totalMin, maxDisplay) {
   const el = document.getElementById(containerId);
   const ov = document.getElementById(overflowId);
@@ -1124,6 +1947,9 @@ function renderSakura(containerId, overflowId, totalMin, maxDisplay) {
   }
 }
 
+/* ===================================================
+   DRAW FUNCTIONS
+=================================================== */
 function drawDonut(svgId, segments) {
   const svg=document.getElementById(svgId); if(!svg) return;
   const cx=40,cy=40,r=28,sw=12,circ=2*Math.PI*r;
@@ -1150,7 +1976,7 @@ function drawBars(id,items,colorClass,total){
   const max=Math.max(...items.map(i=>i.value),1);
   el.innerHTML=items.map(item=>{
     const p=total?Math.round(item.value/total*100):Math.round(item.value/max*100);
-    const countStr=total?`${p}%<span style="color:var(--muted);font-size:.52rem;font-weight:400;">（${item.value}人）</span>`:`${item.value}`;
+    const countStr=total?`${p}%<span style="color:var(--text-subtle);font-size:.52rem;font-weight:400;">（${item.value}人）</span>`:`${item.value}`;
     return `
     <div class="bar-row">
       <div class="bar-label">${item.label}</div>
@@ -1171,7 +1997,10 @@ function drawHourChart(data){
     else if(h>=17 && h<=22) cls='night';
     else cls='latenight';
     return `<div class="hour-col-wrap">
-      <div class="hour-bar-bg"><div class="hour-bar-fill ${cls}${isPeak?' peak':''}" style="height:${ph}%"></div></div>
+      <div class="hour-bar-bg">
+        <div class="hour-tooltip">${h}時: ${v}人</div>
+        <div class="hour-bar-fill ${cls}${isPeak?' peak':''}" style="height:${ph}%"></div>
+      </div>
       <div class="hour-label">${h}</div></div>`;
   }).join('');
   setHourSummary(data, peakIdx, max);
@@ -1197,11 +2026,11 @@ function setHourSummary(data, peakIdx, peakCount){
 function drawLevelDist(levelCounts){
   const el=document.getElementById('vbar-level'); if(!el) return;
   const buckets=[
-    {label:'Lv.1-5',min:1,max:5,color:'linear-gradient(to top,var(--green-dark),var(--green))',count:0},
-    {label:'Lv.6-10',min:6,max:10,color:'linear-gradient(to top,var(--green-dark),var(--green))',count:0},
-    {label:'Lv.11-20',min:11,max:20,color:'linear-gradient(to top,var(--gold-dark),var(--gold))',count:0},
-    {label:'Lv.21-50',min:21,max:50,color:'linear-gradient(to top,var(--sakura-dark),var(--sakura))',count:0},
-    {label:'Lv.51-',min:51,max:Infinity,color:'linear-gradient(to top,#803050,#e05a86)',count:0},
+    {label:'Lv.1-5',  min:1, max:5,        color:'linear-gradient(to top,var(--green-dark),var(--green))',   count:0},
+    {label:'Lv.6-10', min:6, max:10,        color:'linear-gradient(to top,var(--green-dark),var(--green))',   count:0},
+    {label:'Lv.11-20',min:11,max:20,        color:'linear-gradient(to top,var(--gold-dark),var(--gold))',     count:0},
+    {label:'Lv.21-50',min:21,max:50,        color:'linear-gradient(to top,var(--sakura-dark),var(--sakura))', count:0},
+    {label:'Lv.51-',  min:51,max:Infinity,  color:'linear-gradient(to top,#803050,#e05a86)',                  count:0},
   ];
   Object.entries(levelCounts||{}).forEach(([level,count])=>{
     const lv=Number(level||1);
@@ -1211,11 +2040,11 @@ function drawLevelDist(levelCounts){
   const total=countTotal(levelCounts||{});
   const max=Math.max(...buckets.map(b=>b.count),1);
   el.innerHTML=buckets.map(b=>{
-    const height=Math.round(b.count/max*100);
+    const height=Math.round(b.count/max*120);
     const rate=total?Math.round(b.count/total*100):0;
     return `<div class="vbar-col">
       <div class="vbar-val">${rate}%</div>
-      <div class="vbar-bar" style="height:${Math.max(height, b.count ? 4 : 2)}px;background:${b.color};"></div>
+      <div class="vbar-bar" style="height:${Math.max(height, b.count ? 6 : 2)}px;background:${b.color};"></div>
       <div class="vbar-label">${b.label}</div>
     </div>`;
   }).join('');
@@ -1236,7 +2065,7 @@ function drawBucketBars(containerId, counts, labels, colorClass){
     return `<div class="bar-row">
       <div class="bar-label">${item.label}</div>
       <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${Math.max(width, item.count ? 3 : 0)}%"></div></div>
-      <div class="bar-count">${rate}%<span style="color:var(--muted);font-size:.52rem;font-weight:400;">（${item.count}人）</span></div>
+      <div class="bar-count">${rate}%<span style="color:var(--text-subtle);font-size:.52rem;font-weight:400;">（${item.count}人）</span></div>
     </div>`;
   }).join('');
 }
@@ -1245,7 +2074,7 @@ function drawBadgeRanking(badgeMap){
   const el=document.getElementById('badge-ranking'); if(!el) return;
   const sorted=Object.entries(badgeMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
   const max=sorted[0]?.[1]||1;
-  const rankColors=['#f5c842','#94a3b8','#f97316'];
+  const rankColors=['#f59e0b','#94a3b8','#f97316'];
   el.innerHTML=sorted.map(([id,count],i)=>`
     <div class="badge-row">
       <div class="badge-rank" style="color:${rankColors[i]||'#aaa'}">${i+1}</div>
@@ -1258,7 +2087,9 @@ function drawBadgeRanking(badgeMap){
     </div>`).join('');
 }
 
-// ===== 推移スナップショット（localStorage） =====
+/* ===================================================
+   TREND SNAPSHOTS (localStorage)
+=================================================== */
 const TREND_KEY = 'kotsusaku_trend_v1';
 const TREND_MAX = 48;
 
@@ -1268,7 +2099,7 @@ function getTrendSnapshots() {
 
 function saveTrendSnapshot(summary, updatedAt) {
   if (!updatedAt) return;
-  const tsKey = updatedAt.toISOString().slice(0, 13); // YYYY-MM-DDTHH
+  const tsKey = updatedAt.toISOString().slice(0, 13);
   const snaps = getTrendSnapshots();
   if (snaps.some(s => s.tsKey === tsKey)) return;
   const total = Number(summary.userCount || summary.analyticsCount || 0);
@@ -1311,7 +2142,7 @@ function drawTrendBars(barsId, curId, snaps, key, colorClass, fmt) {
   }
   barsEl.innerHTML = recent.map(snap => {
     const val = Number(snap[key] || 0);
-    const h = Math.max(Math.round(val / maxVal * 60), val > 0 ? 3 : 1);
+    const h = Math.max(Math.round(val / maxVal * 64), val > 0 ? 3 : 1);
     return `<div class="trend-col">
       <div class="trend-bar ${colorClass}" style="height:${h}px;" title="${fmt(val)}"></div>
       <div class="trend-time">${trendTimeLabel(snap.ts)}</div>
@@ -1328,9 +2159,12 @@ function drawAllTrendCharts() {
   drawTrendBars('trend-pwa',      'trend-pwa-cur',      snaps, 'pwaUsers',      'green',  v => v.toLocaleString() + '人');
 }
 
+/* ===================================================
+   LOAD DATA
+=================================================== */
 async function loadData(){
   const btn=document.getElementById('refresh-btn');
-  btn.classList.add('loading'); btn.textContent='表示を更新しています…';
+  btn.classList.add('loading'); btn.textContent='更新中…';
   document.getElementById('loading').style.display='flex';
   document.getElementById('dashboard').style.display='none';
   document.getElementById('error-area').innerHTML='';
@@ -1356,6 +2190,15 @@ async function loadData(){
     const avgTotalMins=total>0?Math.round(totalMins/total):0;
     const avgStreak=Number(summary.avgStreakDays || 0);
 
+    // Hero stats (count-up)
+    const heroTotalEl = document.getElementById('hero-total');
+    const heroActiveEl = document.getElementById('hero-active');
+    const heroHoursEl = document.getElementById('hero-hours');
+    if(heroTotalEl)  countUp(heroTotalEl, total, '人', 1000);
+    if(heroActiveEl) countUp(heroActiveEl, activeUsers7d, '人', 1000);
+    if(heroHoursEl)  heroHoursEl.textContent = fmt(totalMins);
+
+    // Main KPIs
     setText('kpi-total', total+'人');
     setText('activity-pct-total', '100%');
     const totalFill = document.getElementById('activity-fill-total');
@@ -1373,6 +2216,7 @@ async function loadData(){
     setText('kpi-avg-daily', avgDailyMins+'分');
     setText('kpi-avg-total', fmt(avgTotalMins));
     setText('kpi-avg-streak', avgStreak+'日');
+
     drawBucketBars('bar-avg-daily', summary.avgDailyMinuteCounts || {}, AVG_DAILY_BUCKET_LABELS, 'sakura');
     drawBucketBars('bar-total-study', summary.totalStudyHourCounts || {}, TOTAL_STUDY_BUCKET_LABELS, 'green');
 
@@ -1392,7 +2236,7 @@ async function loadData(){
     if(storyEntries.length > 0){
       drawBars('bar-story', storyEntries, 'sakura', storyTotal);
     } else {
-      document.getElementById('bar-story').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です</div>';
+      document.getElementById('bar-story').innerHTML='<div style="font-size:.62rem;color:var(--text-muted);padding:8px 0;">データ収集中です</div>';
     }
 
     const licenseCounts = pickCounts(summary.storyCounts || {}, LICENSE_STORY_NAMES);
@@ -1401,22 +2245,22 @@ async function loadData(){
     if(licenseEntries.length > 0){
       drawBars('bar-license', licenseEntries, 'green', licenseTotal);
     } else {
-      document.getElementById('bar-license').innerHTML='<div style="font-size:.62rem;color:var(--muted);padding:8px 0;">データ収集中です（アプリ更新後に表示されます）</div>';
+      document.getElementById('bar-license').innerHTML='<div style="font-size:.62rem;color:var(--text-muted);padding:8px 0;">データ収集中です（アプリ更新後に表示されます）</div>';
     }
     setRoadSummary(storyTotal, licenseTotal);
     setDashboardSummary(total, totalMins, activeUsers7d, storyTotal, licenseTotal);
 
     const deviceCount=summary.deviceCounts || {};
     const deviceItems=[
-      {label:'スマホ',value:Number(deviceCount.mobile||0),color:'#4caf82'},
-      {label:'PC',value:Number(deviceCount.pc||deviceCount.desktop||0),color:'#f4a0c0'},
-      {label:'その他',value:Number(deviceCount.unknown||deviceCount.other||0),color:'#f5c842'},
+      {label:'スマホ',value:Number(deviceCount.mobile||0),color:'#10b981'},
+      {label:'PC',value:Number(deviceCount.pc||deviceCount.desktop||0),color:'#f472b6'},
+      {label:'その他',value:Number(deviceCount.unknown||deviceCount.other||0),color:'#f59e0b'},
     ].filter(item=>item.value>0);
-    drawDonut('donut-device', deviceItems.length?deviceItems:[{value:1,color:'#e0d8d0'}]);
-    document.getElementById('legend-device').innerHTML=(deviceItems.length?deviceItems:[{label:'データなし',value:0,color:'#e0d8d0'}]).map(item=>`<div class="donut-item">
+    drawDonut('donut-device', deviceItems.length?deviceItems:[{value:1,color:'rgba(0,0,0,0.1)'}]);
+    document.getElementById('legend-device').innerHTML=(deviceItems.length?deviceItems:[{label:'データなし',value:0,color:'rgba(0,0,0,0.1)'}]).map(item=>`<div class="donut-item">
       <div class="donut-dot" style="background:${item.color}"></div>
       <div class="donut-item-label">${item.label}</div>
-      <div class="donut-item-val">${item.value?`${pct(item.value,countTotal(deviceCount))}<span style="color:var(--muted);font-size:.52rem;font-weight:400;">（${item.value}人）</span>`:'-'}</div>
+      <div class="donut-item-val">${item.value?`${pct(item.value,countTotal(deviceCount))}<span style="color:var(--text-subtle);font-size:.52rem;font-weight:400;">（${item.value}人）</span>`:'-'}</div>
     </div>`).join('');
 
     drawBars('bar-os', entriesFromCounts(summary.osCounts || {}, OS_NAMES), 'green', total);
@@ -1439,9 +2283,13 @@ async function loadData(){
     document.getElementById('dashboard').style.display='block';
     console.error(e);
   }
-  btn.classList.remove('loading');btn.textContent='🔄 表示を更新する';
+  btn.classList.remove('loading');
+  btn.textContent='🔄 表示を更新する';
 }
 
+/* ===================================================
+   MANUAL AGGREGATE
+=================================================== */
 async function runManualAggregate(){
   const btn=document.getElementById('manual-aggregate-btn');
   const status=document.getElementById('manual-aggregate-status');
@@ -1476,6 +2324,9 @@ async function runManualAggregate(){
   }
 }
 
+/* ===================================================
+   BOOT
+=================================================== */
 loadData();
 </script>
 </body>
