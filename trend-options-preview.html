@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>推移グラフ デザイン案 比較</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&family=Kaisei+Tokumin:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Zen Maru Gothic', sans-serif;
+  background: #f0f4ff;
+  color: #1e293b;
+  padding: 32px 20px 80px;
+}
+h1 { text-align: center; font-size: 1.3rem; margin-bottom: 6px; color: #1e293b; }
+.subtitle { text-align: center; font-size: .75rem; color: #64748b; margin-bottom: 40px; }
+.option-wrap {
+  max-width: 900px;
+  margin: 0 auto 48px;
+}
+.option-label {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.option-badge {
+  background: #1e293b;
+  color: white;
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  padding: 4px 14px;
+  border-radius: 99px;
+}
+.option-title { font-size: 1.05rem; font-weight: 900; }
+.option-desc { font-size: .72rem; color: #64748b; margin-bottom: 14px; line-height: 1.7; }
+.card {
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+.chart-title {
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* ======= 案1: スムーズエリアチャート ======= */
+.area-chart-wrap { position: relative; }
+svg.area-chart { width: 100%; overflow: visible; }
+
+/* ======= 案2: スパークライン + デルタカード ======= */
+.spark-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.spark-card {
+  background: #f8faff;
+  border-radius: 14px;
+  padding: 16px 14px 12px;
+  border: 1.5px solid #e2e8f0;
+  transition: all .2s;
+}
+.spark-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+.spark-main { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.spark-val {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.spark-delta {
+  font-size: .65rem;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 99px;
+}
+.delta-up { background: #dcfce7; color: #166534; }
+.delta-down { background: #fee2e2; color: #991b1b; }
+.delta-flat { background: #f1f5f9; color: #64748b; }
+.spark-label { font-size: .6rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+svg.sparkline { width: 100%; height: 36px; overflow: visible; }
+
+/* ======= 案3: ステップライン ======= */
+.step-chart-wrap { position: relative; }
+
+/* ======= 案4: ヒートマップ ======= */
+.heatmap-wrap { overflow-x: auto; }
+.heatmap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 640px;
+}
+.heatmap-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.heatmap-row-label {
+  font-size: .6rem;
+  font-weight: 700;
+  color: #64748b;
+  min-width: 72px;
+  text-align: right;
+  padding-right: 8px;
+}
+.heatmap-cells {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+}
+.heatmap-cell {
+  flex: 1;
+  height: 28px;
+  border-radius: 5px;
+  position: relative;
+  cursor: pointer;
+  transition: transform .15s;
+}
+.heatmap-cell:hover { transform: scale(1.15); z-index: 2; }
+.heatmap-cell-val {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .38rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  font-weight: 700;
+}
+.heatmap-hours {
+  display: flex;
+  gap: 3px;
+  padding-left: calc(72px + 8px);
+  margin-top: 22px;
+}
+.heatmap-hour-label {
+  flex: 1;
+  text-align: center;
+  font-size: .4rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+/* ======= 案5: ランニングナンバー + ミニチャート ======= */
+.running-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media(max-width:600px) { .running-grid { grid-template-columns: 1fr; } }
+.running-card {
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.running-card.green { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1.5px solid #6ee7b7; }
+.running-card.sakura { background: linear-gradient(135deg, #fdf2f8, #fce7f3); border: 1.5px solid #f9a8d4; }
+.running-card.gold { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #fcd34d; }
+.running-card.blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1.5px solid #93c5fd; }
+.running-kicker { font-size: .58rem; font-weight: 900; letter-spacing: .08em; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+.running-num {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.running-card.green .running-num { color: #059669; }
+.running-card.sakura .running-num { color: #db2777; }
+.running-card.gold .running-num { color: #d97706; }
+.running-card.blue .running-num { color: #2563eb; }
+.running-change {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .65rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.change-pill {
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: .6rem;
+  font-weight: 900;
+}
+.change-pill.up { background: #dcfce7; color: #166534; }
+.change-pill.flat { background: #f1f5f9; color: #475569; }
+.running-mini-chart { height: 48px; width: 100%; }
+.running-ts {
+  font-size: .5rem;
+  color: #94a3b8;
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ======= 案6: タイムラインスタック ======= */
+.timeline-stack { display: flex; flex-direction: column; gap: 8px; }
+.tl-row { display: flex; align-items: center; gap: 12px; }
+.tl-time { font-size: .6rem; font-weight: 700; color: #94a3b8; min-width: 44px; text-align: right; }
+.tl-bar-wrap { flex: 1; position: relative; }
+.tl-track { height: 24px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+.tl-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 10px; font-size: .6rem; font-weight: 900; color: white; transition: width .6s ease; white-space: nowrap; overflow: hidden; }
+.tl-fill.green { background: linear-gradient(90deg, #059669, #10b981); }
+.tl-fill.sakura { background: linear-gradient(90deg, #db2777, #f472b6); }
+.tl-val { font-size: .65rem; font-weight: 700; color: #1e293b; font-family: 'Kaisei Tokumin', serif; min-width: 40px; text-align: right; }
+.tl-latest { background: #fef9c3; }
+.tl-latest .tl-fill.green { background: linear-gradient(90deg, #d97706, #f59e0b); }
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 2px dashed #e2e8f0;
+  margin: 48px 0;
+}
+
+.vote-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fef9c3;
+  border: 1.5px solid #fde047;
+  border-radius: 99px;
+  padding: 4px 14px;
+  font-size: .65rem;
+  font-weight: 900;
+  color: #92400e;
+  margin-top: 12px;
+}
+</style>
+</head>
+<body>
+
+<h1>📊 推移グラフ デザイン案 比較</h1>
+<p class="subtitle">「時間別推移グラフ」の代替デザイン案です。お好みのものをお選びください。</p>
+
+<!-- ======= 案A ======= -->
+<div class="option-wrap">
+  <div class="option-label">
+    <span class="option-badge">案 A</span>
+    <span class="option-title">スムーズエリアチャート</span>
+  </div>
+  <p class="option-desc">
+    折れ線とグラデーション塗りつぶしの組み合わせ。数値の上下がなめらかな曲線で一目でわかります。<br>
+    ポイントにホバーすると具体的な数値が表示されます。棒グラフより「流れ」が見やすいのが特徴。
+  </p>
+  <div class="card">
+    <div class="chart-title">📈 総学習時間の推移（最新24時間）</div>
+    <div class="area-chart-wrap">
+      <svg class="area-chart" height="120" id="area-svg" viewBox="0 0 800 120" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+  <div class="vote-badge">✨ 変化の「流れ」がなめらかに見える</div>
+</div>
+
+<hr class="divider">
+
+<!-- ======= 案B ======= -->
+<div class="option-wrap">
+  <div class="option-label">
+    <span class="option-badge">案 B</span>
+    <span class="option-title">スパークライン＋デルタカード</span>
+  </div>
+  <p class="option-desc">
+    各指標を独立したカードで表示。現在値を大きく、前回比の増減（↑＋5人 など）をバッジで明示します。<br>
+    カード内の小さな折れ線（スパークライン）で短期トレンドも確認できます。
+  </p>
+  <div class="card">
+    <div class="chart-title">📊 指標別スナップショット</div>
+    <div class="spark-grid" id="spark-grid"></div>
+  </div>
+  <div class="vote-badge">🔢 数値の変化量が一番わかりやすい</div>
+</div>
+
+<hr class="divider">
+
+<!-- ======= 案C ======= -->
+<div class="option-wrap">
+  <div class="option-label">
+    <span class="option-badge">案 C</span>
+    <span class="option-title">ヒートマップ（時間帯×強度）</span>
+  </div>
+  <p class="option-desc">
+    時間軸を横に並べ、色の濃淡で値の大きさを表現。時間帯のパターンが一目でわかります。<br>
+    複数指標を縦に並べて比較できます。棒グラフより「どの時間が多いか」が直感的です。
+  </p>
+  <div class="card">
+    <div class="chart-title">🌡️ 指標別ヒートマップ（直近12時間）</div>
+    <div class="heatmap-wrap">
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+  </div>
+  <div class="vote-badge">🌡️ 時間帯のパターンが色でわかる</div>
+</div>
+
+<hr class="divider">
+
+<!-- ======= 案D ======= -->
+<div class="option-wrap">
+  <div class="option-label">
+    <span class="option-badge">案 D</span>
+    <span class="option-title">ランニングナンバー＋ミニチャート</span>
+  </div>
+  <p class="option-desc">
+    大きな数字とその下に小さなエリアチャートを組み合わせたカード型。<br>
+    最も重要な「今の値」を強調しながら、トレンドも視覚的に確認できます。前回比バッジも付きます。
+  </p>
+  <div class="card">
+    <div class="chart-title">📱 指標カード（ミニチャート付き）</div>
+    <div class="running-grid" id="running-grid"></div>
+  </div>
+  <div class="vote-badge">🎯 数字の大きさとトレンドの両立</div>
+</div>
+
+<hr class="divider">
+
+<!-- ======= 案E ======= -->
+<div class="option-wrap">
+  <div class="option-label">
+    <span class="option-badge">案 E</span>
+    <span class="option-title">タイムラインバー（時刻ラベル付き）</span>
+  </div>
+  <p class="option-desc">
+    横向きバーに時刻ラベルをそのまま付けたシンプルな形。最新のデータを金色でハイライト。<br>
+    各バーの長さで値の大小が直感的に比べられ、時刻も明確に確認できます。
+  </p>
+  <div class="card">
+    <div class="chart-title">🕐 冒険をはじめた仲間の時間別推移</div>
+    <div class="timeline-stack" id="tl-stack"></div>
+  </div>
+  <div class="vote-badge">⏰ 時刻とバーの長さが直接対応</div>
+</div>
+
+<script>
+// ===== サンプルデータ生成 =====
+const BASE_USERS = 120;
+const BASE_HOURS = 3400;
+const BASE_ACTIVE = 78;
+const BASE_PWA = 45;
+const N = 24;
+
+function genData(base, growth, noise) {
+  const arr = [];
+  let v = base;
+  for (let i = 0; i < N; i++) {
+    v += growth + (Math.random() - 0.3) * noise;
+    arr.push(Math.round(Math.max(base * 0.8, v)));
+  }
+  return arr;
+}
+
+const dataUsers  = genData(BASE_USERS, 0.3, 2);
+const dataHours  = genData(BASE_HOURS, 12, 60);
+const dataActive = genData(BASE_ACTIVE, 0.15, 3);
+const dataPWA    = genData(BASE_PWA, 0.1, 1.5);
+
+const TIME_LABELS = Array.from({length: N}, (_, i) => {
+  const h = new Date();
+  h.setHours(h.getHours() - (N - 1 - i));
+  return h.getHours() + '時';
+});
+
+// ===== 案A: スムーズエリアチャート =====
+function drawAreaChart() {
+  const svg = document.getElementById('area-svg');
+  const W = 800, H = 120, PAD = 10;
+  const data = dataHours;
+  const min = Math.min(...data) * 0.97;
+  const max = Math.max(...data) * 1.03;
+  const pts = data.map((v, i) => {
+    const x = PAD + (i / (data.length - 1)) * (W - PAD * 2);
+    const y = H - PAD - ((v - min) / (max - min)) * (H - PAD * 2);
+    return [x, y];
+  });
+
+  // Smooth path using cubic bezier
+  function smooth(points) {
+    let d = `M ${points[0][0]},${points[0][1]}`;
+    for (let i = 1; i < points.length; i++) {
+      const prev = points[i - 1], curr = points[i];
+      const cpx1 = prev[0] + (curr[0] - (i > 1 ? points[i - 2][0] : prev[0])) / 6;
+      const cpy1 = prev[1] + (curr[1] - (i > 1 ? points[i - 2][1] : prev[1])) / 6;
+      const cpx2 = curr[0] - ((i < points.length - 1 ? points[i + 1][0] : curr[0]) - prev[0]) / 6;
+      const cpy2 = curr[1] - ((i < points.length - 1 ? points[i + 1][1] : curr[1]) - prev[1]) / 6;
+      d += ` C ${cpx1},${cpy1} ${cpx2},${cpy2} ${curr[0]},${curr[1]}`;
+    }
+    return d;
+  }
+
+  const pathD = smooth(pts);
+  const areaD = pathD + ` L ${pts[pts.length-1][0]},${H} L ${pts[0][0]},${H} Z`;
+
+  const defs = `<defs>
+    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f472b6" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#f472b6" stop-opacity="0.03"/>
+    </linearGradient>
+  </defs>`;
+
+  const gridLines = [0.25, 0.5, 0.75].map(f => {
+    const y = PAD + f * (H - PAD * 2);
+    const val = Math.round(max - f * (max - min));
+    return `<line x1="${PAD}" y1="${y}" x2="${W - PAD}" y2="${y}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
+            <text x="${PAD - 4}" y="${y + 4}" font-size="8" fill="#94a3b8" text-anchor="end" font-family="sans-serif">${Math.round(val / 60)}h</text>`;
+  }).join('');
+
+  const dots = pts.filter((_, i) => i % 4 === 0 || i === pts.length - 1).map(([x, y], i) => {
+    const isLast = i === Math.floor((pts.length - 1) / 4);
+    return `<circle cx="${x}" cy="${y}" r="${isLast ? 5 : 3}" fill="${isLast ? '#db2777' : '#f472b6'}" stroke="white" stroke-width="2"/>`;
+  }).join('');
+
+  const timeLabels = pts.filter((_, i) => i % 6 === 0 || i === pts.length - 1).map(([x], i, arr) => {
+    const origIdx = [0, 6, 12, 18, 23][i] ?? 23;
+    return `<text x="${x}" y="${H + 14}" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="sans-serif">${TIME_LABELS[origIdx]}</text>`;
+  }).join('');
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H + 20}`);
+  svg.setAttribute('height', H + 20);
+  svg.innerHTML = defs + gridLines +
+    `<path d="${areaD}" fill="url(#areaGrad)"/>` +
+    `<path d="${pathD}" fill="none" stroke="#f472b6" stroke-width="2.5" stroke-linecap="round"/>` +
+    dots + timeLabels;
+}
+
+// ===== 案B: スパークライン + デルタカード =====
+function drawSparkGrid() {
+  const metrics = [
+    { label: '総学習時間', data: dataHours,  color: '#f472b6', fmt: v => Math.round(v/60) + 'h', suffix: '' },
+    { label: '仲間の数',   data: dataUsers,  color: '#10b981', fmt: v => v + '人', suffix: '' },
+    { label: '週間アクティブ', data: dataActive, color: '#6366f1', fmt: v => v + '人', suffix: '' },
+    { label: 'PWA数',     data: dataPWA,    color: '#f59e0b', fmt: v => v + '人', suffix: '' },
+  ];
+
+  const grid = document.getElementById('spark-grid');
+  grid.innerHTML = metrics.map(m => {
+    const cur = m.data[m.data.length - 1];
+    const prev = m.data[m.data.length - 2];
+    const delta = cur - prev;
+    const isUp = delta > 0;
+    const deltaStr = (isUp ? '↑+' : delta === 0 ? '→ ' : '↓') + Math.abs(delta);
+    const deltaClass = delta > 0 ? 'up' : delta === 0 ? 'flat' : 'down';
+    const recent = m.data.slice(-12);
+    const minV = Math.min(...recent), maxV = Math.max(...recent);
+    const W = 120, H = 36;
+    const pts = recent.map((v, i) => {
+      const x = (i / (recent.length - 1)) * W;
+      const y = H - 4 - ((v - minV) / (Math.max(maxV - minV, 1))) * (H - 8);
+      return `${x},${y}`;
+    }).join(' ');
+    const areaPts = `${pts} ${W},${H} 0,${H}`;
+    return `<div class="spark-card">
+      <div class="spark-label">${m.label}</div>
+      <div class="spark-main">
+        <div class="spark-val" style="color:${m.color}">${m.fmt(cur)}</div>
+        <div class="spark-delta ${deltaClass}">${deltaStr}</div>
+      </div>
+      <svg class="sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs><linearGradient id="sg${m.label}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${m.color}" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="${m.color}" stop-opacity="0"/>
+        </linearGradient></defs>
+        <polygon points="${areaPts}" fill="url(#sg${m.label})"/>
+        <polyline points="${pts}" fill="none" stroke="${m.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="${(recent.length-1)/(recent.length-1)*W}" cy="${H - 4 - ((recent[recent.length-1] - minV) / (Math.max(maxV - minV, 1))) * (H - 8)}" r="3" fill="${m.color}" stroke="white" stroke-width="1.5"/>
+      </svg>
+    </div>`;
+  }).join('');
+}
+
+// ===== 案C: ヒートマップ =====
+function drawHeatmap() {
+  const rows = [
+    { label: '仲間の数', data: dataUsers.slice(-12), color: [16, 185, 129] },
+    { label: '週間アクティブ', data: dataActive.slice(-12), color: [244, 114, 182] },
+    { label: '総学習時間', data: dataHours.slice(-12), color: [99, 102, 241] },
+    { label: 'PWA数', data: dataPWA.slice(-12), color: [245, 158, 11] },
+  ];
+  const heatmap = document.getElementById('heatmap');
+  const timeSlice = TIME_LABELS.slice(-12);
+
+  heatmap.innerHTML = rows.map(row => {
+    const min = Math.min(...row.data), max = Math.max(...row.data);
+    const cells = row.data.map((v, i) => {
+      const intensity = (v - min) / (Math.max(max - min, 1));
+      const alpha = 0.15 + intensity * 0.85;
+      const [r, g, b] = row.color;
+      return `<div class="heatmap-cell" style="background:rgba(${r},${g},${b},${alpha.toFixed(2)})" title="${timeSlice[i]}: ${v}">
+        <div class="heatmap-cell-val">${v}</div>
+      </div>`;
+    }).join('');
+    return `<div class="heatmap-row">
+      <div class="heatmap-row-label">${row.label}</div>
+      <div class="heatmap-cells">${cells}</div>
+    </div>`;
+  }).join('');
+
+  const hourLabels = `<div class="heatmap-hours">` +
+    timeSlice.map(t => `<div class="heatmap-hour-label">${t}</div>`).join('') +
+    `</div>`;
+  heatmap.insertAdjacentHTML('beforeend', hourLabels);
+}
+
+// ===== 案D: ランニングナンバー =====
+function drawRunningGrid() {
+  const metrics = [
+    { label: '総学習時間', data: dataHours, color: 'sakura', fmt: v => Math.round(v/60) + 'h' },
+    { label: '仲間の数',   data: dataUsers, color: 'green',  fmt: v => v + '人' },
+    { label: '週間アクティブ', data: dataActive, color: 'blue', fmt: v => v + '人' },
+    { label: 'PWA数',     data: dataPWA,   color: 'gold',   fmt: v => v + '人' },
+  ];
+  const colorMap = { sakura: '#f472b6', green: '#10b981', blue: '#6366f1', gold: '#f59e0b' };
+
+  const grid = document.getElementById('running-grid');
+  grid.innerHTML = metrics.map(m => {
+    const cur = m.data[m.data.length - 1];
+    const prev = m.data[m.data.length - 7] || m.data[0];
+    const delta = cur - prev;
+    const recent = m.data.slice(-16);
+    const minV = Math.min(...recent), maxV = Math.max(...recent);
+    const W = 200, H = 48;
+    const pts = recent.map((v, i) => {
+      const x = (i / (recent.length - 1)) * W;
+      const y = H - 2 - ((v - minV) / (Math.max(maxV - minV, 1))) * (H - 4);
+      return `${x},${y}`;
+    }).join(' ');
+    const areaPts = `${pts} ${W},${H} 0,${H}`;
+    const c = colorMap[m.color];
+    return `<div class="running-card ${m.color}">
+      <div class="running-kicker">${m.label}</div>
+      <div class="running-num">${m.fmt(cur)}</div>
+      <div class="running-change">
+        <span class="change-pill up">↑ +${Math.abs(delta)} 直近7時間比</span>
+      </div>
+      <svg class="running-mini-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs><linearGradient id="rg${m.color}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${c}" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="${c}" stop-opacity="0"/>
+        </linearGradient></defs>
+        <polygon points="${areaPts}" fill="url(#rg${m.color})"/>
+        <polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="running-ts"><span>${TIME_LABELS[N - recent.length]}</span><span>${TIME_LABELS[N-1]}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ===== 案E: タイムラインバー =====
+function drawTimeline() {
+  const stack = document.getElementById('tl-stack');
+  const data = dataUsers.slice(-8);
+  const times = TIME_LABELS.slice(-8);
+  const max = Math.max(...data);
+  stack.innerHTML = data.map((v, i) => {
+    const isLatest = i === data.length - 1;
+    const pct = Math.round(v / max * 100);
+    const cls = isLatest ? 'tl-latest' : '';
+    return `<div class="tl-row ${cls}">
+      <div class="tl-time">${times[i]}</div>
+      <div class="tl-bar-wrap">
+        <div class="tl-track">
+          <div class="tl-fill ${isLatest ? 'sakura' : 'green'}" style="width:${pct}%">${isLatest ? '最新 ' + v + '人' : v + '人'}</div>
+        </div>
+      </div>
+      <div class="tl-val">${v}人</div>
+    </div>`;
+  }).join('');
+}
+
+drawAreaChart();
+drawSparkGrid();
+drawHeatmap();
+drawRunningGrid();
+drawTimeline();
+</script>
+</body>
+</html>
