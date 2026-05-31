@@ -1236,6 +1236,233 @@ body::before {
 
 /* ===== COUNT-UP NUMBER HIGHLIGHT ===== */
 .counting { opacity: 0.7; }
+
+/* ===== PILLAR 1: 24時間・時間単位 ===== */
+.pillar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.pillar-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  padding: 5px 14px;
+  border-radius: 99px;
+  text-transform: uppercase;
+}
+.pillar-badge.hourly { background: rgba(99,102,241,0.1); color: #4f46e5; border: 1.5px solid rgba(99,102,241,0.3); }
+.pillar-badge.daily  { background: rgba(16,185,129,0.1); color: #059669; border: 1.5px solid rgba(16,185,129,0.3); }
+.pillar-badge.tasks  { background: rgba(245,158,11,0.1); color: #d97706; border: 1.5px solid rgba(245,158,11,0.3); }
+.pillar-title { font-size: 1rem; font-weight: 900; color: var(--text); }
+.pillar-desc  { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+
+/* Delta cards row */
+.delta-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+@media(max-width: 700px) { .delta-row { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 400px) { .delta-row { grid-template-columns: 1fr; } }
+
+.delta-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  padding: 16px 14px 12px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  transition: all 0.2s;
+}
+.delta-card:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
+.delta-label {
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.delta-val {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.delta-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 3px 9px;
+  border-radius: 99px;
+  margin-bottom: 4px;
+}
+.delta-badge.up   { background: rgba(16,185,129,0.12); color: #059669; }
+.delta-badge.dn   { background: rgba(220,38,38,0.1);  color: #dc2626; }
+.delta-badge.flat { background: rgba(100,116,139,0.1); color: #475569; }
+.delta-time {
+  font-size: 0.52rem;
+  color: var(--text-subtle);
+  margin-top: 4px;
+}
+.delta-empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  border: 1px dashed rgba(0,0,0,0.1);
+}
+
+/* Smooth area chart card */
+.area-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px 20px 16px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  margin-bottom: 12px;
+}
+.area-card-title {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.area-card-cur {
+  font-family: 'Kaisei Tokumin', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.area-svg-wrap { overflow: visible; }
+.area-svg-wrap svg { width: 100%; display: block; overflow: visible; }
+
+.two-area { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width: 580px) { .two-area { grid-template-columns: 1fr; } }
+
+/* ===== PILLAR 2: 月次・日単位 ===== */
+.daily-summary-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+@media(max-width: 700px) { .daily-summary-row { grid-template-columns: repeat(2, 1fr); } }
+.daily-sum-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  padding: 16px 14px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+}
+.daily-sum-kicker { font-size: 0.58rem; font-weight: 900; letter-spacing: .08em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+.daily-sum-val { font-family: 'Kaisei Tokumin', serif; font-size: 1.9rem; font-weight: 700; line-height: 1; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
+.daily-sum-delta { font-size: 0.6rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; display: inline-block; }
+.daily-sum-delta.up   { background: rgba(16,185,129,0.12); color: #059669; }
+.daily-sum-delta.flat { background: rgba(100,116,139,0.1); color: #475569; }
+.daily-sum-sub { font-size: 0.52rem; color: var(--text-subtle); margin-top: 5px; }
+
+/* Daily bar chart */
+.daily-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 140px;
+  padding-top: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.daily-bar-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 4px;
+  position: relative;
+}
+.daily-bar-val {
+  font-size: 0.38rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  font-family: 'Kaisei Tokumin', serif;
+  white-space: nowrap;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.daily-bar {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 4px 4px 2px 2px;
+  transition: height 0.7s ease;
+}
+.daily-bar.green  { background: linear-gradient(to top, #059669, #10b981); }
+.daily-bar.sakura { background: linear-gradient(to top, #db2777, #f472b6); }
+.daily-bar.latest { background: linear-gradient(to top, #d97706, #f59e0b); }
+.daily-bar-label {
+  font-size: 0.38rem;
+  font-weight: 700;
+  color: var(--text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+}
+.daily-empty {
+  padding: 32px 16px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+/* ===== TASK MANAGEMENT ===== */
+.task-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+@media(max-width: 700px) { .task-kpi-row { grid-template-columns: repeat(2, 1fr); } }
+.task-kpi-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  padding: 18px 14px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  text-align: center;
+}
+.task-kpi-card.highlight { border-color: rgba(245,158,11,0.4); background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(254,243,199,0.6)); }
+.task-kpi-icon { font-size: 1.4rem; margin-bottom: 6px; }
+.task-kpi-val { font-family: 'Kaisei Tokumin', serif; font-size: 1.6rem; font-weight: 700; line-height: 1; margin-bottom: 4px; color: var(--text); font-variant-numeric: tabular-nums; }
+.task-kpi-lab { font-size: 0.58rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+.task-ring-wrap { display: flex; align-items: center; justify-content: center; gap: 24px; padding: 10px 0 4px; }
+.task-ring-legend { display: flex; flex-direction: column; gap: 8px; }
+.task-ring-item { display: flex; align-items: center; gap: 8px; font-size: 0.65rem; color: var(--text-muted); }
+.task-ring-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.task-collecting { font-size: 0.65rem; color: var(--text-subtle); text-align: center; padding: 16px 0 8px; font-style: italic; }
 </style>
 </head>
 <body>
@@ -1611,41 +1838,175 @@ body::before {
       </div>
     </div>
 
-    <!-- 10. TREND CHARTS -->
+    <!-- ====================================================
+         PILLAR 1: 24時間・時間単位トレンド
+    ==================================================== -->
     <div class="section">
-      <div class="section-label">
-        <span class="section-icon green">📈</span>
-        時間別推移グラフ
+      <div class="pillar-header">
+        <div>
+          <div><span class="pillar-badge hourly">⏱ リアルタイム</span></div>
+          <div class="pillar-title">24時間・時間単位トレンド</div>
+          <div class="pillar-desc">直近のスナップショットをもとに、1時間ごとの変動を表示します</div>
+        </div>
       </div>
 
-      <div class="chart-card" style="margin-bottom:12px;">
-        <div class="chart-title">⏱ 総学習時間の推移</div>
-        <div class="trend-current-row" id="trend-hours-cur"></div>
-        <div class="trend-bars" id="trend-hours"></div>
-        <div class="trend-footnote">ダッシュボードを開くたびに記録が蓄積されます（最大48時間分）</div>
+      <!-- Delta cards: 前回比の増減 -->
+      <div id="hourly-delta-section">
+        <div class="delta-row">
+          <div class="delta-card" id="delta-users"></div>
+          <div class="delta-card" id="delta-active"></div>
+          <div class="delta-card" id="delta-hours"></div>
+          <div class="delta-card" id="delta-pwa"></div>
+        </div>
       </div>
 
-      <div class="trend-grid">
-        <div class="chart-card">
-          <div class="chart-title">🌱 冒険をはじめた仲間（総数）</div>
-          <div class="trend-current-row" id="trend-users-cur"></div>
-          <div class="trend-bars" id="trend-users"></div>
+      <!-- Smooth area chart: 総学習時間 -->
+      <div class="area-card">
+        <div class="area-card-title">
+          <span>🌸 総学習時間の推移</span>
+          <span class="area-card-cur" id="area-hours-cur">—</span>
         </div>
-        <div class="chart-card">
-          <div class="chart-title">🔥 今週も冒険中</div>
-          <div class="trend-current-row" id="trend-active7d-cur"></div>
-          <div class="trend-bars" id="trend-active7d"></div>
+        <div class="area-svg-wrap">
+          <svg id="area-hourly-hours" viewBox="0 0 800 130" height="130" preserveAspectRatio="none"></svg>
         </div>
-        <div class="chart-card">
-          <div class="chart-title">⚡ 最近も冒険中（3日以内）</div>
-          <div class="trend-current-row" id="trend-active3d-cur"></div>
-          <div class="trend-bars" id="trend-active3d"></div>
+      </div>
+
+      <!-- Two-column: 仲間の数 / 週間アクティブ -->
+      <div class="two-area">
+        <div class="area-card">
+          <div class="area-card-title">
+            <span>🌱 仲間の数</span>
+            <span class="area-card-cur" id="area-users-cur">—</span>
+          </div>
+          <div class="area-svg-wrap">
+            <svg id="area-hourly-users" viewBox="0 0 400 100" height="100" preserveAspectRatio="none"></svg>
+          </div>
         </div>
-        <div class="chart-card">
-          <div class="chart-title">📱 PWAインストール数</div>
-          <div class="trend-current-row" id="trend-pwa-cur"></div>
-          <div class="trend-bars" id="trend-pwa"></div>
+        <div class="area-card">
+          <div class="area-card-title">
+            <span>🔥 週間アクティブ</span>
+            <span class="area-card-cur" id="area-active-cur">—</span>
+          </div>
+          <div class="area-svg-wrap">
+            <svg id="area-hourly-active" viewBox="0 0 400 100" height="100" preserveAspectRatio="none"></svg>
+          </div>
         </div>
+      </div>
+
+      <!-- 旧バー形式（後方互換用・非表示で保持） -->
+      <div style="display:none;">
+        <div id="trend-hours-cur"></div><div id="trend-hours"></div>
+        <div id="trend-users-cur"></div><div id="trend-users"></div>
+        <div id="trend-active7d-cur"></div><div id="trend-active7d"></div>
+        <div id="trend-active3d-cur"></div><div id="trend-active3d"></div>
+        <div id="trend-pwa-cur"></div><div id="trend-pwa"></div>
+      </div>
+    </div>
+
+    <!-- ====================================================
+         TASK MANAGEMENT SECTION
+    ==================================================== -->
+    <div class="section">
+      <div class="pillar-header">
+        <div>
+          <div><span class="pillar-badge tasks">🎯 タスク管理</span></div>
+          <div class="pillar-title">タスク機能の使用状況</div>
+          <div class="pillar-desc">仲間たちのタスク活用データです</div>
+        </div>
+      </div>
+
+      <div class="task-kpi-row">
+        <div class="task-kpi-card">
+          <div class="task-kpi-icon">👥</div>
+          <div class="task-kpi-val" id="task-users">—</div>
+          <div class="task-kpi-lab">タスク利用者</div>
+        </div>
+        <div class="task-kpi-card">
+          <div class="task-kpi-icon">📋</div>
+          <div class="task-kpi-val" id="task-total">—</div>
+          <div class="task-kpi-lab">総タスク作成数</div>
+        </div>
+        <div class="task-kpi-card">
+          <div class="task-kpi-icon">✅</div>
+          <div class="task-kpi-val" id="task-completed">—</div>
+          <div class="task-kpi-lab">完了タスク数</div>
+        </div>
+        <div class="task-kpi-card highlight">
+          <div class="task-kpi-icon">📊</div>
+          <div class="task-kpi-val" id="task-avg">—</div>
+          <div class="task-kpi-lab">1人あたり平均</div>
+        </div>
+      </div>
+
+      <div class="area-card">
+        <div class="area-card-title"><span>完了率リング</span></div>
+        <div class="task-ring-wrap">
+          <svg id="task-ring-svg" width="100" height="100" viewBox="0 0 88 88"></svg>
+          <div class="task-ring-legend">
+            <div class="task-ring-item">
+              <div class="task-ring-dot" style="background:#10b981"></div>
+              <span>完了タスク: <strong id="task-completed-count">—</strong></span>
+            </div>
+            <div class="task-ring-item">
+              <div class="task-ring-dot" style="background:#e2e8f0"></div>
+              <span>未完了: <strong id="task-pending-count">—</strong></span>
+            </div>
+          </div>
+        </div>
+        <div class="task-collecting" id="task-collecting-note"></div>
+      </div>
+    </div>
+
+    <!-- ====================================================
+         PILLAR 2: 月次・日単位トレンド
+    ==================================================== -->
+    <div class="section">
+      <div class="pillar-header">
+        <div>
+          <div><span class="pillar-badge daily">📅 月次トレンド</span></div>
+          <div class="pillar-title">1日単位・月次トレンド</div>
+          <div class="pillar-desc">日単位で集計した成長推移です（スナップショットが蓄積されるほど充実します）</div>
+        </div>
+      </div>
+
+      <!-- Daily summary cards -->
+      <div class="daily-summary-row">
+        <div class="daily-sum-card">
+          <div class="daily-sum-kicker">仲間の総数</div>
+          <div class="daily-sum-val green" id="daily-users-val">—</div>
+          <div id="daily-users-delta"></div>
+          <div class="daily-sum-sub" id="daily-users-sub">—</div>
+        </div>
+        <div class="daily-sum-card">
+          <div class="daily-sum-kicker">週間アクティブ</div>
+          <div class="daily-sum-val sakura" id="daily-active-val">—</div>
+          <div id="daily-active-delta"></div>
+          <div class="daily-sum-sub" id="daily-active-sub">—</div>
+        </div>
+        <div class="daily-sum-card">
+          <div class="daily-sum-kicker">累計学習時間</div>
+          <div class="daily-sum-val gold" id="daily-hours-val">—</div>
+          <div id="daily-hours-delta"></div>
+          <div class="daily-sum-sub" id="daily-hours-sub">—</div>
+        </div>
+        <div class="daily-sum-card">
+          <div class="daily-sum-kicker">PWA数</div>
+          <div class="daily-sum-val" style="color:#6366f1" id="daily-pwa-val">—</div>
+          <div id="daily-pwa-delta"></div>
+          <div class="daily-sum-sub" id="daily-pwa-sub">—</div>
+        </div>
+      </div>
+
+      <!-- Daily bar chart: 仲間の数 -->
+      <div class="area-card">
+        <div class="area-card-title"><span>🌱 仲間の数（日別）</span></div>
+        <div id="daily-bar-users" class="daily-bar-chart"></div>
+      </div>
+
+      <!-- Daily bar chart: 週間アクティブ -->
+      <div class="area-card">
+        <div class="area-card-title"><span>🔥 週間アクティブ人数（日別）</span></div>
+        <div id="daily-bar-active" class="daily-bar-chart"></div>
       </div>
     </div>
 
@@ -2160,6 +2521,289 @@ function drawAllTrendCharts() {
 }
 
 /* ===================================================
+   SMOOTH AREA CHART
+=================================================== */
+function drawSmoothArea(svgEl, dataPoints, color, opts) {
+  opts = opts || {};
+  if (!svgEl) return;
+  const vb = svgEl.viewBox.baseVal;
+  const W = vb.width || 800;
+  const H = vb.height || 130;
+  const PAD = { top: 22, right: 28, bottom: opts.xLabels ? 20 : 8, left: opts.yLabels ? 40 : 8 };
+
+  if (!dataPoints || dataPoints.length < 2) {
+    svgEl.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="#94a3b8" font-family="sans-serif">スナップショットが蓄積されると表示されます 🌸</text>`;
+    return;
+  }
+
+  const vals = dataPoints.map(d => d.v);
+  const minV = Math.min(...vals);
+  const maxV = Math.max(...vals);
+  const range = maxV - minV || 1;
+
+  const toX = i => PAD.left + (i / (dataPoints.length - 1)) * (W - PAD.left - PAD.right);
+  const toY = v => PAD.top + (1 - (v - minV) / range) * (H - PAD.top - PAD.bottom);
+  const pts = dataPoints.map((d, i) => [toX(i), toY(d.v)]);
+
+  // Smooth bezier path
+  let linePath = `M ${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const p0 = pts[i - 2] || pts[i - 1];
+    const p1 = pts[i - 1];
+    const p2 = pts[i];
+    const p3 = pts[i + 1] || p2;
+    const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+    const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+    linePath += ` C ${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${p2[0].toFixed(2)},${p2[1].toFixed(2)}`;
+  }
+  const bottom = H - PAD.bottom;
+  const areaPath = linePath + ` L ${pts[pts.length-1][0]},${bottom} L ${pts[0][0]},${bottom} Z`;
+
+  const gradId = 'ag_' + svgEl.id;
+
+  // Grid lines
+  let grid = '';
+  [0.25, 0.5, 0.75].forEach(f => {
+    const y = PAD.top + f * (H - PAD.top - PAD.bottom);
+    const v = maxV - f * range;
+    const label = opts.fmt ? opts.fmt(v) : Math.round(v);
+    grid += `<line x1="${PAD.left}" y1="${y.toFixed(1)}" x2="${W - PAD.right}" y2="${y.toFixed(1)}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3"/>`;
+    if (opts.yLabels) grid += `<text x="${PAD.left - 4}" y="${(y + 4).toFixed(1)}" font-size="8.5" fill="#94a3b8" text-anchor="end" font-family="sans-serif">${label}</text>`;
+  });
+
+  // X-axis time labels
+  let xLabels = '';
+  if (opts.xLabels) {
+    const step = Math.max(1, Math.floor(dataPoints.length / 7));
+    dataPoints.forEach((d, i) => {
+      if (i % step === 0 || i === dataPoints.length - 1) {
+        xLabels += `<text x="${toX(i).toFixed(1)}" y="${H - 3}" font-size="8" fill="#94a3b8" text-anchor="middle" font-family="sans-serif">${d.label || ''}</text>`;
+      }
+    });
+  }
+
+  // Last-point value label
+  const lx = pts[pts.length - 1][0];
+  const ly = pts[pts.length - 1][1];
+  const lv = opts.fmt ? opts.fmt(vals[vals.length - 1]) : Math.round(vals[vals.length - 1]);
+  const lbw = String(lv).length * 7 + 12;
+  const lbx = Math.min(lx - lbw / 2, W - PAD.right - lbw);
+  const lby = Math.max(ly - 22, PAD.top);
+  const lastLabel = `<rect x="${lbx.toFixed(1)}" y="${lby.toFixed(1)}" width="${lbw}" height="16" rx="4" fill="${color}" opacity="0.92"/>
+    <text x="${(lbx + lbw/2).toFixed(1)}" y="${(lby + 11).toFixed(1)}" font-size="9.5" fill="white" text-anchor="middle" font-family="sans-serif" font-weight="bold">${lv}</text>
+    <circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="4.5" fill="${color}" stroke="white" stroke-width="2"/>`;
+
+  // Dots every N points
+  let dots = '';
+  const dotStep = Math.max(1, Math.floor(pts.length / 8));
+  pts.forEach(([x, y], i) => {
+    if (i % dotStep === 0 && i < pts.length - 1) {
+      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="${color}" opacity="0.5" stroke="white" stroke-width="1.5"/>`;
+    }
+  });
+
+  svgEl.innerHTML = `<defs>
+    <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.38"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>
+  ${grid}
+  <path d="${areaPath}" fill="url(#${gradId})"/>
+  <path d="${linePath}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  ${dots}
+  ${xLabels}
+  ${lastLabel}`;
+}
+
+/* ===================================================
+   HOURLY TREND (localStorage snapshots)
+=================================================== */
+function trendHourLabel(isoStr) {
+  const d = new Date(isoStr);
+  const now = new Date();
+  return d.toDateString() === now.toDateString()
+    ? d.getHours() + '時'
+    : (d.getMonth()+1) + '/' + d.getDate() + '\n' + d.getHours() + '時';
+}
+
+function renderHourlyDeltaCards() {
+  const snaps = getTrendSnapshots().slice(-24);
+  const metrics = [
+    { id: 'delta-users',  label: '仲間の総数',    key: 'userCount',     color: '#10b981', fmt: v => v.toLocaleString() + '人' },
+    { id: 'delta-active', label: '週間アクティブ', key: 'activeUsers7d', color: '#f472b6', fmt: v => v + '人' },
+    { id: 'delta-hours',  label: '総学習時間',     key: 'totalStudyMin', color: '#6366f1', fmt: v => Math.round(v/60).toLocaleString() + 'h' },
+    { id: 'delta-pwa',    label: 'PWA数',          key: 'pwaUsers',      color: '#f59e0b', fmt: v => v + '人' },
+  ];
+
+  if (snaps.length < 2) {
+    metrics.forEach(m => {
+      const el = document.getElementById(m.id);
+      if (el) el.innerHTML = `<div class="delta-label">${m.label}</div><div class="delta-empty" style="margin-top:6px">ダッシュボードを複数回開くと<br>時間別データが蓄積されます 🌸</div>`;
+    });
+    return;
+  }
+
+  const cur  = snaps[snaps.length - 1];
+  const prev = snaps[snaps.length - 2];
+
+  metrics.forEach(m => {
+    const el = document.getElementById(m.id);
+    if (!el) return;
+    const curVal  = Number(cur[m.key]  || 0);
+    const prevVal = Number(prev[m.key] || 0);
+    const delta   = curVal - prevVal;
+    const dStr    = delta > 0 ? `↑ +${delta}` : delta < 0 ? `↓ ${Math.abs(delta)}` : '→ 変化なし';
+    const dClass  = delta > 0 ? 'up' : delta < 0 ? 'dn' : 'flat';
+
+    // Mini sparkline (last 12)
+    const recent = snaps.slice(-12).map(s => Number(s[m.key] || 0));
+    const minR = Math.min(...recent), maxR = Math.max(...recent);
+    const W = 100, H = 34;
+    const sparkPts = recent.map((v, i) => {
+      const x = (i / Math.max(recent.length - 1, 1)) * W;
+      const y = H - 3 - ((v - minR) / Math.max(maxR - minR, 1)) * (H - 6);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    const lastX = W, lastY = H - 3 - ((recent[recent.length-1] - minR) / Math.max(maxR - minR, 1)) * (H - 6);
+    const curTime = new Date(cur.ts);
+    const timeStr = curTime.getHours() + ':00';
+
+    el.innerHTML = `
+      <div class="delta-label">${m.label}</div>
+      <div class="delta-val" style="color:${m.color}">${m.fmt(curVal)}</div>
+      <div class="delta-badge ${dClass}">${dStr}</div>
+      <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" preserveAspectRatio="none" style="display:block;margin-top:8px;overflow:visible">
+        <polyline points="${sparkPts}" fill="none" stroke="${m.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+        <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="3.5" fill="${m.color}" stroke="white" stroke-width="2"/>
+      </svg>
+      <div class="delta-time">最新: ${timeStr} 前回比</div>`;
+  });
+}
+
+function renderHourlyAreaCharts() {
+  const snaps = getTrendSnapshots().slice(-24);
+  const toLabel = s => trendHourLabel(s.ts);
+
+  const hoursData  = snaps.map(s => ({ v: Number(s.totalStudyMin || 0), label: toLabel(s) }));
+  const usersData  = snaps.map(s => ({ v: Number(s.userCount || 0),     label: toLabel(s) }));
+  const activeData = snaps.map(s => ({ v: Number(s.activeUsers7d || 0), label: toLabel(s) }));
+
+  const svgH = document.getElementById('area-hourly-hours');
+  const svgU = document.getElementById('area-hourly-users');
+  const svgA = document.getElementById('area-hourly-active');
+
+  drawSmoothArea(svgH, hoursData,  '#f472b6', { yLabels: true, xLabels: true, fmt: v => Math.round(v/60).toLocaleString() + 'h' });
+  drawSmoothArea(svgU, usersData,  '#10b981', { yLabels: true, xLabels: true, fmt: v => Math.round(v).toLocaleString() + '人' });
+  drawSmoothArea(svgA, activeData, '#6366f1', { yLabels: true, xLabels: true, fmt: v => Math.round(v) + '人' });
+
+  // Update cur labels
+  if (snaps.length > 0) {
+    const last = snaps[snaps.length - 1];
+    const el1 = document.getElementById('area-hours-cur');
+    const el2 = document.getElementById('area-users-cur');
+    const el3 = document.getElementById('area-active-cur');
+    if (el1) el1.textContent = Math.round(Number(last.totalStudyMin || 0) / 60).toLocaleString() + 'h';
+    if (el2) el2.textContent = Number(last.userCount || 0).toLocaleString() + '人';
+    if (el3) el3.textContent = Number(last.activeUsers7d || 0) + '人';
+  }
+}
+
+/* ===================================================
+   DAILY TREND (localStorage grouped by day)
+=================================================== */
+function getDailySnapshots() {
+  const snaps = getTrendSnapshots();
+  const byDay = {};
+  snaps.forEach(s => {
+    const day = s.ts.slice(0, 10);
+    if (!byDay[day] || s.ts > byDay[day].ts) byDay[day] = s;
+  });
+  return Object.values(byDay).sort((a, b) => a.ts.localeCompare(b.ts));
+}
+
+function renderDailyTrendCharts() {
+  const daily = getDailySnapshots();
+
+  // Summary cards
+  function setDailySummaryCard(valId, deltaId, subId, key, fmt, colorClass) {
+    const valEl   = document.getElementById(valId);
+    const deltaEl = document.getElementById(deltaId);
+    const subEl   = document.getElementById(subId);
+    if (!valEl) return;
+    if (daily.length === 0) { valEl.textContent = '—'; return; }
+    const curVal  = Number(daily[daily.length - 1][key] || 0);
+    const prevVal = daily.length >= 2 ? Number(daily[daily.length - 2][key] || 0) : curVal;
+    const delta   = curVal - prevVal;
+    valEl.textContent = fmt(curVal);
+    if (deltaEl) {
+      const dStr = delta > 0 ? `↑ +${fmt(delta)} 前日比` : delta < 0 ? `↓ ${fmt(Math.abs(delta))} 前日比` : '→ 変化なし';
+      const dCls = delta > 0 ? 'up' : 'flat';
+      deltaEl.innerHTML = `<span class="daily-sum-delta ${dCls}">${dStr}</span>`;
+    }
+    if (subEl) subEl.textContent = `${daily.length}日分のデータ`;
+  }
+
+  setDailySummaryCard('daily-users-val',  'daily-users-delta',  'daily-users-sub',  'userCount',     v => v.toLocaleString() + '人', 'green');
+  setDailySummaryCard('daily-active-val', 'daily-active-delta', 'daily-active-sub', 'activeUsers7d', v => v + '人', 'sakura');
+  setDailySummaryCard('daily-hours-val',  'daily-hours-delta',  'daily-hours-sub',  'totalStudyMin', v => Math.round(v/60).toLocaleString() + 'h', 'gold');
+  setDailySummaryCard('daily-pwa-val',    'daily-pwa-delta',    'daily-pwa-sub',    'pwaUsers',      v => v + '人', 'blue');
+
+  // Daily bar charts
+  function drawDailyBars(containerId, key, fmt, colorClass) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (daily.length < 2) {
+      el.innerHTML = `<div class="daily-empty">日をまたいでダッシュボードを開くと<br>日別グラフが表示されます 📅</div>`;
+      return;
+    }
+    const recent = daily.slice(-30);
+    const vals   = recent.map(d => Number(d[key] || 0));
+    const maxV   = Math.max(...vals, 1);
+    el.innerHTML = recent.map((d, i) => {
+      const v       = vals[i];
+      const pct     = Math.round(v / maxV * 100);
+      const isLast  = i === recent.length - 1;
+      const barCls  = isLast ? 'latest' : colorClass;
+      const dateStr = d.ts.slice(5, 10).replace('-', '/');
+      return `<div class="daily-bar-col">
+        <div class="daily-bar-val">${fmt(v)}</div>
+        <div class="daily-bar ${barCls}" style="height:${Math.max(pct, v > 0 ? 2 : 0)}%"></div>
+        <div class="daily-bar-label">${dateStr}</div>
+      </div>`;
+    }).join('');
+  }
+
+  drawDailyBars('daily-bar-users',  'userCount',     v => v.toLocaleString(), 'green');
+  drawDailyBars('daily-bar-active', 'activeUsers7d', v => v,                  'sakura');
+}
+
+/* ===================================================
+   TASK RING
+=================================================== */
+function drawTaskRing(pctVal, completed, pending) {
+  const svg = document.getElementById('task-ring-svg');
+  if (!svg) return;
+  const r = 34, cx = 44, cy = 44, circ = 2 * Math.PI * r;
+  const dash = (pctVal / 100) * circ;
+  svg.innerHTML = `
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f1f5f9" stroke-width="11"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#10b981" stroke-width="11"
+      stroke-dasharray="${dash.toFixed(2)} ${(circ - dash).toFixed(2)}"
+      stroke-linecap="round"
+      transform="rotate(-90 ${cx} ${cy})"/>
+    <text x="${cx}" y="${cy - 5}" text-anchor="middle" dominant-baseline="middle"
+      font-size="15" font-weight="bold" fill="#1e293b" font-family="'Kaisei Tokumin',serif">${pctVal}%</text>
+    <text x="${cx}" y="${cy + 13}" text-anchor="middle" font-size="8.5" fill="#64748b" font-family="sans-serif">完了率</text>`;
+  const cc = document.getElementById('task-completed-count');
+  const pc = document.getElementById('task-pending-count');
+  if (cc) cc.textContent = completed.toLocaleString() + '件';
+  if (pc) pc.textContent = pending.toLocaleString() + '件';
+}
+
+/* ===================================================
    LOAD DATA
 =================================================== */
 async function loadData(){
@@ -2270,6 +2914,29 @@ async function loadData(){
     const updatedAt = timestampToDate(summary.updatedAt);
     saveTrendSnapshot(summary, updatedAt);
     drawAllTrendCharts();
+
+    // ── 新チャート描画 ──
+    renderHourlyDeltaCards();
+    renderHourlyAreaCharts();
+    renderDailyTrendCharts();
+
+    // ── タスク管理 ──
+    const taskUsers     = Number(summary.taskUsers     || 0);
+    const totalTasks    = Number(summary.totalTasks    || 0);
+    const completedTasks= Number(summary.completedTasks|| 0);
+    const pendingTasks  = Math.max(totalTasks - completedTasks, 0);
+    const avgTasks      = taskUsers > 0 ? (totalTasks / taskUsers).toFixed(1) : '—';
+    const taskCR        = totalTasks > 0 ? Math.round(completedTasks / totalTasks * 100) : 0;
+
+    setText('task-users',     taskUsers     ? taskUsers + '人 (' + pctCapped(taskUsers, total) + ')' : '収集中');
+    setText('task-total',     totalTasks    ? totalTasks.toLocaleString() + '件' : '収集中');
+    setText('task-completed', completedTasks? completedTasks.toLocaleString() + '件' : '収集中');
+    setText('task-avg',       taskUsers     ? avgTasks + '件/人' : '収集中');
+
+    const noteEl = document.getElementById('task-collecting-note');
+    if (noteEl) noteEl.textContent = taskUsers === 0 ? 'タスク機能のデータを収集中です。データが蓄積されると詳細が表示されます。' : '';
+
+    drawTaskRing(taskCR, completedTasks, pendingTasks);
     const updatedText = updatedAt
       ? updatedAt.toLocaleString('ja-JP')
       : new Date().toLocaleString('ja-JP');
