@@ -2215,26 +2215,8 @@ function timestampToDate(value){
   return null;
 }
 async function getVerifiedTotalStudyMin(summaryTotalMin){
-  try {
-    const snap = await db.collection('analytics').get();
-    let verifiedTotal = 0;
-    snap.forEach(doc => {
-      verifiedTotal += Number((doc.data() || {}).totalStudyMin || 0);
-    });
-    if(!verifiedTotal) return summaryTotalMin;
-
-    const diff = Math.abs(verifiedTotal - summaryTotalMin);
-    const tolerance = Math.max(60, Math.round(verifiedTotal * 0.1));
-    if(diff > tolerance){
-      console.warn('analytics_summary.totalStudyMin mismatch; using verified analytics sum', {
-        summaryTotalMin,
-        verifiedTotal
-      });
-      return verifiedTotal;
-    }
-  } catch(e) {
-    console.warn('verified totalStudyMin check skipped:', e);
-  }
+  // analytics_summary はサーバー側（Cloud Functions）で毎時集計済みのため、
+  // analytics コレクション全件読み込みによる過剰 Firestore リードを避けるためそのまま返す。
   return summaryTotalMin;
 }
 function setActivityMetric(kind, count, total){
