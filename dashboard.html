@@ -1955,6 +1955,38 @@ body::before {
         </div>
         <div class="task-collecting" id="task-collecting-note"></div>
       </div>
+
+      <!-- タスク数の推移（時系列） -->
+      <div class="area-card" style="margin-top:10px;">
+        <div class="area-card-title">
+          <span>📋 総タスク数の推移</span>
+          <span class="area-card-cur" id="task-area-total-cur">—</span>
+        </div>
+        <div class="area-svg-wrap">
+          <svg id="task-area-total" viewBox="0 0 800 130" height="130" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+
+      <div class="two-area" style="margin-top:10px;">
+        <div class="area-card">
+          <div class="area-card-title">
+            <span>✅ 完了タスクの推移</span>
+            <span class="area-card-cur" id="task-area-completed-cur">—</span>
+          </div>
+          <div class="area-svg-wrap">
+            <svg id="task-area-completed" viewBox="0 0 400 100" height="100" preserveAspectRatio="none"></svg>
+          </div>
+        </div>
+        <div class="area-card">
+          <div class="area-card-title">
+            <span>👥 タスク利用者の推移</span>
+            <span class="area-card-cur" id="task-area-users-cur">—</span>
+          </div>
+          <div class="area-svg-wrap">
+            <svg id="task-area-users" viewBox="0 0 400 100" height="100" preserveAspectRatio="none"></svg>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ====================================================
@@ -2783,6 +2815,27 @@ function renderDailyTrendCharts() {
 /* ===================================================
    TASK RING
 =================================================== */
+function drawTaskTrendCharts(snaps) {
+  const toLabel = s => trendHourLabel(s._ts.toISOString());
+  const totalData     = snaps.map(s => ({ v: Number(s.totalTasks     || 0), label: toLabel(s) }));
+  const completedData = snaps.map(s => ({ v: Number(s.completedTasks  || 0), label: toLabel(s) }));
+  const usersData     = snaps.map(s => ({ v: Number(s.taskUsers       || 0), label: toLabel(s) }));
+
+  drawSmoothArea(document.getElementById('task-area-total'),     totalData,     '#f59e0b', { yLabels: true, xLabels: true, fmt: v => Math.round(v).toLocaleString() + '件' });
+  drawSmoothArea(document.getElementById('task-area-completed'), completedData, '#10b981', { yLabels: true, xLabels: true, fmt: v => Math.round(v).toLocaleString() + '件' });
+  drawSmoothArea(document.getElementById('task-area-users'),     usersData,     '#6366f1', { yLabels: true, xLabels: true, fmt: v => Math.round(v).toLocaleString() + '人' });
+
+  if (snaps.length > 0) {
+    const last = snaps[snaps.length - 1];
+    const el1 = document.getElementById('task-area-total-cur');
+    const el2 = document.getElementById('task-area-completed-cur');
+    const el3 = document.getElementById('task-area-users-cur');
+    if (el1) el1.textContent = Number(last.totalTasks     || 0).toLocaleString() + '件';
+    if (el2) el2.textContent = Number(last.completedTasks  || 0).toLocaleString() + '件';
+    if (el3) el3.textContent = Number(last.taskUsers       || 0).toLocaleString() + '人';
+  }
+}
+
 function drawTaskRing(pctVal, completed, pending) {
   const svg = document.getElementById('task-ring-svg');
   if (!svg) return;
@@ -2919,6 +2972,28 @@ async function loadData(){
     renderHourlyDeltaCards();
     renderHourlyAreaCharts();
     renderDailyTrendCharts();
+
+    // ── analytics_task_trend 取得 ──
+    let taskTrendDocs = [];
+    try {
+      const taskTrendSnap = await db.collection('analytics_task_trend')
+        .orderBy('timestamp', 'desc')
+        .limit(48)
+        .get();
+      taskTrendDocs = taskTrendSnap.docs
+        .map(d => {
+          const data = d.data();
+          const ts = data.timestamp ? data.timestamp.toDate()
+                   : data.createdAt ? data.createdAt.toDate()
+                   : null;
+          return Object.assign({}, data, { _ts: ts });
+        })
+        .filter(d => d._ts)
+        .sort((a, b) => a._ts - b._ts);
+    } catch(e) {
+      console.warn('analytics_task_trend 取得エラー:', e);
+    }
+    drawTaskTrendCharts(taskTrendDocs);
 
     // ── タスク管理 ──
     const taskUsers     = Number(summary.taskUsers     || 0);
