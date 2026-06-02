@@ -2214,6 +2214,29 @@ function timestampToDate(value){
   if(typeof value==='string') return new Date(value);
   return null;
 }
+async function getVerifiedTotalStudyMin(summaryTotalMin){
+  try {
+    const snap = await db.collection('analytics').get();
+    let verifiedTotal = 0;
+    snap.forEach(doc => {
+      verifiedTotal += Number((doc.data() || {}).totalStudyMin || 0);
+    });
+    if(!verifiedTotal) return summaryTotalMin;
+
+    const diff = Math.abs(verifiedTotal - summaryTotalMin);
+    const tolerance = Math.max(60, Math.round(verifiedTotal * 0.1));
+    if(diff > tolerance){
+      console.warn('analytics_summary.totalStudyMin mismatch; using verified analytics sum', {
+        summaryTotalMin,
+        verifiedTotal
+      });
+      return verifiedTotal;
+    }
+  } catch(e) {
+    console.warn('verified totalStudyMin check skipped:', e);
+  }
+  return summaryTotalMin;
+}
 function setActivityMetric(kind, count, total){
   const pctValue = total ? Math.min(100, Math.round(count / total * 100)) : 0;
   setText(`kpi-active-${kind}`, count + '人');
@@ -2882,7 +2905,8 @@ async function loadData(){
       return;
     }
 
-    const totalMins=Number(summary.totalStudyMin || 0);
+    let totalMins=Number(summary.totalStudyMin || 0);
+    totalMins = await getVerifiedTotalStudyMin(totalMins);
     const avgDailyMins=Number(summary.avgDailyMinutes || 0);
     const avgTotalMins=total>0?Math.round(totalMins/total):0;
     const avgStreak=Number(summary.avgStreakDays || 0);
