@@ -2215,26 +2215,6 @@ function timestampToDate(value){
   return null;
 }
 async function getVerifiedTotalStudyMin(summaryTotalMin){
-  try {
-    const snap = await db.collection('analytics').get();
-    let verifiedTotal = 0;
-    snap.forEach(doc => {
-      verifiedTotal += Number((doc.data() || {}).totalStudyMin || 0);
-    });
-    if(!verifiedTotal) return summaryTotalMin;
-
-    const diff = Math.abs(verifiedTotal - summaryTotalMin);
-    const tolerance = Math.max(60, Math.round(verifiedTotal * 0.1));
-    if(diff > tolerance){
-      console.warn('analytics_summary.totalStudyMin mismatch; using verified analytics sum', {
-        summaryTotalMin,
-        verifiedTotal
-      });
-      return verifiedTotal;
-    }
-  } catch(e) {
-    console.warn('verified totalStudyMin check skipped:', e);
-  }
   return summaryTotalMin;
 }
 function setActivityMetric(kind, count, total){
@@ -3093,7 +3073,43 @@ async function runManualAggregate(){
 /* ===================================================
    BOOT
 =================================================== */
+const DASHBOARD_REFRESH_DELAY_AFTER_HOUR_MS = 2 * 60 * 1000;
+let _dashboardRefreshTimer = null;
+
+function msUntilNextDashboardRefresh(){
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(now.getHours() + 1, 0, 0, 0);
+  return Math.max(1000, (next - now) + DASHBOARD_REFRESH_DELAY_AFTER_HOUR_MS);
+}
+
+function scheduleDashboardRefresh(){
+  if (document.hidden || _dashboardRefreshTimer) return;
+  _dashboardRefreshTimer = setTimeout(async () => {
+    _dashboardRefreshTimer = null;
+    await loadData();
+    scheduleDashboardRefresh();
+  }, msUntilNextDashboardRefresh());
+}
+
+function stopDashboardRefresh(){
+  if (_dashboardRefreshTimer) {
+    clearTimeout(_dashboardRefreshTimer);
+    _dashboardRefreshTimer = null;
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopDashboardRefresh();
+  } else {
+    loadData();
+    scheduleDashboardRefresh();
+  }
+});
+
 loadData();
+scheduleDashboardRefresh();
 </script>
 </body>
 </html>
